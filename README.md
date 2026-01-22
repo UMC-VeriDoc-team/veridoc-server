@@ -158,4 +158,7 @@ if (!user) {
   "status": 404
 }
 ```
-
+=======
+# veridoc-server
+VeriDoc backend (Node.js)
+>>>>>>> 02b0a92cbbb3cb5ab9cf05d9182586bb0a3c39ab
