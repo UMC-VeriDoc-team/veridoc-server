@@ -6,6 +6,7 @@ const userController = new UserController();
 
 router.get('/', userController.listUsers);
 router.post('/signup', userController.createUser);  // /signup은 /:id 위에 위치해야 함
+router.post('/login', userController.login);  // login 역시 /:id 위에 위치해야 함
 router.get('/:id', userController.getUser);
 router.put('/:id', userController.updateUser);
 router.delete('/:id', userController.deleteUser);
