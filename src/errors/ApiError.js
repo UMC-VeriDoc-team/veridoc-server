@@ -5,16 +5,14 @@ class ApiError extends Error {
     this.code = code;
     this.errors = errors;
   }
-
+  
+  // 응답 양식 code, message, data 로 통일일
   toResponse() {
-    const payload = {
-      success: false,
-      message: this.message || 'Error',
-      data: null,
-      code: this.code || 'INTERNAL_ERROR'
-    };
-    if (this.errors) payload.errors = this.errors;
-    return payload;
+    return {
+      code : this.code || 'INTERNAL_ERROR',
+      message : this.message || 'Internal error',
+      data : null
+    }
   }
 }
 

@@ -9,20 +9,20 @@ class UserRepository {
     return this.client.user.findMany();
   }
 
-  async findById(id) {
-    return this.client.user.findUnique({ where: { id } });
+  async findById(userID) {
+    return this.client.user.findUnique({ where: { userID } });
   }
 
   async create(data) {
     return this.client.user.create({ data });
   }
 
-  async update(id, data) {
-    return this.client.user.update({ where: { id }, data });
+  async update(userID, data) {
+    return this.client.user.update({ where: { userID }, data });
   }
 
-  async remove(id) {
-    return this.client.user.delete({ where: { id } });
+  async remove(userID) {
+    return this.client.user.delete({ where: { userID } });
   }
 }
 
