@@ -73,3 +73,20 @@ model UserSymptom {
   @@map("UserSymptoms")
 }
 
+model Hospital {
+  hospitalID  BigInt   @id @default(autoincrement()) @map("hospitalID")
+  hpid        String   @unique @db.VarChar(20)  // 공공데이터 기관ID
+  name        String   @db.VarChar(200)         // 기관명
+  address     String   @db.VarChar(300)         // 주소
+  lat         Decimal  @db.Decimal(11, 8)       // 위도 (WGS84)
+  lng         Decimal  @db.Decimal(12, 8)       // 경도 (WGS84)
+  tel         String?  @db.VarChar(20)          // 대표전화
+  homepageUrl String?  @db.VarChar(500)         // 홈페이지 URL
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([lat, lng])
+  @@map("Hospitals")
+}
+
