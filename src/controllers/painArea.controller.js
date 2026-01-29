@@ -1,5 +1,6 @@
 import PainAreaService from '../services/painArea.service.js';
 import ApiError from '../errors/ApiError.js';
+import errorCodes from '../errors/errorCodes.js';
 
 class PainAreaController {
     constructor(service = new PainAreaService()) {
