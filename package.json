@@ -27,5 +27,12 @@
   },
   "prisma": {
     "seed": "node prisma/seed.js"
+    "dotenv": "^16.0.0",
+    "mysql2": "^3.2.0",
+    "@prisma/client": "^5.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.0",
+    "prisma": "^5.0.0"
   }
 }
