@@ -4,6 +4,7 @@ import ApiError from '../errors/ApiError.js';
 import errorCodes from '../errors/errorCodes.js';
 import prisma from '../config/db.config.js';
 import bcrypt from 'bcrypt';
+import { generateAccessToken } from '../utils/jwt.util.js';
 
 class UserService {
   constructor(repository = new UserRepository()) {
@@ -53,13 +54,57 @@ class UserService {
     }
   }
 
+  // 유저 정보 수정
   async update(id, payload) {
     return this.repository.update(id, payload);
   }
-
+  
+  // 유저 삭제
   async remove(id) {
     return this.repository.remove(id);
   }
+
+  // 로그인
+  async login(payload) {
+    try {
+      const { email, password } = payload
+
+      // 이메일과 비밀번호 입력 여부 확인
+      if(!email || !password || email.trim() === '' || password.trim() === ''){
+        throw new ApiError(400, errorCodes.INVALID_REQUEST, '이메일과 비밀번호를 모두 입력해주세요.')
+      }
+      // 이메일로 사용자 조회
+      const user = await this.repository.findByEmail(email)
+
+      //사용자가 존재하지 않는 경우 (둘 중 무엇이 틀렸는지 구분 x)
+      if(!user){
+        throw new ApiError(401, errorCodes.INVALID_CREDENTIALS, '이메일 또는 비밀번호가 올바르지 않습니다.')
+      }
+      
+      //비밀번호 검증
+      const isPasswordValid = await bcrypt.compare(password, user.password)
+
+      //비밀번호가 일치하지 않는 경우
+      if(!isPasswordValid){
+        throw new ApiError(401, errorCodes.INVALID_CREDENTIALS, '이메일 또는 비밀번호가 올바르지 않습니다.')
+      }
+
+      //access token 생성
+      const accessToken = generateAccessToken(Number(user.userID), user.email)
+
+      // userID와 accessToken 반환
+      return {
+        userID : Number(user.userID),
+        accessToken : accessToken
+      }
+    } catch (err) {
+      if(err instanceof ApiError){
+        throw err
+      }
+
+      throw new ApiError(500, errorCodes.INTERNAL_SERVER_ERROR, '로그인 처리 중 서버 오류가 발생했습니다.')
+    }
+  }
 }
 
-export default UserService;
+export default UserService

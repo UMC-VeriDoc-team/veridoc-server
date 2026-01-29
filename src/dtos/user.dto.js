@@ -48,7 +48,7 @@ class UserDTO {
       name,
       email,
       password,
-      birthdate: birthDate,
+      birthdate: new Date(birthDate),
       gender,
       painAreaID : painAreaID ? BigInt(painAreaID) : null
     }

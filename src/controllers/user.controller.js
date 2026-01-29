@@ -10,6 +10,7 @@ class UserController {
     this.createUser = this.createUser.bind(this);
     this.updateUser = this.updateUser.bind(this);
     this.deleteUser = this.deleteUser.bind(this);
+    this.login = this.login.bind(this);
   }
 
   async listUsers(req, res, next) {
@@ -54,6 +55,22 @@ class UserController {
         data : createdUser,
       })
     } catch (err) {
+      next(err)
+    }
+  }
+
+  // 로그인
+  async login(req, res, next) {
+    try {
+      const result = await this.service.login(req.body)
+      
+      // 성공 응답
+      res.status(200).json({
+        code : 200,
+        message : '로그인 성공',
+        data : result,
+      })
+    } catch (err) {  // 에러 발생 시 미들웨어로 전달해 미들웨어에서 형식에 맞게 변환 후 응답
       next(err)
     }
   }
