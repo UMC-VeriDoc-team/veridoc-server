@@ -14,3 +14,18 @@ export const generateAccessToken = (userID , email) => {
 export const verifyAccessToken = (token) => {
     return jwt.verify(token, authConfig.jwtSecret);  // 검증한 뒤 토큰에 포함된 데이터 반환
 }
+
+// 마스터 JWT 생성 (관리자/시스템용, MASTER_JWT_SECRET 사용)
+export const generateMasterToken = (payload = {}, options = {}) => {
+    const defaultPayload = { type: 'master', ...payload };  //type을 master로 설정해 마스터 토큰임을 명시
+    return jwt.sign(
+        defaultPayload,
+        authConfig.masterJwtSecret,
+        { expiresIn: options.expiresIn ?? '24h', ...options }
+    );
+};
+
+// 마스터 JWT 검증
+export const verifyMasterToken = (token) => {
+    return jwt.verify(token, authConfig.masterJwtSecret);
+};
