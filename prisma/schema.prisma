@@ -8,58 +8,12 @@ datasource db {
 }
 
 model User {
-  userID     BigInt   @id @default(autoincrement()) @map("userID")
-  name       String   @db.VarChar(100)
-  email      String   @unique @db.VarChar(100)
-  password   String   @db.VarChar(255) // 실제 저장은 해시 권장(명세대로)
-  birthdate  DateTime @db.Date
-  gender     String   @db.VarChar(20)
-
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  // Relations
-  painArea   UserPainArea?
-  symptoms   UserSymptom[]
-
-  @@map("Users")
-}
-
-model PainArea {
-  painAreaID BigInt  @id @default(autoincrement()) @map("painAreaID")
-  name       String  @unique @db.VarChar(50)
-
-  // Relations
-  users      UserPainArea[]
-  symptoms   Symptom[]
-
-  @@map("PainAreas")
-}
-
-model UserPainArea {
-  userID     BigInt  @map("userID")
-  painAreaID BigInt  @map("painAreaID")
-
-  user       User     @relation(fields: [userID], references: [userID], onDelete: Cascade)
-  painArea   PainArea @relation(fields: [painAreaID], references: [painAreaID], onDelete: Cascade)
-
-  // 주요 아픈 부위 1개 선택이므로 user당 1개만 유지
-  @@id([userID, painAreaID])   // 중복 방지 (같은 부위 중복 선택 방지)
-  @@unique([userID])           // user당 1행만 허용 (단일 선택 강제)
-  @@map("UserPainAreas")
-}
-
-model Symptom {
-  symptomID  BigInt   @id @default(autoincrement()) @map("symptomID")
-  painAreaID BigInt   @map("painAreaID")
-  name       String   @db.VarChar(100)
-
-  painArea   PainArea @relation(fields: [painAreaID], references: [painAreaID], onDelete: Cascade)
-  users      UserSymptom[]
-
-  // 같은 부위 내에서 증상명 중복 방지
-  @@unique([painAreaID, name])
-  @@map("Symptoms")
+  id        Int     @id @default(autoincrement())
+  email     String  @unique
+  name      String?
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model UserSymptom {
