@@ -159,3 +159,10 @@ if (!user) {
 }
 ```
 
+# .env 내용 (추가될 때마다 업데이트)
+- `PORT`: 서버 포트 (기본값: 3000)
+- `DATABASE_URL`: MySQL 데이터베이스 연결 URL
+- `JWT_SECRET`: 일반 사용자 로그인용 JWT 시크릿
+- `MASTER_JWT_SECRET`: 마스터 JWT 시크릿 (관리자/시스템용, 절대 공유 금지)
+- `ADMIN_API_KEY`: 마스터 토큰 발급 API 호출 시 필요한 비밀 키 (PM/팀원에게 이 값만 전달)
+
