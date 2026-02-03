@@ -3,6 +3,9 @@ node_modules/
 dist/
 build/
 
+# backup sql
+veridoc_test_backup.sql
+
 # Environment
 .env
 .env.local
