@@ -13,5 +13,5 @@ router.use('/homes', homesRoutes);
 router.use('/hospital', hospitalRoutes);
 router.use('/pain-areas', painAreaRoutes);
 router.use('/admin', adminRoutes);
-
+router.use('/lifestyle-videos', lifestyleGuideRoutes);
 export default router;

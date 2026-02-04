@@ -19,16 +19,15 @@ model content_sections {
   updated_at    DateTime @default(now()) @db.DateTime(6)
 }
 
-model pain_area_specialties {
-  specialty_id      BigInt      @id @default(autoincrement())
-  pain_area_id      BigInt
-  specialty_keyword String      @db.VarChar(100)
-  created_at        DateTime    @default(now()) @db.DateTime(6)
-  pain_areas        pain_areas  @relation(fields: [pain_area_id], references: [pain_area_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_pas_pain_area")
-
-  @@index([pain_area_id], map: "fk_pas_pain_area")
-}
-
+model Hospital {
+  hospitalID  BigInt   @id @default(autoincrement()) @map("hospitalID")
+  hpid        String   @unique @db.VarChar(20)  // 공공데이터 기관ID
+  name        String   @db.VarChar(200)         // 기관명
+  address     String   @db.VarChar(300)         // 주소
+  lat         Decimal  @db.Decimal(11, 8)       // 위도 (WGS84)
+  lng         Decimal  @db.Decimal(12, 8)       // 경도 (WGS84)
+  tel         String?  @db.VarChar(20)          // 대표전화
+  homepageUrl String?  @db.VarChar(500)         // 홈페이지 URL
 model expert_answers {
   answer_id    BigInt   @id @default(autoincrement())
   symptom_id   BigInt
