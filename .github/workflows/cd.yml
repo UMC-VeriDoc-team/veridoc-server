@@ -1,0 +1,47 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Connect & Deploy to EC2
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ${{ secrets.EC2_USER }}
+          BACKEND_ENV: ${{ secrets.BACKEND_ENV }}
+          APP_DIR: /home/ubuntu/projectName
+        run: |
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+
+          ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "\
+            set -e; \
+            cd $APP_DIR; \
+            git pull origin main; \
+            printf '%s' \"$BACKEND_ENV\" > .env; \
+            npm install; \
+            npm run prisma:generate; \
+            npx prisma migrate deploy; \
+            pm2 reload veridoc || pm2 start src/server.js --name veridoc; \
+            pm2 status \
+          "
