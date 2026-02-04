@@ -7,7 +7,18 @@ import errorHandler from './middleware/errorHandler.js';
 dotenv.config();
 
 const app = express();
-app.use(cors());
+
+// CORS 설정
+const corsOptions = {
+  origin: [
+    'http://localhost:5173',
+    'https://veridoc-client.vercel.app'
+  ],
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+};
+app.use(cors(corsOptions));
 app.use(express.json());
 if (process.env.NODE_ENV !== 'production') {
 	app.set('json spaces', 2);
