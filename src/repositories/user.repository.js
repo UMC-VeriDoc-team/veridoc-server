@@ -7,7 +7,7 @@ class UserRepository {
  
   // 모든 유저 조회
   async findAll() {
-    return this.client.user.findMany();
+    return this.client.users.findMany();
   }
 
   // userID로 유저 조회

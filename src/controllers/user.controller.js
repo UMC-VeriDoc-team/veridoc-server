@@ -1,6 +1,7 @@
 import UserService from '../services/user.service.js';
 import ApiError from '../errors/ApiError.js';
 import errorCodes from '../errors/errorCodes.js';
+import { sendSuccess, sendAuthError } from '../utils/response.util.js';
 
 class UserController {
   constructor(service = new UserService()) {
@@ -16,12 +17,7 @@ class UserController {
   async listUsers(req, res, next) {
     try {
       const users = await this.service.list()
-      
-      res.json({
-        code : 200,
-        message : '사용자 목록 조회 성공',
-        data : {users},
-      })
+      sendSuccess(res, { users }, '사용자 목록 조회 성공')
     } catch (err) {
       next(err)
     }
@@ -34,11 +30,7 @@ class UserController {
       if (!user) {
         throw new ApiError(404, errorCodes.USER_NOT_FOUND, '유저를 찾을 수 없습니다.')
       }
-      res.json({
-        code : 200,
-        message : '사용자 조회 성공',
-        data : {user},
-      })
+      sendSuccess(res, { user }, '사용자 조회 성공')
     } catch (err) {
       next(err)
     }
@@ -48,12 +40,7 @@ class UserController {
   async createUser(req, res, next) {
     try {
       const createdUser = await this.service.create(req.body)
-
-      res.status(201).json({
-        code : 201,
-        message : '회원가입이 완료되었습니다.',
-        data : createdUser,
-      })
+      sendSuccess(res, createdUser, '회원가입이 완료되었습니다.', 201)
     } catch (err) {
       next(err)
     }
@@ -63,14 +50,8 @@ class UserController {
   async login(req, res, next) {
     try {
       const result = await this.service.login(req.body)
-      
-      // 성공 응답
-      res.status(200).json({
-        code : 200,
-        message : '로그인 성공',
-        data : result,
-      })
-    } catch (err) {  // 에러 발생 시 미들웨어로 전달해 미들웨어에서 형식에 맞게 변환 후 응답
+      sendSuccess(res, result, '로그인 성공')
+    } catch (err) {
       next(err)
     }
   }
@@ -78,28 +59,20 @@ class UserController {
   // 유저 정보 수정
   async updateUser(req, res, next) {
     try {
-      const updatedUser = await this.service.update(parseInt(req.params.id, 10), req.body);
-      res.json({
-        code : 200,
-        message : '사용자 정보 수정 성공',
-        data : {updatedUser},
-      })
+      const updatedUser = await this.service.update(parseInt(req.params.id, 10), req.body)
+      sendSuccess(res, { updatedUser }, '사용자 정보 수정 성공')
     } catch (err) {
-      next(err);
+      next(err)
     }
   }
 
   // 유저 삭제
   async deleteUser(req, res, next) {
     try {
-      await this.service.remove(parseInt(req.params.id, 10));
-      res.json({
-        code : 200,
-        message : '사용자 삭제 성공',
-        data : null,
-      })
+      await this.service.remove(parseInt(req.params.id, 10))
+      sendSuccess(res, null, '사용자 삭제 성공')
     } catch (err) {
-      next(err);
+      next(err)
     }
   }
 }

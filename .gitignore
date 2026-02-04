@@ -3,6 +3,9 @@ node_modules/
 dist/
 build/
 
+<<<<<<< HEAD
+prisma/migrations/seed.js
+=======
 # backup sql
 veridoc_test_backup.sql
 
