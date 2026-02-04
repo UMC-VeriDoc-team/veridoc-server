@@ -10,11 +10,11 @@ class HospitalController {
 
   /**
    * 사용자 위치 기준 가까운 병원 조회
-   * GET /api/v1/hospital/nearby?lat=37.556&lng=126.923&limit=5
+   * GET /api/v1/hospital/nearby?lat=37.556&lng=126.923&limit=5&painAreaId=1
    */
   async getNearbyHospitals(req, res, next) {
     try {
-      const { lat, lng, limit } = req.query;
+      const { lat, lng, limit, painAreaId } = req.query;
 
       // 위도/경도 유효성 검사
       if (!lat || !lng) {
@@ -59,7 +59,20 @@ class HospitalController {
         }
       }
 
-      const result = await this.service.findNearbyHospitals(userLat, userLng, limitNum);
+      // painAreaId 유효성 검사 (선택)
+      let painAreaIdNum = null;
+      if (painAreaId !== undefined) {
+        painAreaIdNum = parseInt(painAreaId, 10);
+        if (isNaN(painAreaIdNum) || painAreaIdNum < 1) {
+          throw new ApiError(
+            400,
+            errorCodes.INVALID_PAIN_AREA,
+            'painAreaId는 1 이상의 정수여야 합니다.'
+          );
+        }
+      }
+
+      const result = await this.service.findNearbyHospitals(userLat, userLng, limitNum, painAreaIdNum);
 
       res.json({
         code: 200,
