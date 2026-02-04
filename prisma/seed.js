@@ -7,6 +7,7 @@ const prisma = new PrismaClient();
 
 async function main() {
   // Clean up existing seed data (order matters due to FK constraints)
+  await prisma.pain_area_specialties.deleteMany();
   await prisma.temporary_care_guides.deleteMany();
   await prisma.usage_guides.deleteMany();
   await prisma.content_sections.deleteMany();
@@ -28,8 +29,52 @@ async function main() {
     }
   });
 
-  // Pain area + symptoms
-  const shoulder = await prisma.pain_areas.create({ data: { name: '어깨' } });
+  // Pain areas with specialties
+  const painAreas = [
+    { name: '어깨' },
+    { name: '허리' },
+    { name: '무릎' },
+    { name: '목' },
+    { name: '두통' },
+    { name: '복통' },
+  ];
+
+  const createdPainAreas = {};
+  for (const area of painAreas) {
+    const pa = await prisma.pain_areas.create({ data: { name: area.name } });
+    createdPainAreas[area.name] = pa;
+  }
+
+  // Pain area specialties mapping
+  const painAreaSpecialties = [
+    // 어깨 (1)
+    { area: '어깨', keywords: ['정형외과', '재활의학과', '통증의학과', '마취통증', '통증', '어깨', '관절', '정형'] },
+    // 허리 (2)
+    { area: '허리', keywords: ['정형외과', '재활의학과', '신경외과', '통증의학과', '마취통증', '척추', '통증', '정형', '허리'] },
+    // 무릎 (3)
+    { area: '무릎', keywords: ['정형외과', '재활의학과', '통증의학과', '관절', '류마티스', '통증', '정형', '무릎'] },
+    // 목 (4)
+    { area: '목', keywords: ['정형외과', '재활의학과', '신경외과', '통증의학과', '마취통증', '척추', '통증', '정형'] },
+    // 두통 (5)
+    { area: '두통', keywords: ['신경과', '신경외과', '내과', '통증의학과', '두통', '뇌', '신경', '통증'] },
+    // 복통 (6)
+    { area: '복통', keywords: ['내과', '소화기내과', '소화기', '외과', '가정의학과', '위장', '대장', '항문'] },
+  ];
+
+  for (const spec of painAreaSpecialties) {
+    const painArea = createdPainAreas[spec.area];
+    for (const keyword of spec.keywords) {
+      await prisma.pain_area_specialties.create({
+        data: {
+          pain_area_id: painArea.pain_area_id,
+          specialty_keyword: keyword,
+        },
+      });
+    }
+  }
+
+  // Use shoulder for symptom examples
+  const shoulder = createdPainAreas['어깨'];
 
   const s1 = await prisma.symptoms.create({ data: { pain_area_id: shoulder.pain_area_id, name: '뻐근함' } });
   const s2 = await prisma.symptoms.create({ data: { pain_area_id: shoulder.pain_area_id, name: '찌릿함' } });

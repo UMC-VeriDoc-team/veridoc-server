@@ -232,11 +232,21 @@ model lifestyle_videos {
 }
 
 model pain_areas {
-  pain_area_id          BigInt                  @id @default(autoincrement())
-  name                  String                  @unique(map: "uk_pain_area_name") @db.VarChar(50)
-  symptoms              symptoms[]
-  temporary_care_guides temporary_care_guides[]
-  user_pain_areas       user_pain_areas[]
+  pain_area_id            BigInt                    @id @default(autoincrement())
+  name                    String                    @unique(map: "uk_pain_area_name") @db.VarChar(50)
+  symptoms                symptoms[]
+  temporary_care_guides   temporary_care_guides[]
+  user_pain_areas         user_pain_areas[]
+  pain_area_specialties   pain_area_specialties[]
+}
+
+model pain_area_specialties {
+  id                BigInt     @id @default(autoincrement())
+  pain_area_id      BigInt
+  specialty_keyword String     @db.VarChar(50)
+  pain_areas        pain_areas @relation(fields: [pain_area_id], references: [pain_area_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([pain_area_id], map: "fk_pas_pain_area")
 }
 
 model symptom_steps {
@@ -333,32 +343,3 @@ enum users_gender {
   FEMALE
   OTHER
 }
-
-model UserSymptom {
-  userID    BigInt @map("userID")
-  symptomID BigInt @map("symptomID")
-
-  user      User    @relation(fields: [userID], references: [userID], onDelete: Cascade)
-  symptom   Symptom @relation(fields: [symptomID], references: [symptomID], onDelete: Cascade)
-
-  @@id([userID, symptomID])
-  @@map("UserSymptoms")
-}
-
-model Hospital {
-  hospitalID  BigInt   @id @default(autoincrement()) @map("hospitalID")
-  hpid        String   @unique @db.VarChar(20)  // 공공데이터 기관ID
-  name        String   @db.VarChar(200)         // 기관명
-  address     String   @db.VarChar(300)         // 주소
-  lat         Decimal  @db.Decimal(11, 8)       // 위도 (WGS84)
-  lng         Decimal  @db.Decimal(12, 8)       // 경도 (WGS84)
-  tel         String?  @db.VarChar(20)          // 대표전화
-  homepageUrl String?  @db.VarChar(500)         // 홈페이지 URL
-
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  @@index([lat, lng])
-  @@map("Hospitals")
-}
-
