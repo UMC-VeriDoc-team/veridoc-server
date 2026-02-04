@@ -3,7 +3,7 @@ name: Deploy to EC2
 on:
   push:
     branches:
-      - main
+      - dev
 
 jobs:
   deploy:
@@ -20,7 +20,7 @@ jobs:
           cache: 'npm'
 
       - name: Install Dependencies
-        run: npm install
+        run: npm ci
 
       - name: Connect & Deploy to EC2
         env:
@@ -28,7 +28,7 @@ jobs:
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USER: ${{ secrets.EC2_USER }}
           BACKEND_ENV: ${{ secrets.BACKEND_ENV }}
-          APP_DIR: /home/ubuntu/projectName
+          APP_DIR: /home/ubuntu/veridoc-server
         run: |
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
@@ -37,11 +37,11 @@ jobs:
           ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "\
             set -e; \
             cd $APP_DIR; \
-            git pull origin main; \
+            git pull origin dev; \
             printf '%s' \"$BACKEND_ENV\" > .env; \
-            npm install; \
+            npm ci; \
             npm run prisma:generate; \
-            npx prisma migrate deploy; \
+            npx prisma db push; \
             pm2 reload veridoc || pm2 start src/server.js --name veridoc; \
             pm2 status \
           "
