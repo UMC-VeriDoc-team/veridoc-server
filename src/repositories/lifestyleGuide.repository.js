@@ -1,11 +1,25 @@
 import prisma from '../config/db.config.js';
 
 class LifestyleGuideRepository {
-  static async getLifestyleVideosByPainArea(painAreaId) {
-    return prisma.lifestyle_videos.findMany({
+  static async findPainAreaWithLifestyleVideos(painAreaId) {
+    return prisma.pain_areas.findUnique({
       where: {
-        symptoms: {
-          pain_area_id: painAreaId,
+        pain_area_id: BigInt(painAreaId),
+      },
+      select: {
+        pain_area_id: true,
+        name: true,
+        source_name: true,
+        lifestyle_videos: {
+          where: {
+            is_active: true,
+          },
+          select: {
+            video_id: true,
+            title: true,
+            youtube_url: true,
+            description: true,
+          },
         },
       },
     });

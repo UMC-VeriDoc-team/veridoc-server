@@ -1,20 +1,9 @@
-import prisma from '../config/db.config.js';
-
-const PAIN_AREA_META = {
-  1: { name: '어깨', source: '새움병원' },
-  2: { name: '허리', source: '대찬병원' },
-  3: { name: '무릎', source: '서울예스병원' },
-  4: { name: '목', source: 'CM병원' },
-  5: { name: '두통', source: '국제성모TV' },
-  6: { name: '복통', source: '건강채 민트TV' },
-};
+import LifestyleGuideRepository from '../repositories/lifestyleGuide.repository.js';
 
 class LifestyleGuideService {
   static async getLifestyleGuide(painAreaId) {
-    const meta = PAIN_AREA_META[painAreaId];
-
-    // 증상 미선택
-    if (!painAreaId || !meta) {
+    // 부위 미선택
+    if (!painAreaId) {
       return {
         painAreaId: null,
         painAreaName: null,
@@ -24,29 +13,31 @@ class LifestyleGuideService {
       };
     }
 
-    const videos = await prisma.lifestyle_videos.findMany({
-      where: {
-        pain_area_id: painAreaId,
-      },
-      select: {
-        video_id: true,
-        title: true,
-        youtube_url: true,
-        description: true,
-      },
-    });
+    const painArea =
+      await LifestyleGuideRepository.findPainAreaWithLifestyleVideos(painAreaId);
+
+    // 존재하지 않는 painArea
+    if (!painArea) {
+      return {
+        painAreaId: null,
+        painAreaName: null,
+        title: null,
+        subtitle: null,
+        videos: [],
+      };
+    }
 
     return {
-      painAreaId,
-      painAreaName: meta.name,
-      title: `${meta.name} 스트레칭`,
-      subtitle: `아래 영상은 ${meta.name} 불편 시 가볍게 참고할 수 있는 스트레칭 예시에요.`,
-      videos: videos.map(video => ({
+      painAreaId: Number(painArea.pain_area_id),
+      painAreaName: painArea.name,
+      title: `${painArea.name} 스트레칭`,
+      subtitle: `아래 영상은 ${painArea.name} 불편 시 가볍게 참고할 수 있는 스트레칭 예시에요.`,
+      videos: painArea.lifestyle_videos.map(video => ({
         videoId: Number(video.video_id),
         youtubeUrl: video.youtube_url,
         youtubeTitle: video.title,
         source: {
-          name: meta.source,
+          name: painArea.source_name,
         },
         description: video.description,
       })),

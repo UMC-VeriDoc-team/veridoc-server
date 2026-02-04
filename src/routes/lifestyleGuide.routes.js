@@ -4,6 +4,6 @@ import LifestyleGuideController from '../controllers/lifestyleGuide.controller.j
 const router = express.Router();
 const controller = new LifestyleGuideController();
 
-router.get('/:painAreaId/lifestyle-videos', controller.getLifestyleGuide);
+router.get('/:painAreaId', controller.getLifestyleGuide);
 
 export default router;

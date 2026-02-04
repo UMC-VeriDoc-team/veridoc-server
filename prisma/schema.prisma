@@ -68,15 +68,19 @@ model lifestyle_videos {
   created_at    DateTime @default(now()) @db.DateTime(6)
   updated_at    DateTime @default(now()) @db.DateTime(6)
 
+  pain_area pain_areas @relation("PainAreaToLifestyleVideos", fields: [pain_area_id], references: [pain_area_id])
+
   @@index([pain_area_id])
 }
 
 model pain_areas {
   pain_area_id          BigInt                  @id @default(autoincrement())
   name                  String                  @unique(map: "uk_pain_area_name") @db.VarChar(50)
+  source_name           String @db.VarChar(100)
   symptoms              symptoms[]
   temporary_care_guides temporary_care_guides[]
   user_pain_areas       user_pain_areas[]
+  lifestyle_videos lifestyle_videos[] @relation("PainAreaToLifestyleVideos")
 }
 
 model symptom_steps {
