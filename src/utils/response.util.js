@@ -2,12 +2,30 @@
  * API 응답을 표준화하는 유틸리티
  */
 
+const sanitizeBigInt = (value) => {
+  if (typeof value === 'bigint') {
+    return value <= Number.MAX_SAFE_INTEGER ? Number(value) : value.toString();
+  }
+
+  if (Array.isArray(value)) {
+    return value.map(sanitizeBigInt);
+  }
+
+  if (value && typeof value === 'object') {
+    return Object.fromEntries(
+      Object.entries(value).map(([key, val]) => [key, sanitizeBigInt(val)])
+    );
+  }
+
+  return value;
+};
+
 // 성공 응답
 export const sendSuccess = (res, data = null, message = '요청이 완료되었습니다.', statusCode = 200) => {
   res.status(statusCode).json({
     code: statusCode,
     message,
-    data,
+    data: sanitizeBigInt(data),
   });
 };
 

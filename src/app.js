@@ -9,6 +9,9 @@ dotenv.config();
 const app = express();
 app.use(cors());
 app.use(express.json());
+if (process.env.NODE_ENV !== 'production') {
+	app.set('json spaces', 2);
+}
 app.use('/api/v1', routes);
 
 // Health
