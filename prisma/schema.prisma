@@ -19,6 +19,7 @@ model content_sections {
   updated_at    DateTime @default(now()) @db.DateTime(6)
 }
 
+<<<<<<< HEAD
 model Hospital {
   hospitalID  BigInt   @id @default(autoincrement()) @map("hospitalID")
   hpid        String   @unique @db.VarChar(20)  // 공공데이터 기관ID
@@ -29,6 +30,8 @@ model Hospital {
   tel         String?  @db.VarChar(20)          // 대표전화
   homepageUrl String?  @db.VarChar(500)         // 홈페이지 URL
 }
+=======
+>>>>>>> 2950e91760352cfda59d17923643a6114ed3d32f
 model expert_answers {
   answer_id    BigInt   @id @default(autoincrement())
   symptom_id   BigInt
@@ -83,12 +86,21 @@ model lifestyle_videos {
 }
 
 model pain_areas {
-  pain_area_id             BigInt                    @id @default(autoincrement())
-  name                     String                    @unique(map: "uk_pain_area_name") @db.VarChar(50)
-  symptoms                 symptoms[]
-  temporary_care_guides    temporary_care_guides[]
-  user_pain_areas          user_pain_areas[]
-  pain_area_specialties    pain_area_specialties[]
+  pain_area_id          BigInt                  @id @default(autoincrement())
+  name                  String                  @unique(map: "uk_pain_area_name") @db.VarChar(50)
+  symptoms              symptoms[]
+  temporary_care_guides temporary_care_guides[]
+  user_pain_areas       user_pain_areas[]
+  pain_area_specialties pain_area_specialties[]
+}
+
+model pain_area_specialties {
+  id                BigInt     @id @default(autoincrement())
+  pain_area_id      BigInt
+  specialty_keyword String     @db.VarChar(50)
+  pain_areas        pain_areas @relation(fields: [pain_area_id], references: [pain_area_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([pain_area_id], map: "fk_pas_pain_area")
 }
 
 model symptom_steps {
