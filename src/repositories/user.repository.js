@@ -6,23 +6,24 @@ class UserRepository {
   }
 
   async findAll() {
-    return this.client.user.findMany();
+    return this.client.users.findMany();
   }
 
   async findById(id) {
-    return this.client.user.findUnique({ where: { id } });
+    // Prisma model uses BigInt for user_id
+    return this.client.users.findUnique({ where: { user_id: BigInt(id) } });
   }
 
   async create(data) {
-    return this.client.user.create({ data });
+    return this.client.users.create({ data });
   }
 
   async update(id, data) {
-    return this.client.user.update({ where: { id }, data });
+    return this.client.users.update({ where: { user_id: BigInt(id) }, data });
   }
 
   async remove(id) {
-    return this.client.user.delete({ where: { id } });
+    return this.client.users.delete({ where: { user_id: BigInt(id) } });
   }
 }
 
