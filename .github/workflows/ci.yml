@@ -1,0 +1,34 @@
+name: CI - Pull Request Validation
+
+on:
+  pull_request:
+    branches:
+      - main
+      - dev
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Prisma Generate
+        run: npm run prisma:generate
+
+      - name: Validate Migrations
+        run: |
+          npx prisma migrate diff \
+            --from-empty \
+            --to-schema-datamodel \
+            --exit-code
