@@ -17,6 +17,165 @@ model content_sections {
   is_active     Boolean  @default(true)
   created_at    DateTime @default(now()) @db.DateTime(6)
   updated_at    DateTime @default(now()) @db.DateTime(6)
+<<<<<<< HEAD
+}
+
+model expert_answers {
+  answer_id    BigInt   @id @default(autoincrement())
+  symptom_id   BigInt
+  summary      String   @db.Text
+  full_content String   @db.Text
+  source_url   String   @db.VarChar(255)
+  created_at   DateTime @default(now()) @db.DateTime(0)
+  updated_at   DateTime @default(now()) @db.DateTime(0)
+  symptoms     symptoms @relation(fields: [symptom_id], references: [symptom_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_expert_answers_symptom")
+
+  @@index([symptom_id], map: "fk_expert_answers_symptom")
+}
+
+model hospital_symptoms {
+  symptom_id  BigInt
+  hospital_id BigInt
+  hospitals   hospitals @relation(fields: [hospital_id], references: [hospital_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_hs_hospital")
+  symptoms    symptoms  @relation(fields: [symptom_id], references: [symptom_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_hs_symptom")
+
+  @@id([symptom_id, hospital_id])
+  @@index([hospital_id], map: "fk_hs_hospital")
+}
+
+model hospitals {
+  hospital_id       BigInt              @id @default(autoincrement())
+  name              String              @db.VarChar(100)
+  address           String              @db.VarChar(255)
+  latitude          Decimal             @db.Decimal(10, 8)
+  longitude         Decimal             @db.Decimal(11, 8)
+  phone             String?             @db.VarChar(20)
+  specialty         String?             @db.VarChar(100)
+  homepage_url      String?             @db.VarChar(255)
+  created_at        DateTime            @default(now()) @db.DateTime(0)
+  updated_at        DateTime            @default(now()) @db.DateTime(0)
+  hospital_symptoms hospital_symptoms[]
+}
+
+model lifestyle_videos {
+  video_id      BigInt   @id @default(autoincrement())
+  symptom_id    BigInt
+  description   String   @db.Text
+  title         String   @db.VarChar(200)
+  youtube_url   String   @db.VarChar(255)
+  thumbnail_url String   @db.VarChar(255)
+  display_order Int      @default(0)
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now()) @db.DateTime(6)
+  updated_at    DateTime @default(now()) @db.DateTime(6)
+  symptoms      symptoms @relation(fields: [symptom_id], references: [symptom_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_lifestyle_videos_symptom")
+
+  @@index([symptom_id], map: "fk_lifestyle_videos_symptom")
+}
+
+model pain_areas {
+  pain_area_id          BigInt                  @id @default(autoincrement())
+  name                  String                  @unique(map: "uk_pain_area_name") @db.VarChar(50)
+  symptoms              symptoms[]
+  temporary_care_guides temporary_care_guides[]
+  user_pain_areas       user_pain_areas[]
+}
+
+model symptom_steps {
+  step_id     BigInt   @id @default(autoincrement())
+  symptom_id  BigInt
+  step_number Int
+  title       String   @db.VarChar(200)
+  content     String   @db.Text
+  image_url   String   @db.VarChar(255)
+  created_at  DateTime @default(now()) @db.DateTime(6)
+  updated_at  DateTime @default(now()) @db.DateTime(6)
+  symptoms    symptoms @relation(fields: [symptom_id], references: [symptom_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_symptom_steps_symptom")
+
+  @@index([symptom_id], map: "fk_symptom_steps_symptom")
+}
+
+model symptoms {
+  symptom_id        BigInt              @id @default(autoincrement())
+  pain_area_id      BigInt
+  name              String              @db.VarChar(100)
+  expert_answers    expert_answers[]
+  hospital_symptoms hospital_symptoms[]
+  lifestyle_videos  lifestyle_videos[]
+  symptom_steps     symptom_steps[]
+  pain_areas        pain_areas          @relation(fields: [pain_area_id], references: [pain_area_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_symptoms_pain_area")
+  user_symptoms     user_symptoms[]
+
+  @@index([pain_area_id], map: "fk_symptoms_pain_area")
+}
+
+model temporary_care_guides {
+  guide_id      BigInt     @id @default(autoincrement())
+  pain_area_id  BigInt
+  guide_type    String     @db.VarChar(200)
+  title         String     @db.VarChar(200)
+  content       String     @db.Text
+  image_url     String     @db.VarChar(255)
+  display_order Int?       @default(0)
+  created_at    DateTime   @default(now()) @db.DateTime(6)
+  updated_at    DateTime   @default(now()) @db.DateTime(6)
+  pain_areas    pain_areas @relation(fields: [pain_area_id], references: [pain_area_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_care_guides_pain_area")
+
+  @@index([pain_area_id], map: "fk_care_guides_pain_area")
+}
+
+model usage_guides {
+  guide_id      BigInt   @id @default(autoincrement())
+  card_number   Int
+  title         String   @db.VarChar(200)
+  modal_content String   @db.Text
+  image_url     String?  @db.VarChar(255)
+  display_order Int?
+  is_active     Boolean  @default(true)
+  created_at    DateTime @default(now()) @db.DateTime(6)
+  updated_at    DateTime @default(now()) @db.DateTime(6)
+}
+
+model user_pain_areas {
+  user_id      BigInt
+  pain_area_id BigInt
+  pain_areas   pain_areas @relation(fields: [pain_area_id], references: [pain_area_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_upa_pain_area")
+  users        users      @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_upa_user")
+
+  @@id([user_id, pain_area_id])
+  @@index([pain_area_id], map: "fk_upa_pain_area")
+}
+
+model user_symptoms {
+  user_id    BigInt
+  symptom_id BigInt
+  symptoms   symptoms @relation(fields: [symptom_id], references: [symptom_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_us_symptom")
+  users      users    @relation(fields: [user_id], references: [user_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_us_user")
+
+  @@id([user_id, symptom_id])
+  @@index([symptom_id], map: "fk_us_symptom")
+}
+
+model users {
+  user_id         BigInt            @id @default(autoincrement())
+  name            String            @db.VarChar(20)
+  email           String            @unique(map: "uk_user_email") @db.VarChar(100)
+  password        String            @db.VarChar(100)
+  birth           DateTime          @db.DateTime(0)
+  gender          users_gender
+  created_at      DateTime          @default(now()) @db.DateTime(6)
+  updated_at      DateTime          @default(now()) @db.DateTime(6)
+  deleted_at      DateTime?         @db.DateTime(6)
+  user_pain_areas user_pain_areas[]
+  user_symptoms   user_symptoms[]
+}
+
+enum users_gender {
+  MALE
+  FEMALE
+  OTHER
+=======
+>>>>>>> cca7d1161adb0adc8a261497bd0a24ccffc0206d
 }
 
 model expert_answers {
@@ -174,3 +333,32 @@ enum users_gender {
   FEMALE
   OTHER
 }
+
+model UserSymptom {
+  userID    BigInt @map("userID")
+  symptomID BigInt @map("symptomID")
+
+  user      User    @relation(fields: [userID], references: [userID], onDelete: Cascade)
+  symptom   Symptom @relation(fields: [symptomID], references: [symptomID], onDelete: Cascade)
+
+  @@id([userID, symptomID])
+  @@map("UserSymptoms")
+}
+
+model Hospital {
+  hospitalID  BigInt   @id @default(autoincrement()) @map("hospitalID")
+  hpid        String   @unique @db.VarChar(20)  // 공공데이터 기관ID
+  name        String   @db.VarChar(200)         // 기관명
+  address     String   @db.VarChar(300)         // 주소
+  lat         Decimal  @db.Decimal(11, 8)       // 위도 (WGS84)
+  lng         Decimal  @db.Decimal(12, 8)       // 경도 (WGS84)
+  tel         String?  @db.VarChar(20)          // 대표전화
+  homepageUrl String?  @db.VarChar(500)         // 홈페이지 URL
+
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([lat, lng])
+  @@map("Hospitals")
+}
+
