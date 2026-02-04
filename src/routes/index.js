@@ -12,17 +12,11 @@ import homesRoutes from './homes.routes.js';
 const router = express.Router();
 
 router.use('/users', userRoutes);
-<<<<<<< HEAD
-router.use('/homes', homesRoutes);
 
-=======
+router.use('/homes', homesRoutes);
 router.use('/hospital', hospitalRoutes);
 router.use('/pain-areas', painAreaRoutes);
 router.use('/admin', adminRoutes);
-<<<<<<< HEAD
 router.use('/lifestyle-videos', lifestyleGuideRoutes);
-=======
->>>>>>> cca7d1161adb0adc8a261497bd0a24ccffc0206d
->>>>>>> 12e75c6d3d65a944b3044c9f41caa604e39aa486
 
 export default router;
