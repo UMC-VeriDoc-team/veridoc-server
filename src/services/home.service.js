@@ -1,30 +1,18 @@
-import fs from 'fs';
-import path from 'path';
+import HomeRepository from '../repositories/home.repository.js';
 
 class HomeService {
-  constructor(dataPath = path.resolve(process.cwd(), 'src', 'data', 'home.json')) {
-    this.dataPath = dataPath;
+  constructor(repository = new HomeRepository()) {
+    this.repository = repository;
   }
 
+  // 홈 화면 데이터 조회
   async getHomeData() {
-    const raw = fs.readFileSync(this.dataPath, 'utf8');
-    const parsed = JSON.parse(raw);
-    return parsed;
+    return this.repository.getHomeData();
   }
 
+  // 전문의 답변 요약본 조회
   async getDoctorAnswerSummary(answerId) {
-    // expert_answers: answer_id, symptom_id, summary
-    const prisma = (await import('../config/db.config.js')).default;
-    const answer = await prisma.expert_answers.findUnique({
-      where: { answer_id: BigInt(answerId) },
-      select: { answer_id: true, symptom_id: true, summary: true }
-    });
-    if (!answer) return null;
-    return {
-      answerId: Number(answer.answer_id),
-      symptomId: Number(answer.symptom_id),
-      summary: answer.summary
-    };
+    return this.repository.getExpertAnswer(answerId);
   }
 }
 
