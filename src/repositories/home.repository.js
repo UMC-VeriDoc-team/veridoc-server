@@ -81,8 +81,8 @@ class HomeRepository {
     };
   }
 
-  // 전문의 답변 조회
-  async getExpertAnswer(answerId) {
+  // 전문의 답변 상세 조회
+  async getExpertAnswerDetail(answerId) {
     const answer = await this.client.expert_answers.findUnique({
       where: { answer_id: BigInt(answerId) },
       select: {
@@ -91,10 +91,16 @@ class HomeRepository {
         summary: true,
         full_content: true,
         source_url: true,
+        updated_at: true,
         symptoms: {
           select: {
             name: true,
-            pain_area_id: true
+            pain_area_id: true,
+            pain_areas: {
+              select: {
+                name: true
+              }
+            }
           }
         }
       }
@@ -102,13 +108,48 @@ class HomeRepository {
 
     if (!answer) return null;
 
+    // 같은 painAreaId의 다른 답변들 조회 (현재 답변 제외, 최대 2개)
+    const morePosts = await this.client.expert_answers.findMany({
+      where: {
+        symptoms: {
+          pain_area_id: answer.symptoms.pain_area_id
+        },
+        answer_id: {
+          not: BigInt(answerId)
+        }
+      },
+      select: {
+        answer_id: true,
+        symptom_id: true,
+        summary: true,
+        symptoms: {
+          select: {
+            name: true,
+            pain_area_id: true
+          }
+        }
+      },
+      take: 2
+    });
+
     return {
       answerId: Number(answer.answer_id),
+      painAreaId: Number(answer.symptoms.pain_area_id),
+      painAreaName: answer.symptoms.pain_areas?.name,
       symptomId: Number(answer.symptom_id),
       symptomName: answer.symptoms?.name,
-      summary: answer.summary,
-      fullContent: answer.full_content,
-      sourceUrl: answer.source_url
+      title: `${answer.symptoms?.name} 전문의 소견`,
+      content: answer.full_content,
+      imageUrl: null, // expert_answers에 imageUrl 필드가 없으므로 null
+      sourceUrl: answer.source_url,
+      updatedAt: answer.updated_at,
+      morePosts: morePosts.map(post => ({
+        answerId: Number(post.answer_id),
+        painAreaId: Number(post.symptoms.pain_area_id),
+        symptomId: Number(post.symptom_id),
+        title: `${post.symptoms?.name} 전문의 소견`,
+        imageUrl: null
+      }))
     };
   }
 }

@@ -49,7 +49,7 @@ class UserService {
 
     //응답용 데이터 반환
     return {
-      userID : Number(createdUser.userID),
+      userID : Number(createdUser.user_id),
       email : createdUser.email
     }
   }
@@ -90,11 +90,11 @@ class UserService {
       }
 
       //access token 생성
-      const accessToken = generateAccessToken(Number(user.userID), user.email)
+      const accessToken = generateAccessToken(Number(user.user_id), user.email)
 
       // userID와 accessToken 반환
       return {
-        userID : Number(user.userID),
+        userID : Number(user.user_id),
         accessToken : accessToken
       }
     } catch (err) {

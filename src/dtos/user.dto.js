@@ -6,10 +6,10 @@ class UserDTO {
     if(!payload){
       throw new ApiError(400, errorCodes.VALIDATION_ERROR, '요청 데이터가 없습니다.')
     }
-    const { name, email, password, birthDate, gender, painAreaID } = payload
+    const { name, email, password, birth, gender, painAreaID } = payload
     
     // 모든 필수 항목을 입력하지 않았을 때
-    if(!name || !email || !password || !birthDate || !gender){
+    if(!name || !email || !password || !birth || !gender){
       throw new ApiError(400, errorCodes.VALIDATION_ERROR, '모든 필수 항목을 입력해주세요.')
     }
 
@@ -26,13 +26,13 @@ class UserDTO {
     }
     
     //생년월일 형식이 올바르지 않을 때
-    const birthDateRegex = /^\d{4}-\d{2}-\d{2}$/
-    if(!birthDateRegex.test(birthDate)){
+    const birthRegex = /^\d{4}-\d{2}-\d{2}$/
+    if(!birthRegex.test(birth)){
       throw new ApiError(400, errorCodes.INVALID_BIRTHDATE_FORMAT, '생년월일 형식이 올바르지 않습니다.')
     }
 
     //실제 날짜인지 확인
-    const date = new Date(birthDate)
+    const date = new Date(birth)
     if(isNaN(date.getTime())){
       throw new ApiError(400, errorCodes.INVALID_BIRTHDATE_FORMAT, '생년월일 형식이 올바르지 않습니다.')
     }
@@ -48,7 +48,7 @@ class UserDTO {
       name,
       email,
       password,
-      birthdate: new Date(birthDate),
+      birth: new Date(birth),
       gender,
       painAreaID : painAreaID ? BigInt(painAreaID) : null
     }

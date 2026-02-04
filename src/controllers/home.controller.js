@@ -6,7 +6,7 @@ class HomeController {
   constructor(service = new HomeService()) {
     this.service = service;
     this.getHome = this.getHome.bind(this);
-    this.getDoctorAnswerSummary = this.getDoctorAnswerSummary.bind(this);
+    this.getDoctorAnswerDetail = this.getDoctorAnswerDetail.bind(this);
   }
 
   // 홈 전체 불러오기
@@ -25,19 +25,18 @@ class HomeController {
     }
   }
 
-  // 전문의 답변 요약본 불러오기
-  async getDoctorAnswerSummary(req, res, next) {
+  // 전문의 답변 상세 조회
+  async getDoctorAnswerDetail(req, res, next) {
     try {
       const auth = req.headers.authorization;
       if (!auth) {
         return sendAuthError(res, '로그인이 필요합니다.');
       }
+
       const answerId = Number(req.params.answerId);
-      const summary = await this.service.getDoctorAnswerSummary(answerId);
-      if (!summary) {
-        return sendNotFoundError(res, '요청하신 전문의 답변 요약본을 찾을 수 없습니다.');
-      }
-      return sendSuccess(res, summary, '전문의 답변 조회 성공');
+      const result = await this.service.getDoctorAnswerDetail(answerId);
+      
+      return sendSuccess(res, result, '전문의 답변 조회 성공');
     } catch (err) {
       next(err);
     }
