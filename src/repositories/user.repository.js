@@ -33,8 +33,8 @@ class UserRepository {
       if (painAreaID){
         await tx.userPainArea.create({
           data : {
-            userID : user.userID,
-            painAreaID : painAreaID
+            user_id : user.user_id,
+            pain_area_id : painAreaID
           }
         })
       }

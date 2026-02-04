@@ -5,6 +5,7 @@ import hospitalRoutes from './hospital.routes.js';
 import painAreaRoutes from './painArea.routes.js';
 import adminRoutes from './admin.routes.js';
 import homesRoutes from './homes.routes.js';
+import lifestyleGuideRoutes from './lifestyleGuide.routes.js';
 
 const router = express.Router();
 
