@@ -1,5 +1,3 @@
-name: CI - Pull Request Validation
-=======
 name: CI - Pull Request
 
 on:
@@ -19,27 +17,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      - name: Install Dependencies
-        run: npm install
-
-      - name: Prisma Generate
-        run: npm run prisma:generate
-
-      - name: Validate Migrations
-        run: |
-          npx prisma migrate diff \
-            --from-empty \
-            --to-schema-datamodel \
-            --exit-code
-    steps:
-      - uses: actions/checkout@v4
-
       - name: Node.js 설정
         uses: actions/setup-node@v4
         with:
@@ -51,5 +28,9 @@ jobs:
 
       - name: Prisma Client 생성
         run: npm run prisma:generate
-        env:
-          DATABASE_URL: ""
+      - name: Validate Prisma Schema
+        run: |
+          npx prisma migrate diff \
+            --from-empty \
+            --to-schema-datamodel \
+            --exit-code
