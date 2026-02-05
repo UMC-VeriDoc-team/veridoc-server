@@ -25,7 +25,7 @@ app.set('json replacer', (key, value) => {
 const corsOptions = {
   origin: [
     'http://localhost:5173',
-    'https://veridoc-ten.vercel.app/'
+    'https://veridoc-umber.vercel.app/'
   ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
