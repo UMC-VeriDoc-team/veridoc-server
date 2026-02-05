@@ -26,7 +26,7 @@ const corsOptions = {
   origin: [
     "http://localhost:5173",
     "https://veridoc-client.vercel.app",
-    "https://veridoc-umber.vercel.app",
+    "https://veridoc-umber.vercel.app"
   ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
