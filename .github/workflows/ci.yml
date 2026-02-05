@@ -24,7 +24,9 @@ jobs:
           cache: 'npm'
 
       - name: 의존성 설치
-        run: npm ci
+        run: |
+          npm cache clean --force
+          npm ci
 
       - name: Prisma Client 생성
         run: npm run prisma:generate
