@@ -12,11 +12,11 @@ class UserRepository {
 
   // userID로 유저 조회
   async findById(id) {
-    return this.client.user.findUnique({ where: { userID : BigInt(id) } });
+    return this.client.users.findUnique({ where: { user_id: BigInt(id) } });
   }
 
   async findByEmail(email) {
-    return this.client.user.findUnique({ where: { email } });
+    return this.client.users.findUnique({ where: { email } });
   }
  
   /*유저 생성 & painArea를 선택했다면 UserPainArea 까지 생성
@@ -27,14 +27,14 @@ class UserRepository {
     
     return this.client.$transaction(async (tx) => {
       //user 테이블에 레코드 생성
-      const user = await tx.user.create({ data: userData })
+      const user = await tx.users.create({ data: userData })
 
-      //painArea를 선택했다면 UserPainArea 테이블에 레코드 생성
+      //painArea를 선택했다면 user_pain_areas 테이블에 레코드 생성
       if (painAreaID){
-        await tx.userPainArea.create({
+        await tx.user_pain_areas.create({
           data : {
-            userID : user.userID,
-            painAreaID : painAreaID
+            user_id : user.user_id,
+            pain_area_id : painAreaID
           }
         })
       }
@@ -44,11 +44,11 @@ class UserRepository {
   }
 
   async update(userID, data) {
-    return this.client.user.update({ where: { userID : BigInt(userID) }, data });
+    return this.client.users.update({ where: { user_id: BigInt(userID) }, data });
   }
 
   async remove(userID) {
-    return this.client.user.delete({ where: { userID : BigInt(userID) } });
+    return this.client.users.delete({ where: { user_id: BigInt(userID) } });
   }
 }
 

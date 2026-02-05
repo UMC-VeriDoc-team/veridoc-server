@@ -31,7 +31,7 @@ class UserService {
 
     //painAreaID 존재 여부 확인
     if(validatedData.painAreaID){
-      const painArea = await prisma.painArea.findUnique({ where: { painAreaID : validatedData.painAreaID } });
+      const painArea = await prisma.pain_areas.findUnique({ where: { pain_area_id : validatedData.painAreaID } });
 
       if (!painArea){
         throw new ApiError(400, errorCodes.PAINAREA_NOT_FOUND, '존재하지 않는 아픈 부위입니다.')
@@ -49,8 +49,8 @@ class UserService {
 
     //응답용 데이터 반환
     return {
-      userID : Number(createdUser.userID),
-      email : createdUser.email
+      userID : Number(createdUser.user_id),
+      email : createdUser.email,
     }
   }
 
@@ -90,11 +90,11 @@ class UserService {
       }
 
       //access token 생성
-      const accessToken = generateAccessToken(Number(user.userID), user.email)
+      const accessToken = generateAccessToken(Number(user.user_id), user.email)
 
       // userID와 accessToken 반환
       return {
-        userID : Number(user.userID),
+        userID : Number(user.user_id),
         accessToken : accessToken
       }
     } catch (err) {

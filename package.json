@@ -11,33 +11,23 @@
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:push": "prisma db push",
-    "prisma:studio": "prisma studio"
+    "prisma:studio": "prisma studio",
+    "prisma:validate": "prisma validate"
   },
   "dependencies": {
-<<<<<<< HEAD
-    "@prisma/client": "^5.0.0",
-    "cors": "^2.8.6",
-    "dotenv": "^16.0.0",
-    "express": "^4.18.2",
-=======
     "@prisma/client": "5.22.0",
     "bcrypt": "^6.0.0",
+    "cors": "^2.8.5",
     "dotenv": "^16.0.0",
-    "mysql2": "^3.2.0",
-    "@prisma/client": "^5.0.0",
-    "cors": "^2.8.5"
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.3",
->>>>>>> cca7d1161adb0adc8a261497bd0a24ccffc0206d
-    "mysql2": "^3.2.0"
+    "mysql2": "^3.2.0",
+    "swagger-ui-express": "^5.0.0",
+    "yamljs": "^0.3.0"
   },
   "devDependencies": {
     "nodemon": "^2.0.0",
-<<<<<<< HEAD
-    "prisma": "^5.0.0"
-=======
     "prisma": "5.22.0"
->>>>>>> cca7d1161adb0adc8a261497bd0a24ccffc0206d
   },
   "prisma": {
     "seed": "node prisma/seed.js"
