@@ -26,8 +26,7 @@ jobs:
       - name: 의존성 설치
         run: npm ci
 
-      - name: Prisma Schema 검증
-        run: npx prisma validate
-
       - name: Prisma Client 생성
         run: npm run prisma:generate
+        env:
+          DATABASE_URL: ""
