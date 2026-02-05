@@ -57,7 +57,7 @@ paths:
                   description: "아픈 부위 ID (선택, 미입력 시 기본값 8)"
                   example: 1
       responses:
-        '201':
+        "201":
           description: 회원가입 성공
           content:
             application/json:
@@ -79,12 +79,12 @@ paths:
                       email:
                         type: string
                         example: "user@example.com"
-        '400':
+        "400":
           description: 잘못된 요청
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   /users/login:
     post:
@@ -110,7 +110,7 @@ paths:
                   type: string
                   example: "Password1!"
       responses:
-        '200':
+        "200":
           description: 로그인 성공
           content:
             application/json:
@@ -132,12 +132,195 @@ paths:
                       accessToken:
                         type: string
                         example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-        '401':
+        "401":
           description: 인증 실패
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users/me:
+    get:
+      tags:
+        - Users
+      summary: 내 정보 조회
+      description: 인증된 사용자의 정보를 조회합니다.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: "사용자 정보 조회 성공"
+                  data:
+                    type: object
+                    properties:
+                      user_id:
+                        type: integer
+                        example: 3
+                      name:
+                        type: string
+                        example: "베리닥"
+                      email:
+                        type: string
+                        example: "veridoc@gmail.com"
+                      birth:
+                        type: string
+                        format: date-time
+                        example: "2003-01-01T00:00:00.000Z"
+                      gender:
+                        type: string
+                        enum: [MALE, FEMALE, OTHER]
+                        example: "MALE"
+                      painArea:
+                        type: object
+                        nullable: true
+                        properties:
+                          pain_area_id:
+                            type: integer
+                            example: 1
+                          name:
+                            type: string
+                            example: "어깨"
+        "401":
+          description: 인증 실패
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    put:
+      tags:
+        - Users
+      summary: 내 정보 수정
+      description: 인증된 사용자의 정보를 수정합니다. 이메일은 수정할 수 없습니다.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "베리닥수정"
+                password:
+                  type: string
+                  example: "NewPassword1!"
+      responses:
+        "200":
+          description: 수정 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
+          description: 잘못된 요청
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: 인증 실패
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      tags:
+        - Users
+      summary: 회원탈퇴 (내 계정 삭제)
+      description: 인증된 사용자의 계정을 삭제합니다.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: 탈퇴 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
+          description: 인증 실패
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: 서버 오류
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users/me/pain-area:
+    put:
+      tags:
+        - Users
+      summary: 주요 아픈 부위 저장
+      description: 인증된 사용자의 주요 아픈 부위를 저장합니다.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - painAreaID
+              properties:
+                painAreaID:
+                  type: integer
+                  description: "주요 아픈 부위 ID"
+                  example: 2
+      responses:
+        "200":
+          description: 저장 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: "주요 아픈 부위 저장 성공"
+                  data:
+                    type: object
+                    properties:
+                      painAreaID:
+                        type: integer
+                        example: 2
+                      name:
+                        type: string
+                        example: "허리"
+        "400":
+          description: 잘못된 요청
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: 인증 실패
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /users:
     get:
@@ -148,7 +331,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: 조회 성공
           content:
             application/json:
@@ -167,7 +350,7 @@ paths:
                       users:
                         type: array
                         items:
-                          $ref: '#/components/schemas/User'
+                          $ref: "#/components/schemas/User"
 
   /users/{id}:
     get:
@@ -185,7 +368,7 @@ paths:
             type: integer
           description: 사용자 ID
       responses:
-        '200':
+        "200":
           description: 조회 성공
           content:
             application/json:
@@ -202,13 +385,13 @@ paths:
                     type: object
                     properties:
                       user:
-                        $ref: '#/components/schemas/User'
-        '404':
+                        $ref: "#/components/schemas/User"
+        "404":
           description: 사용자를 찾을 수 없음
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
     put:
       tags:
@@ -238,12 +421,12 @@ paths:
                   type: string
                   example: "newpassword123"
       responses:
-        '200':
+        "200":
           description: 수정 성공
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
+                $ref: "#/components/schemas/SuccessResponse"
 
     delete:
       tags:
@@ -260,12 +443,12 @@ paths:
             type: integer
           description: 사용자 ID
       responses:
-        '200':
+        "200":
           description: 삭제 성공
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/SuccessResponse'
+                $ref: "#/components/schemas/SuccessResponse"
 
   # ========== Hospital ==========
   /hospital/nearby:
@@ -307,7 +490,7 @@ paths:
             type: integer
           description: "아픈 부위 ID (1:어깨, 2:허리, 3:무릎, 4:목, 5:두통, 6:복통)"
       responses:
-        '200':
+        "200":
           description: 조회 성공
           content:
             application/json:
@@ -339,13 +522,13 @@ paths:
                       hospitals:
                         type: array
                         items:
-                          $ref: '#/components/schemas/Hospital'
-        '400':
+                          $ref: "#/components/schemas/Hospital"
+        "400":
           description: 잘못된 요청
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
   # ========== Pain Areas ==========
   /pain-areas:
@@ -355,7 +538,7 @@ paths:
       summary: 아픈 부위 목록 조회
       description: 선택 가능한 아픈 부위 목록을 조회합니다.
       responses:
-        '200':
+        "200":
           description: 조회 성공
           content:
             application/json:
@@ -374,7 +557,7 @@ paths:
                       painAreas:
                         type: array
                         items:
-                          $ref: '#/components/schemas/PainArea'
+                          $ref: "#/components/schemas/PainArea"
 
   # ========== Home ==========
   /homes:
@@ -386,7 +569,7 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: 조회 성공
           content:
             application/json:
@@ -431,7 +614,7 @@ paths:
             type: integer
           description: 답변 ID
       responses:
-        '200':
+        "200":
           description: 조회 성공
           content:
             application/json:
@@ -463,7 +646,7 @@ paths:
             type: integer
           description: 답변 ID
       responses:
-        '200':
+        "200":
           description: 조회 성공
           content:
             application/json:
@@ -494,7 +677,7 @@ paths:
             type: integer
           description: 아픈 부위 ID
       responses:
-        '200':
+        "200":
           description: 조회 성공
           content:
             application/json:
@@ -516,7 +699,7 @@ paths:
                       videos:
                         type: array
                         items:
-                          $ref: '#/components/schemas/LifestyleVideo'
+                          $ref: "#/components/schemas/LifestyleVideo"
 
   # ========== Admin ==========
   /admin/issue-master-token:
@@ -539,7 +722,7 @@ paths:
                   description: 관리자 API 키
                   example: "your-admin-api-key"
       responses:
-        '200':
+        "200":
           description: 발급 성공
           content:
             application/json:
@@ -558,12 +741,12 @@ paths:
                       masterToken:
                         type: string
                         example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-        '401':
+        "401":
           description: 인증 실패
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ErrorResponse'
+                $ref: "#/components/schemas/ErrorResponse"
 
 components:
   schemas:

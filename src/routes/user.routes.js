@@ -13,6 +13,7 @@ router.post('/login', userController.login);
 router.get('/me', authenticate, userController.getMe);
 router.put('/me', authenticate, userController.updateMe);
 router.put('/me/pain-area', authenticate, userController.updatePainArea);
+router.delete('/me', authenticate, userController.deleteMe);
 
 // 아래는 일반 CRUD (/:id)
 router.get('/', authenticate, userController.listUsers);

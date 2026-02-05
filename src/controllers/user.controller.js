@@ -1,7 +1,7 @@
-import UserService from '../services/user.service.js';
-import ApiError from '../errors/ApiError.js';
-import errorCodes from '../errors/errorCodes.js';
-import { sendSuccess } from '../utils/response.util.js';
+import UserService from "../services/user.service.js";
+import ApiError from "../errors/ApiError.js";
+import errorCodes from "../errors/errorCodes.js";
+import { sendSuccess } from "../utils/response.util.js";
 
 class UserController {
   constructor(service = new UserService()) {
@@ -19,6 +19,7 @@ class UserController {
     this.getMe = this.getMe.bind(this);
     this.updateMe = this.updateMe.bind(this);
     this.updatePainArea = this.updatePainArea.bind(this);
+    this.deleteMe = this.deleteMe.bind(this);
   }
 
   // 내부 유틸 메서드
@@ -36,7 +37,7 @@ class UserController {
   async listUsers(req, res, next) {
     try {
       const users = await this.service.list();
-      sendSuccess(res, { users }, '사용자 목록 조회 성공');
+      sendSuccess(res, { users }, "사용자 목록 조회 성공");
     } catch (err) {
       next(err);
     }
@@ -46,9 +47,13 @@ class UserController {
     try {
       const user = await this.service.findById(parseInt(req.params.id, 10));
       if (!user) {
-        throw new ApiError(404, errorCodes.USER_NOT_FOUND, '유저를 찾을 수 없습니다.');
+        throw new ApiError(
+          404,
+          errorCodes.USER_NOT_FOUND,
+          "유저를 찾을 수 없습니다.",
+        );
       }
-      sendSuccess(res, { user }, '사용자 조회 성공');
+      sendSuccess(res, { user }, "사용자 조회 성공");
     } catch (err) {
       next(err);
     }
@@ -57,7 +62,7 @@ class UserController {
   async createUser(req, res, next) {
     try {
       const createdUser = await this.service.create(req.body);
-      sendSuccess(res, createdUser, '회원가입이 완료되었습니다.', 201);
+      sendSuccess(res, createdUser, "회원가입이 완료되었습니다.", 201);
     } catch (err) {
       next(err);
     }
@@ -66,7 +71,7 @@ class UserController {
   async login(req, res, next) {
     try {
       const result = await this.service.login(req.body);
-      sendSuccess(res, result, '로그인 성공');
+      sendSuccess(res, result, "로그인 성공");
     } catch (err) {
       next(err);
     }
@@ -76,9 +81,9 @@ class UserController {
     try {
       const updatedUser = await this.service.update(
         parseInt(req.params.id, 10),
-        req.body
+        req.body,
       );
-      sendSuccess(res, { updatedUser }, '사용자 정보 수정 성공');
+      sendSuccess(res, { updatedUser }, "사용자 정보 수정 성공");
     } catch (err) {
       next(err);
     }
@@ -87,7 +92,7 @@ class UserController {
   async deleteUser(req, res, next) {
     try {
       await this.service.remove(parseInt(req.params.id, 10));
-      sendSuccess(res, null, '사용자 삭제 성공');
+      sendSuccess(res, null, "사용자 삭제 성공");
     } catch (err) {
       next(err);
     }
@@ -100,11 +105,11 @@ class UserController {
     try {
       const userID = this._getAuthUserId(req);
       if (!userID) {
-        throw new ApiError(401, errorCodes.UNAUTHORIZED, '인증이 필요합니다.');
+        throw new ApiError(401, errorCodes.UNAUTHORIZED, "인증이 필요합니다.");
       }
 
       const me = await this.service.getMe(userID);
-      sendSuccess(res, me, '사용자 정보 조회 성공');
+      sendSuccess(res, me, "사용자 정보 조회 성공");
     } catch (err) {
       next(err);
     }
@@ -115,15 +120,19 @@ class UserController {
     try {
       const userID = this._getAuthUserId(req);
       if (!userID) {
-        throw new ApiError(401, errorCodes.UNAUTHORIZED, '인증이 필요합니다.');
+        throw new ApiError(401, errorCodes.UNAUTHORIZED, "인증이 필요합니다.");
       }
 
-      if ('email' in req.body) {
-        throw new ApiError(400, errorCodes.INVALID_REQUEST, '이메일은 변경할 수 없습니다.');
+      if ("email" in req.body) {
+        throw new ApiError(
+          400,
+          errorCodes.INVALID_REQUEST,
+          "이메일은 변경할 수 없습니다.",
+        );
       }
 
       await this.service.updateMe(userID, req.body);
-      sendSuccess(res, null, '사용자 정보 수정 성공');
+      sendSuccess(res, null, "사용자 정보 수정 성공");
     } catch (err) {
       next(err);
     }
@@ -134,16 +143,35 @@ class UserController {
     try {
       const userID = this._getAuthUserId(req);
       if (!userID) {
-        throw new ApiError(401, errorCodes.UNAUTHORIZED, '인증이 필요합니다.');
+        throw new ApiError(401, errorCodes.UNAUTHORIZED, "인증이 필요합니다.");
       }
 
       const { painAreaID } = req.body;
       if (painAreaID === undefined) {
-        throw new ApiError(400, errorCodes.INVALID_REQUEST, 'painAreaID 값이 필요합니다.');
+        throw new ApiError(
+          400,
+          errorCodes.INVALID_REQUEST,
+          "painAreaID 값이 필요합니다.",
+        );
       }
 
       const result = await this.service.updatePainArea(userID, painAreaID);
-      sendSuccess(res, result, '주요 아픈 부위 저장 성공');
+      sendSuccess(res, result, "주요 아픈 부위 저장 성공");
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  // 회원탈퇴 (내 계정 삭제)
+  async deleteMe(req, res, next) {
+    try {
+      const userID = this._getAuthUserId(req);
+      if (!userID) {
+        throw new ApiError(401, errorCodes.UNAUTHORIZED, "인증이 필요합니다.");
+      }
+
+      await this.service.remove(userID);
+      sendSuccess(res, null, "회원탈퇴가 완료되었습니다.");
     } catch (err) {
       next(err);
     }
