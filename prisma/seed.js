@@ -1,4 +1,3 @@
-
 import { PrismaClient } from '@prisma/client';
 import fs from 'fs';
 import path from 'path';
@@ -34,12 +33,12 @@ async function main() {
 
   // Pain areas with specialties
   const painAreas = [
-    { name: '어깨' },
-    { name: '허리' },
-    { name: '무릎' },
-    { name: '목' },
-    { name: '두통' },
-    { name: '복통' },
+    { pain_area_id: 1, name: '어깨' },
+    { pain_area_id: 2, name: '허리' },
+    { pain_area_id: 3, name: '무릎' },
+    { pain_area_id: 4, name: '목' },
+    { pain_area_id: 5, name: '두통' },
+    { pain_area_id: 6, name: '복통' },
   ];
 
   const createdPainAreas = {};
@@ -48,21 +47,89 @@ async function main() {
     createdPainAreas[area.name] = pa;
   }
 
+  for (const area of painAreas) {
+    await prisma.pain_areas.upsert({
+      where: { pain_area_id: BigInt(area.pain_area_id) },
+      update: { name: area.name },
+      create: {
+        pain_area_id: BigInt(area.pain_area_id),
+        name: area.name,
+      },
+    });
+  }
   // Pain area specialties mapping
   const painAreaSpecialties = [
-    // 어깨
-    { area: '어깨', keywords: ['정형외과', '재활의학과', '통증의학과', '마취통증', '통증', '어깨', '관절', '정형'] },
-    // 허리
-    { area: '허리', keywords: ['정형외과', '재활의학과', '신경외과', '통증의학과', '마취통증', '척추', '통증', '정형', '허리'] },
-    // 무릎
-    { area: '무릎', keywords: ['정형외과', '재활의학과', '통증의학과', '관절', '류마티스', '통증', '정형', '무릎'] },
-    // 목
-    { area: '목', keywords: ['정형외과', '재활의학과', '신경외과', '통증의학과', '마취통증', '척추', '통증', '정형'] },
-    // 두통
-    { area: '두통', keywords: ['신경과', '신경외과', '내과', '통증의학과', '두통', '뇌', '신경', '통증'] },
-    // 복통
-    { area: '복통', keywords: ['내과', '소화기내과', '소화기', '외과', '가정의학과', '위장', '대장', '항문'] },
+    // 어깨 (1)
+    { pain_area_id: 1, specialty_keyword: '정형외과' },
+    { pain_area_id: 1, specialty_keyword: '재활의학과' },
+    { pain_area_id: 1, specialty_keyword: '통증의학과' },
+    { pain_area_id: 1, specialty_keyword: '마취통증' },
+    { pain_area_id: 1, specialty_keyword: '통증' },
+    { pain_area_id: 1, specialty_keyword: '어깨' },
+    { pain_area_id: 1, specialty_keyword: '관절' },
+    { pain_area_id: 1, specialty_keyword: '정형' },
+
+    // 허리 (2)
+    { pain_area_id: 2, specialty_keyword: '정형외과' },
+    { pain_area_id: 2, specialty_keyword: '재활의학과' },
+    { pain_area_id: 2, specialty_keyword: '신경외과' },
+    { pain_area_id: 2, specialty_keyword: '통증의학과' },
+    { pain_area_id: 2, specialty_keyword: '마취통증' },
+    { pain_area_id: 2, specialty_keyword: '척추' },
+    { pain_area_id: 2, specialty_keyword: '통증' },
+    { pain_area_id: 2, specialty_keyword: '정형' },
+    { pain_area_id: 2, specialty_keyword: '허리' },
+
+    // 무릎 (3)
+    { pain_area_id: 3, specialty_keyword: '정형외과' },
+    { pain_area_id: 3, specialty_keyword: '재활의학과' },
+    { pain_area_id: 3, specialty_keyword: '통증의학과' },
+    { pain_area_id: 3, specialty_keyword: '관절' },
+    { pain_area_id: 3, specialty_keyword: '류마티스' },
+    { pain_area_id: 3, specialty_keyword: '통증' },
+    { pain_area_id: 3, specialty_keyword: '정형' },
+    { pain_area_id: 3, specialty_keyword: '무릎' },
+
+    // 목 (4)
+    { pain_area_id: 4, specialty_keyword: '정형외과' },
+    { pain_area_id: 4, specialty_keyword: '재활의학과' },
+    { pain_area_id: 4, specialty_keyword: '신경외과' },
+    { pain_area_id: 4, specialty_keyword: '통증의학과' },
+    { pain_area_id: 4, specialty_keyword: '마취통증' },
+    { pain_area_id: 4, specialty_keyword: '척추' },
+    { pain_area_id: 4, specialty_keyword: '통증' },
+    { pain_area_id: 4, specialty_keyword: '정형' },
+
+    // 두통 (5)
+    { pain_area_id: 5, specialty_keyword: '신경과' },
+    { pain_area_id: 5, specialty_keyword: '신경외과' },
+    { pain_area_id: 5, specialty_keyword: '내과' },
+    { pain_area_id: 5, specialty_keyword: '통증의학과' },
+    { pain_area_id: 5, specialty_keyword: '두통' },
+    { pain_area_id: 5, specialty_keyword: '뇌' },
+    { pain_area_id: 5, specialty_keyword: '신경' },
+    { pain_area_id: 5, specialty_keyword: '통증' },
+
+    // 복통 (6)
+    { pain_area_id: 6, specialty_keyword: '내과' },
+    { pain_area_id: 6, specialty_keyword: '소화기내과' },
+    { pain_area_id: 6, specialty_keyword: '소화기' },
+    { pain_area_id: 6, specialty_keyword: '외과' },
+    { pain_area_id: 6, specialty_keyword: '가정의학과' },
+    { pain_area_id: 6, specialty_keyword: '위장' },
+    { pain_area_id: 6, specialty_keyword: '대장' },
+    { pain_area_id: 6, specialty_keyword: '항문' },
   ];
+
+  for (const data of painAreaSpecialties) {
+    await prisma.pain_area_specialties.create({
+      data: {
+        pain_area_id: BigInt(data.pain_area_id),
+        specialty_keyword: data.specialty_keyword,
+      },
+    });
+  }
+  console.log('pain_area_specialties 데이터 삽입 완료');
 
   for (const spec of painAreaSpecialties) {
     const painArea = createdPainAreas[spec.area];
