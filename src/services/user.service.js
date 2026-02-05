@@ -105,6 +105,37 @@ class UserService {
       throw new ApiError(500, errorCodes.INTERNAL_SERVER_ERROR, '로그인 처리 중 서버 오류가 발생했습니다.')
     }
   }
+
+  // 마이페이지: 내 정보 조회
+  async getMe(userID) {
+    const user = await this.repository.findMe(userID);
+    if (!user) {
+      throw new ApiError(404, errorCodes.USER_NOT_FOUND, '유저를 찾을 수 없습니다.');
+    }
+    return user;
+  }
+
+  // 마이페이지: 내 정보 수정
+  async updateMe(userID, payload) {
+    return this.repository.update(userID, payload);
+  }
+
+  // 마이페이지: 주요 아픈 부위 저장
+  async updatePainArea(userID, painAreaID) {
+    // painAreaID 존재 여부 확인
+    const painArea = await this.repository.findPainAreaById(painAreaID);
+    if (!painArea) {
+      throw new ApiError(400, errorCodes.PAINAREA_NOT_FOUND, '존재하지 않는 아픈 부위입니다.');
+    }
+
+    // 기존 painArea 매핑 삭제
+    await this.repository.clearUserPainArea(userID);
+
+    // 새로운 painArea 매핑 생성
+    await this.repository.createUserPainArea(userID, painAreaID);
+
+    return { painAreaID: Number(painArea.pain_area_id), name: painArea.name };
+  }
 }
 
 export default UserService
