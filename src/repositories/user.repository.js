@@ -29,9 +29,9 @@ class UserRepository {
       //user 테이블에 레코드 생성
       const user = await tx.users.create({ data: userData })
 
-      //painArea를 선택했다면 UserPainArea 테이블에 레코드 생성
+      //painArea를 선택했다면 user_pain_areas 테이블에 레코드 생성
       if (painAreaID){
-        await tx.userPainArea.create({
+        await tx.user_pain_areas.create({
           data : {
             user_id : user.user_id,
             pain_area_id : painAreaID

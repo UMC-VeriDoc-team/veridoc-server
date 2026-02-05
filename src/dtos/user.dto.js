@@ -50,7 +50,7 @@ class UserDTO {
       password,
       birth: new Date(birth),
       gender,
-      painAreaID : painAreaID ? BigInt(painAreaID) : null
+      painAreaID: painAreaID ? BigInt(painAreaID) : BigInt(8)
     }
   }
 }
