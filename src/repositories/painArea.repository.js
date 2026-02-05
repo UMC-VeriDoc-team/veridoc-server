@@ -7,9 +7,9 @@ class PainAreaRepository {
 
     // 모든 아픈 부위 조회 (정렬은 asc 를 통해 고정)
     async findAll() {
-        return this.client.painArea.findMany({
+        return this.client.pain_areas.findMany({
             orderBy: {
-                painAreaID: 'asc'
+                pain_area_id: 'asc'
             }
         });
     }

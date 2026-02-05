@@ -4,7 +4,7 @@ class UserRepository {
   constructor(client = prisma) {
     this.client = client;
   }
- 
+
   // 모든 유저 조회
   async findAll() {
     return this.client.users.findMany();
@@ -18,23 +18,23 @@ class UserRepository {
   async findByEmail(email) {
     return this.client.users.findUnique({ where: { email } });
   }
- 
+
   /*유저 생성 & painArea를 선택했다면 UserPainArea 까지 생성
     transaction 을 사용하여 두 테이블 모두 성공적으로 생성되었는지 확인
    */
   async create(data) {
-    const {painAreaID, ...userData} = data
-    
+    const { painAreaID, ...userData } = data
+
     return this.client.$transaction(async (tx) => {
       //user 테이블에 레코드 생성
       const user = await tx.users.create({ data: userData })
 
       //painArea를 선택했다면 user_pain_areas 테이블에 레코드 생성
-      if (painAreaID){
+      if (painAreaID) {
         await tx.user_pain_areas.create({
-          data : {
-            user_id : user.user_id,
-            pain_area_id : painAreaID
+          data: {
+            user_id: user.user_id,
+            pain_area_id: painAreaID
           }
         })
       }
@@ -48,7 +48,18 @@ class UserRepository {
   }
 
   async remove(userID) {
-    return this.client.users.delete({ where: { user_id: BigInt(userID) } });
+    const userId = BigInt(userID);
+
+    return this.client.$transaction(async (tx) => {
+      // 관련 user_pain_areas 레코드 먼저 삭제
+      await tx.user_pain_areas.deleteMany({ where: { user_id: userId } });
+
+      // 관련 user_symptoms 레코드 삭제
+      await tx.user_symptoms.deleteMany({ where: { user_id: userId } });
+
+      // 유저 삭제
+      return tx.users.delete({ where: { user_id: userId } });
+    });
   }
 }
 

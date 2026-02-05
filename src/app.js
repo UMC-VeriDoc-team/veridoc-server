@@ -10,6 +10,17 @@ dotenv.config();
 
 const app = express();
 
+// BigInt와 Date를 JSON으로 직렬화하기 위한 설정
+app.set('json replacer', (key, value) => {
+  if (typeof value === 'bigint') {
+    return Number(value);
+  }
+  if (value instanceof Date) {
+    return value.toISOString();
+  }
+  return value;
+});
+
 // CORS 설정
 const corsOptions = {
   origin: [
@@ -23,7 +34,7 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(express.json());
 if (process.env.NODE_ENV !== 'production') {
-	app.set('json spaces', 2);
+  app.set('json spaces', 2);
 }
 app.use('/api/v1', routes);
 
