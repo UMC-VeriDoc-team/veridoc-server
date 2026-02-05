@@ -23,11 +23,16 @@ app.set("json replacer", (key, value) => {
 
 // CORS 설정
 const corsOptions = {
-  origin: ["http://localhost:5173", "https://veridoc-client.vercel.app"],
+  origin: [
+    "http://localhost:5173",
+    "https://veridoc-client.vercel.app",
+    "https://veridoc-umber.vercel.app",
+  ],
   credentials: true,
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"],
 };
+
 app.use(cors(corsOptions));
 app.use(express.json());
 if (process.env.NODE_ENV !== "production") {
