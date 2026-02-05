@@ -31,9 +31,21 @@ jobs:
           APP_DIR: /home/ubuntu/veridoc-server
         run: |
           mkdir -p ~/.ssh
-          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+
+          # Fail fast if required secrets are missing (helps debugging empty-secret issues)
+          if [ -z "$SSH_PRIVATE_KEY" ] || [ -z "$EC2_HOST" ] || [ -z "$EC2_USER" ]; then
+            echo "Required secret(s) missing: ensure EC2_SSH_KEY, EC2_HOST and EC2_USER are set in repository secrets." >&2
+            exit 1
+          fi
+
+          # Safely write private key and set permissions
+          printf '%s\n' "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
 
+          # Add remote host to known_hosts to avoid interactive prompt
+          ssh-keyscan -H "$EC2_HOST" >> ~/.ssh/known_hosts || true
+
+          # Connect and deploy on the remote host
           ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST "\
             set -e; \
             cd $APP_DIR; \
