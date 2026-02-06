@@ -1,0 +1,1236 @@
+tags:
+  - name: Users
+    description: 사용자 관련 API
+  - name: Hospital
+    description: 병원 추천 API
+  - name: PainAreas
+    description: 아픈 부위 관련 API
+  - name: Home
+    description: 홈 화면 관련 API
+  - name: LifestyleGuide
+    description: 생활 관리 가이드 API
+  - name: TemporaryGuides
+    description: 임시 대처 가이드 API
+  - name: Agreements
+    description: 약관 동의 API
+  - name: Admin
+    description: 관리자 API
+
+paths:
+  # ========== Users ==========
+  /users/signup:
+    post:
+      tags:
+        - Users
+      summary: 회원가입
+      description: 새로운 사용자를 등록합니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - name
+                - email
+                - password
+                - birth
+                - gender
+              properties:
+                name:
+                  type: string
+                  example: "홍길동"
+                email:
+                  type: string
+                  format: email
+                  example: "user@example.com"
+                password:
+                  type: string
+                  description: "최소 8자, 대문자/소문자/숫자/특수문자(@$!%*?&) 포함"
+                  example: "Password1!"
+                birth:
+                  type: string
+                  format: date
+                  example: "1990-01-01"
+                gender:
+                  type: string
+                  enum: [MALE, FEMALE, OTHER]
+                  example: "MALE"
+                painAreaID:
+                  type: integer
+                  description: "아픈 부위 ID (선택, 미입력 시 기본값 8)"
+                  example: 1
+      responses:
+        "201":
+          description: 회원가입 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 201
+                  message:
+                    type: string
+                    example: "회원가입이 완료되었습니다."
+                  data:
+                    type: object
+                    properties:
+                      userID:
+                        type: integer
+                        example: 1
+                      email:
+                        type: string
+                        example: "user@example.com"
+        "400":
+          description: 잘못된 요청
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users/login:
+    post:
+      tags:
+        - Users
+      summary: 로그인
+      description: 이메일과 비밀번호로 로그인합니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "user@example.com"
+                password:
+                  type: string
+                  example: "Password1!"
+      responses:
+        "200":
+          description: 로그인 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: "로그인 성공"
+                  data:
+                    type: object
+                    properties:
+                      userID:
+                        type: integer
+                        example: 1
+                      accessToken:
+                        type: string
+                        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        "401":
+          description: 인증 실패
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users/me:
+    get:
+      tags:
+        - Users
+      summary: 내 정보 조회
+      description: 인증된 사용자의 정보를 조회합니다.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: "사용자 정보 조회 성공"
+                  data:
+                    type: object
+                    properties:
+                      user_id:
+                        type: integer
+                        example: 3
+                      name:
+                        type: string
+                        example: "베리닥"
+                      email:
+                        type: string
+                        example: "veridoc@gmail.com"
+                      birth:
+                        type: string
+                        format: date-time
+                        example: "2003-01-01T00:00:00.000Z"
+                      gender:
+                        type: string
+                        enum: [MALE, FEMALE, OTHER]
+                        example: "MALE"
+                      user_pain_areas:
+                        type: array
+                        description: "사용자의 주요 아픈 부위 목록"
+                        items:
+                          type: object
+                          properties:
+                            pain_areas:
+                              type: object
+                              properties:
+                                pain_area_id:
+                                  type: integer
+                                  example: 1
+                                name:
+                                  type: string
+                                  example: "어깨"
+        "401":
+          description: 인증 실패
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    put:
+      tags:
+        - Users
+      summary: 내 정보 수정
+      description: 인증된 사용자의 정보를 수정합니다. 이메일은 수정할 수 없습니다.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "베리닥수정"
+                password:
+                  type: string
+                  example: "NewPassword1!"
+      responses:
+        "200":
+          description: 수정 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "400":
+          description: 잘못된 요청
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: 인증 실패
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    delete:
+      tags:
+        - Users
+      summary: 회원탈퇴 (내 계정 삭제)
+      description: 인증된 사용자의 계정을 삭제합니다.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: 탈퇴 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "401":
+          description: 인증 실패
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: 서버 오류
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users/me/pain-area:
+    put:
+      tags:
+        - Users
+      summary: 주요 아픈 부위 저장
+      description: 인증된 사용자의 주요 아픈 부위를 저장합니다.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - painAreaID
+              properties:
+                painAreaID:
+                  type: integer
+                  description: "주요 아픈 부위 ID"
+                  example: 2
+      responses:
+        "200":
+          description: 저장 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: "주요 아픈 부위 저장 성공"
+                  data:
+                    type: object
+                    properties:
+                      painAreaID:
+                        type: integer
+                        example: 2
+                      name:
+                        type: string
+                        example: "허리"
+        "400":
+          description: 잘못된 요청
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: 인증 실패
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users:
+    get:
+      tags:
+        - Users
+      summary: 사용자 목록 조회
+      description: 모든 사용자 목록을 조회합니다.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: "사용자 목록 조회 성공"
+                  data:
+                    type: object
+                    properties:
+                      users:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/User"
+
+  /users/{id}:
+    get:
+      tags:
+        - Users
+      summary: 사용자 조회
+      description: 특정 사용자 정보를 조회합니다.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 사용자 ID
+      responses:
+        "200":
+          description: 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: "사용자 조회 성공"
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: "#/components/schemas/User"
+        "404":
+          description: 사용자를 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+    put:
+      tags:
+        - Users
+      summary: 사용자 정보 수정
+      description: 사용자 정보를 수정합니다.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 사용자 ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "홍길동"
+                password:
+                  type: string
+                  example: "newpassword123"
+      responses:
+        "200":
+          description: 수정 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+    delete:
+      tags:
+        - Users
+      summary: 사용자 삭제
+      description: 사용자를 삭제합니다.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 사용자 ID
+      responses:
+        "200":
+          description: 삭제 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  # ========== Hospital ==========
+  /hospital/nearby:
+    get:
+      tags:
+        - Hospital
+      summary: 근처 병원 조회
+      description: 사용자 위치 기준 가까운 병원을 조회합니다. painAreaId를 지정하면 해당 증상에 맞는 진료과 병원만 필터링됩니다.
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          schema:
+            type: number
+            format: float
+          description: 위도
+          example: 37.5564
+        - name: lng
+          in: query
+          required: true
+          schema:
+            type: number
+            format: float
+          description: 경도
+          example: 126.9239
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 3
+            minimum: 1
+            maximum: 100
+          description: 반환할 병원 수
+        - name: painAreaId
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: "아픈 부위 ID (1:어깨, 2:허리, 3:무릎, 4:목, 5:두통, 6:복통)"
+      responses:
+        "200":
+          description: 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  data:
+                    type: object
+                    properties:
+                      searchContext:
+                        type: object
+                        properties:
+                          center:
+                            type: object
+                            properties:
+                              lat:
+                                type: number
+                                example: 37.5564
+                              lng:
+                                type: number
+                                example: 126.9239
+                          painAreaId:
+                            type: integer
+                            nullable: true
+                            example: 1
+                      hospitals:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/Hospital"
+        "400":
+          description: 잘못된 요청
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ========== Pain Areas ==========
+  /pain-areas:
+    get:
+      tags:
+        - PainAreas
+      summary: 아픈 부위 목록 조회
+      description: 선택 가능한 아픈 부위 목록을 조회합니다.
+      responses:
+        "200":
+          description: 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: "주요 아픈 부위 목록 조회 성공"
+                  data:
+                    type: object
+                    properties:
+                      painAreas:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/PainArea"
+
+  # ========== Home ==========
+  /homes:
+    get:
+      tags:
+        - Home
+      summary: 홈 화면 데이터 조회
+      description: 로그인한 사용자의 홈 화면 데이터를 조회합니다.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: "홈 화면 조회 성공"
+                  data:
+                    type: object
+                    properties:
+                      painAreaId:
+                        type: integer
+                        example: 1
+                      painAreaName:
+                        type: string
+                        example: "어깨"
+                      banners:
+                        type: array
+                        description: "첫 항목은 타이틀, 이후 3개는 이미지"
+                        items:
+                          type: object
+                          properties:
+                            title:
+                              type: string
+                              example: "어깨 통증은 잘못된 자세..."
+                            id:
+                              type: integer
+                              example: 1
+                            imageUrl:
+                              type: string
+                              nullable: true
+                              example: "https://..."
+                      symptoms:
+                        type: array
+                        description: "사용자 통증 부위의 증상 목록 (최대 3개, 부족 시 null 패딩)"
+                        items:
+                          type: object
+                          properties:
+                            symptomId:
+                              type: integer
+                              nullable: true
+                              example: 1
+                            name:
+                              type: string
+                              nullable: true
+                              example: "회전근개 파열"
+                      commonGuides:
+                        type: array
+                        description: "임시 치료법 가이드 (최대 3개, 부족 시 null 패딩)"
+                        items:
+                          type: object
+                          properties:
+                            guideId:
+                              type: integer
+                              nullable: true
+                              example: 1
+                            title:
+                              type: string
+                              nullable: true
+                              example: "어깨 스트레칭"
+                            badges:
+                              type: array
+                              items:
+                                type: string
+                              example: ["집 · 사무실", "하루 1~2회"]
+                            description:
+                              type: string
+                              nullable: true
+                              example: "스트레칭 방법 설명..."
+                            imageUrl:
+                              type: string
+                              nullable: true
+                              example: "https://..."
+                            type:
+                              type: string
+                              nullable: true
+                              example: "스트레칭/찜질"
+                            duration:
+                              type: string
+                              nullable: true
+                              example: "약 10분 소요"
+
+  /homes/expert-summary/{answerId}:
+    get:
+      tags:
+        - Home
+      summary: 전문의 답변 요약 조회
+      description: 특정 전문의 답변의 요약본을 조회합니다. 사용자가 선택한 증상에 해당하는 답변만 조회 가능합니다.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: answerId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 답변 ID
+      responses:
+        "200":
+          description: 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: "전문의 답변 요약 조회 성공"
+                  data:
+                    type: object
+                    properties:
+                      answerId:
+                        type: integer
+                        example: 1
+                      painAreaId:
+                        type: integer
+                        example: 1
+                      painAreaName:
+                        type: string
+                        example: "어깨"
+                      symptomId:
+                        type: integer
+                        example: 1
+                      symptomName:
+                        type: string
+                        example: "회전근개 파열"
+                      summary:
+                        type: string
+                        example: "전문의 답변 요약 내용..."
+                      updatedAt:
+                        type: string
+                        format: date-time
+                        example: "2026-01-01T00:00:00.000Z"
+        "404":
+          description: 답변을 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /homes/expert-answers/{answerId}:
+    get:
+      tags:
+        - Home
+      summary: 전문의 답변 상세 조회
+      description: 특정 전문의 답변의 상세 내용을 조회합니다. 사용자가 선택한 증상에 해당하는 답변만 조회 가능합니다.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: answerId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 답변 ID
+      responses:
+        "200":
+          description: 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: "전문의 답변 조회 성공"
+                  data:
+                    type: object
+                    properties:
+                      answerId:
+                        type: integer
+                        example: 1
+                      painAreaId:
+                        type: integer
+                        example: 1
+                      painAreaName:
+                        type: string
+                        example: "어깨"
+                      symptomId:
+                        type: integer
+                        example: 1
+                      symptomName:
+                        type: string
+                        example: "회전근개 파열"
+                      title:
+                        type: string
+                        example: "회전근개 파열 전문의 소견"
+                      content:
+                        type: string
+                        example: "전문의 답변 상세 내용..."
+                      imageUrl:
+                        type: string
+                        nullable: true
+                        example: null
+                      sourceUrl:
+                        type: string
+                        example: "https://source-url.com"
+                      updatedAt:
+                        type: string
+                        format: date-time
+                        example: "2026-01-01T00:00:00.000Z"
+                      morePosts:
+                        type: array
+                        description: "같은 통증 부위의 다른 답변 (최대 2개)"
+                        items:
+                          type: object
+                          properties:
+                            answerId:
+                              type: integer
+                              example: 2
+                            painAreaId:
+                              type: integer
+                              example: 1
+                            symptomId:
+                              type: integer
+                              example: 2
+                            title:
+                              type: string
+                              example: "오십견 전문의 소견"
+                            imageUrl:
+                              type: string
+                              nullable: true
+                              example: null
+        "404":
+          description: 답변을 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ========== Temporary Guides ==========
+  /temporary-guides/{guideId}:
+    get:
+      tags:
+        - TemporaryGuides
+      summary: 임시 대처 가이드 상세 조회
+      description: |
+        임시 대처 가이드 상세 내용을 조회합니다.
+        morePosts는 같은 통증 부위의 다른 임시 대처 가이드에서 최대 2개를 제공합니다.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: guideId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 임시 대처 가이드 ID
+      responses:
+        "200":
+          description: 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TemporaryGuideDetailResponse"
+        "401":
+          description: 인증 실패
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+              examples:
+                unauthorized:
+                  summary: 로그인이 필요합니다.
+                  value:
+                    error:
+                      code: UNAUTHORIZED
+                      message: "로그인이 필요합니다."
+        "404":
+          description: 가이드를 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+              examples:
+                notFound:
+                  summary: 임시 대처 가이드 없음
+                  value:
+                    error:
+                      code: CONTENT_NOT_FOUND
+                      message: "요청하신 임시 대처 가이드를 찾을 수 없습니다."
+        "500":
+          description: 서버 오류
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+              examples:
+                serverError:
+                  summary: 서버 내부 오류
+                  value:
+                    error:
+                      code: SERVER_ERROR
+                      message: "서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+
+  # ========== Lifestyle Guide ==========
+  /lifestyle-videos/{painAreaId}:
+    get:
+      tags:
+        - LifestyleGuide
+      summary: 생활 관리 가이드 조회
+      description: 특정 아픈 부위에 대한 생활 관리 가이드(영상)를 조회합니다.
+      parameters:
+        - name: painAreaId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 아픈 부위 ID
+      responses:
+        "200":
+          description: 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: "어깨 생활관리"
+                  data:
+                    type: object
+                    properties:
+                      painAreaId:
+                        type: integer
+                        nullable: true
+                        example: 1
+                      painAreaName:
+                        type: string
+                        nullable: true
+                        example: "어깨"
+                      title:
+                        type: string
+                        nullable: true
+                        example: "어깨 스트레칭"
+                      subtitle:
+                        type: string
+                        nullable: true
+                        example: "아래 영상은 어깨 불편 시 가볍게 참고할 수 있는 스트레칭 예시에요."
+                      videos:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/LifestyleVideo"
+
+  # ========== Agreements ==========
+  /agreements:
+    post:
+      tags:
+        - Agreements
+      summary: 약관 동의
+      description: |
+        서비스 이용 약관, 개인정보 수집 및 이용 동의, 위치기반 서비스 이용 동의를 처리합니다.
+        3개 약관 모두 true로 전달해야 합니다.
+        이미 동의한 약관이 있으면 동의 시간이 갱신됩니다.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - termsOfService
+                - privacyPolicy
+                - locationService
+              properties:
+                termsOfService:
+                  type: boolean
+                  description: "서비스 이용 약관 동의"
+                  example: true
+                privacyPolicy:
+                  type: boolean
+                  description: "개인정보 수집 및 이용 동의"
+                  example: true
+                locationService:
+                  type: boolean
+                  description: "위치기반 서비스 이용 동의"
+                  example: true
+      responses:
+        "200":
+          description: 약관 동의 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  agreedAt:
+                    type: string
+                    format: date-time
+                    example: "2026-02-06T18:04:38.000Z"
+        "400":
+          description: 모든 약관에 동의하지 않은 경우
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: 인증 실패
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /agreements/me:
+    get:
+      tags:
+        - Agreements
+      summary: 내 약관 동의 현황 조회
+      description: 인증된 사용자의 약관 동의 현황을 조회합니다.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  agreements:
+                    type: object
+                    properties:
+                      termsOfService:
+                        type: object
+                        nullable: true
+                        properties:
+                          agreement_type:
+                            type: string
+                            example: "TOS"
+                          agreed_at:
+                            type: string
+                            format: date-time
+                            example: "2026-02-06T18:04:38.000Z"
+                      privacyPolicy:
+                        type: object
+                        nullable: true
+                        properties:
+                          agreement_type:
+                            type: string
+                            example: "PRIVACY"
+                          agreed_at:
+                            type: string
+                            format: date-time
+                            example: "2026-02-06T18:04:38.000Z"
+                      locationService:
+                        type: object
+                        nullable: true
+                        properties:
+                          agreement_type:
+                            type: string
+                            example: "LOCATION"
+                          agreed_at:
+                            type: string
+                            format: date-time
+                            example: "2026-02-06T18:04:38.000Z"
+        "401":
+          description: 인증 실패
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  # ========== Admin ==========
+  /admin/issue-master-token:
+    post:
+      tags:
+        - Admin
+      summary: 마스터 토큰 발급
+      description: 관리자 API 키로 마스터 토큰을 발급받습니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - apiKey
+              properties:
+                apiKey:
+                  type: string
+                  description: 관리자 API 키
+                  example: "your-admin-api-key"
+      responses:
+        "200":
+          description: 발급 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: "마스터 토큰 발급 성공"
+                  data:
+                    type: object
+                    properties:
+                      masterToken:
+                        type: string
+                        example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        "401":
+          description: 인증 실패
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        user_id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "홍길동"
+        email:
+          type: string
+          example: "user@example.com"
+        birth:
+          type: string
+          format: date-time
+          example: "1990-01-01T00:00:00.000Z"
+        gender:
+          type: string
+          enum: [MALE, FEMALE, OTHER]
+          example: "MALE"
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Hospital:
+      type: object
+      properties:
+        hospitalId:
+          type: string
+          example: "A1101245"
+        name:
+          type: string
+          example: "굿본정형외과재활의학과의원"
+        category:
+          type: string
+          example: "의원"
+        matchedSpecialty:
+          type: string
+          nullable: true
+          example: "정형외과"
+          description: "필터링된 경우 매칭된 진료과 키워드"
+        address:
+          type: string
+          example: "서울특별시 마포구 양화로 162"
+        distanceMeters:
+          type: integer
+          example: 150
+          description: "거리 (미터)"
+        coordinate:
+          type: object
+          properties:
+            lat:
+              type: number
+              example: 37.5564
+            lng:
+              type: number
+              example: 126.9239
+        imageUrl:
+          type: string
+          nullable: true
+        homepageUrl:
+          type: string
+          nullable: true
+
+    PainArea:
+      type: object
+      properties:
+        pain_area_id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: "어깨"
+
+    LifestyleVideo:
+      type: object
+      properties:
+        videoId:
+          type: integer
+          example: 1
+        youtubeUrl:
+          type: string
+          example: "https://youtube.com/watch?v=..."
+        youtubeTitle:
+          type: string
+          example: "어깨 스트레칭"
+        description:
+          type: string
+          example: "영상 설명..."
+
+    SuccessResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 200
+        message:
+          type: string
+          example: "성공"
+        data:
+          type: object
+
+    ErrorResponse:
+      type: object
+      properties:
+        code:
+          type: integer
+          example: 400
+        errorCode:
+          type: string
+          example: "VALIDATION_ERROR"
+        message:
+          type: string
+          example: "잘못된 요청입니다."
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
