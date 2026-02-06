@@ -143,6 +143,82 @@ async function main() {
   }
 
   // ============================
+  // 2-2) expert_answers 보강 (morePosts용 2개 보장)
+  // ============================
+  const existingAnswers = await prisma.expert_answers.findMany({
+    select: {
+      answer_id: true,
+      symptom_id: true,
+      symptoms: { select: { pain_area_id: true } },
+    },
+  });
+
+  const answersBySymptom = new Map();
+  const answersByPainArea = new Map();
+
+  for (const answer of existingAnswers) {
+    const symptomKey = Number(answer.symptom_id);
+    answersBySymptom.set(symptomKey, (answersBySymptom.get(symptomKey) || 0) + 1);
+
+    const painAreaKey = Number(answer.symptoms?.pain_area_id);
+    if (!Number.isNaN(painAreaKey)) {
+      answersByPainArea.set(painAreaKey, (answersByPainArea.get(painAreaKey) || 0) + 1);
+    }
+  }
+
+  const plannedPainAreaCounts = new Map(answersByPainArea);
+  const extraAnswers = [];
+  let extraIndex = 1;
+
+  for (const symptom of symptoms) {
+    const symptomKey = Number(symptom.symptom_id);
+    if ((answersBySymptom.get(symptomKey) || 0) > 0) continue;
+
+    const painAreaKey = Number(symptom.pain_area_id);
+    const areaName = painAreaMap[painAreaKey] || '통증 부위';
+
+    extraAnswers.push({
+      symptom_id: symptom.symptom_id,
+      summary: `${areaName} ${symptom.name} 증상은 다양한 원인으로 인해 발생할 수 있습니다.`,
+      full_content: `${areaName} ${symptom.name} 증상에 대한 전문의 진료 기록입니다.\n\n원인:\n- 잘못된 자세 유지\n- 근육 피로\n- 염증성 질환\n\n치료 방법:\n1. 물리 치료\n2. 스트레칭 운동\n3. 약물 치료\n4. 생활 습관 개선\n\n예방:\n- 정기적인 운동\n- 올바른 자세 유지\n- 스트레스 관리\n- 충분한 휴식`,
+      source_url: `https://example.com/treatments/extra-${extraIndex++}`,
+    });
+
+    plannedPainAreaCounts.set(
+      painAreaKey,
+      (plannedPainAreaCounts.get(painAreaKey) || 0) + 1
+    );
+  }
+
+  for (const painArea of painAreas) {
+    const painAreaKey = Number(painArea.pain_area_id);
+    let currentCount = plannedPainAreaCounts.get(painAreaKey) || 0;
+    const pool = symptomsByPainArea[painAreaKey] || [];
+
+    let poolIndex = 0;
+    while (currentCount < 3 && pool.length > 0) {
+      const symptom = pool[poolIndex % pool.length];
+      extraAnswers.push({
+        symptom_id: symptom.symptom_id,
+        summary: `${painArea.name} ${symptom.name} 증상은 다양한 원인으로 인해 발생할 수 있습니다.`,
+        full_content: `${painArea.name} ${symptom.name} 증상에 대한 전문의 진료 기록입니다.\n\n원인:\n- 잘못된 자세 유지\n- 근육 피로\n- 염증성 질환\n\n치료 방법:\n1. 물리 치료\n2. 스트레칭 운동\n3. 약물 치료\n4. 생활 습관 개선\n\n예방:\n- 정기적인 운동\n- 올바른 자세 유지\n- 스트레스 관리\n- 충분한 휴식`,
+        source_url: `https://example.com/treatments/extra-${extraIndex++}`,
+      });
+      currentCount += 1;
+      poolIndex += 1;
+    }
+
+    plannedPainAreaCounts.set(painAreaKey, currentCount);
+  }
+
+  if (extraAnswers.length > 0) {
+    await prisma.expert_answers.createMany({ data: extraAnswers });
+    console.log(`expert_answers 추가 ${extraAnswers.length}건 삽입 완료`);
+  } else {
+    console.log('expert_answers 충분히 존재, 보강 건너뜀');
+  }
+
+  // ============================
   // 3) Seed User 증상 보강 (어깨 3개 모두)
   // ============================
   const seedUser = await prisma.users.findFirst({ orderBy: { user_id: 'asc' } });
