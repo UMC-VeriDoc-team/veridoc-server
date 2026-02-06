@@ -4,6 +4,7 @@ import TemporaryGuideController from '../controllers/temporaryGuide.controller.j
 const router = express.Router();
 const controller = new TemporaryGuideController();
 
+router.get('/ids', controller.getTemporaryGuideIds);
 router.get('/:guideId', controller.getTemporaryGuideDetail);
 
 export default router;

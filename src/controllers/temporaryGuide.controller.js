@@ -2,10 +2,12 @@ import TemporaryGuideService from '../services/temporaryGuide.service.js';
 import ApiError from '../errors/ApiError.js';
 import errorCodes from '../errors/errorCodes.js';
 import { verifyAccessToken } from '../utils/jwt.util.js';
+import { sendSuccess } from '../utils/response.util.js';
 
 class TemporaryGuideController {
   constructor(service = new TemporaryGuideService()) {
     this.service = service;
+    this.getTemporaryGuideIds = this.getTemporaryGuideIds.bind(this);
     this.getTemporaryGuideDetail = this.getTemporaryGuideDetail.bind(this);
   }
 
@@ -18,7 +20,16 @@ class TemporaryGuideController {
     return authHeader.split(' ')[1];
   }
 
-  async getTemporaryGuideDetail(req, res) {
+  async getTemporaryGuideIds(req, res, next) {
+    try {
+      const guides = await this.service.getGuideIds();
+      return sendSuccess(res, { guides }, "임시 대처 가이드 ID 조회 성공");
+    } catch (err) {
+      return next(err);
+    }
+  }
+
+  async getTemporaryGuideDetail(req, res, next) {
     try {
       const token = this._extractToken(req);
       try {
@@ -30,23 +41,9 @@ class TemporaryGuideController {
       const guideId = Number(req.params.guideId);
       const data = await this.service.getGuideDetail(guideId);
 
-      return res.status(200).json({ data });
+      return sendSuccess(res, data, '임시 대처 가이드 상세 조회 성공');
     } catch (err) {
-      if (err instanceof ApiError) {
-        return res.status(err.status || 500).json({
-          error: {
-            code: err.code || errorCodes.SERVER_ERROR,
-            message: err.message || '서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
-          },
-        });
-      }
-
-      return res.status(500).json({
-        error: {
-          code: errorCodes.SERVER_ERROR,
-          message: '서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
-        },
-      });
+      return next(err);
     }
   }
 }

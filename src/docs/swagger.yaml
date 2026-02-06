@@ -844,6 +844,29 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
 
   # ========== Temporary Guides ==========
+  /temporary-guides/ids:
+    get:
+      tags:
+        - TemporaryGuides
+      summary: 임시 대처 가이드 ID 목록 조회
+      description: 프런트 테스트를 위한 임시 대처 가이드 ID와 부위 이름을 조회합니다.
+      responses:
+        "200":
+          description: 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: "임시 대처 가이드 ID 조회 성공"
+                  data:
+                    $ref: "#/components/schemas/TemporaryGuideIdList"
+
   /temporary-guides/{guideId}:
     get:
       tags:
@@ -867,7 +890,16 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/TemporaryGuideDetailResponse"
+                type: object
+                properties:
+                  code:
+                    type: integer
+                    example: 200
+                  message:
+                    type: string
+                    example: "임시 대처 가이드 상세 조회 성공"
+                  data:
+                    $ref: "#/components/schemas/TemporaryGuideDetail"
         "401":
           description: 인증 실패
           content:
@@ -1320,10 +1352,6 @@ components:
         painAreaName:
           type: string
           example: "어깨"
-        symptomId:
-          type: integer
-          nullable: true
-          example: null
         type:
           type: string
           example: "어깨 · 스트레칭/찜질"
@@ -1436,10 +1464,6 @@ components:
         painAreaId:
           type: integer
           example: 1
-        symptomId:
-          type: integer
-          nullable: true
-          example: null
         title:
           type: string
           example: "어깨 온찜질/냉찜질"
@@ -1447,6 +1471,22 @@ components:
           type: string
           nullable: true
           example: "https://example.com/post02.webp"
+
+    TemporaryGuideIdList:
+      type: object
+      properties:
+        guides:
+          type: array
+          items:
+            type: object
+            properties:
+              guideId:
+                type: integer
+                example: 1
+              painAreaName:
+                type: string
+                nullable: true
+                example: "어깨"
 
   securitySchemes:
     bearerAuth:

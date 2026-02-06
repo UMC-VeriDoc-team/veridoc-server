@@ -22,6 +22,24 @@ async function main() {
     painAreas.map((pa) => [Number(pa.pain_area_id), pa.name])
   );
 
+  const buildGuideContent = (title, painAreaName) => (
+    `${title}에 대한 임시 대처 가이드입니다.\n` +
+    `${painAreaName}에 무리가 가지 않도록 천천히 진행하세요.\n` +
+    '---\n' +
+    'BADGES:\n' +
+    '- 통증 직후\n' +
+    '- 하루 1~2회\n' +
+    '---\n' +
+    'NOTES:\n' +
+    '- 통증이 심해지면 즉시 중단하세요.\n' +
+    '---\n' +
+    'CAUTIONS:\n' +
+    '- 심한 통증이나 붓기가 있으면 병원 진료를 권장합니다.\n' +
+    '---\n' +
+    'HELPS:\n' +
+    '- 가벼운 스트레칭이 도움이 됩니다.'
+  );
+
   // pain_area_id별 증상 그룹핑
   const symptomsByPainArea = {};
   for (const s of symptoms) {
@@ -185,6 +203,20 @@ async function main() {
     console.log(`temporary_care_guides 추가 ${extraGuides.length}건 삽입 완료`);
   } else {
     console.log('temporary_care_guides 충분히 존재, 보강 건너뜀');
+  }
+
+  const allGuides = await prisma.temporary_care_guides.findMany({
+    select: { guide_id: true, pain_area_id: true, title: true },
+  });
+
+  for (const guide of allGuides) {
+    const painAreaName = painAreaMap[Number(guide.pain_area_id)] || '통증 부위';
+    const content = buildGuideContent(guide.title, painAreaName);
+
+    await prisma.temporary_care_guides.update({
+      where: { guide_id: guide.guide_id },
+      data: { content },
+    });
   }
 
   // ============================
