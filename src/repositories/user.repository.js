@@ -70,6 +70,9 @@ class UserRepository {
       // 관련 user_symptoms 레코드 삭제
       await tx.user_symptoms.deleteMany({ where: { user_id: userId } });
 
+      // 관련 user_agreements 레코드 삭제
+      await tx.user_agreements.deleteMany({ where: { user_id: userId } });
+
       // 유저 삭제
       return tx.users.delete({ where: { user_id: userId } });
     });

@@ -9,6 +9,8 @@ tags:
     description: 홈 화면 관련 API
   - name: LifestyleGuide
     description: 생활 관리 가이드 API
+  - name: Agreements
+    description: 약관 동의 API
   - name: Admin
     description: 관리자 API
 
@@ -181,16 +183,21 @@ paths:
                         type: string
                         enum: [MALE, FEMALE, OTHER]
                         example: "MALE"
-                      painArea:
-                        type: object
-                        nullable: true
-                        properties:
-                          pain_area_id:
-                            type: integer
-                            example: 1
-                          name:
-                            type: string
-                            example: "어깨"
+                      user_pain_areas:
+                        type: array
+                        description: "사용자의 주요 아픈 부위 목록"
+                        items:
+                          type: object
+                          properties:
+                            pain_areas:
+                              type: object
+                              properties:
+                                pain_area_id:
+                                  type: integer
+                                  example: 1
+                                name:
+                                  type: string
+                                  example: "어깨"
         "401":
           description: 인증 실패
           content:
@@ -585,25 +592,84 @@ paths:
                   data:
                     type: object
                     properties:
+                      painAreaId:
+                        type: integer
+                        example: 1
+                      painAreaName:
+                        type: string
+                        example: "어깨"
                       banners:
                         type: array
+                        description: "첫 항목은 타이틀, 이후 3개는 이미지"
                         items:
                           type: object
-                      temporaryCareGuides:
+                          properties:
+                            title:
+                              type: string
+                              example: "어깨 통증은 잘못된 자세..."
+                            id:
+                              type: integer
+                              example: 1
+                            imageUrl:
+                              type: string
+                              nullable: true
+                              example: "https://..."
+                      symptoms:
                         type: array
+                        description: "사용자 통증 부위의 증상 목록 (최대 3개, 부족 시 null 패딩)"
                         items:
                           type: object
-                      doctorAnswers:
+                          properties:
+                            symptomId:
+                              type: integer
+                              nullable: true
+                              example: 1
+                            name:
+                              type: string
+                              nullable: true
+                              example: "회전근개 파열"
+                      commonGuides:
                         type: array
+                        description: "임시 치료법 가이드 (최대 3개, 부족 시 null 패딩)"
                         items:
                           type: object
+                          properties:
+                            guideId:
+                              type: integer
+                              nullable: true
+                              example: 1
+                            title:
+                              type: string
+                              nullable: true
+                              example: "어깨 스트레칭"
+                            badges:
+                              type: array
+                              items:
+                                type: string
+                              example: ["집 · 사무실", "하루 1~2회"]
+                            description:
+                              type: string
+                              nullable: true
+                              example: "스트레칭 방법 설명..."
+                            imageUrl:
+                              type: string
+                              nullable: true
+                              example: "https://..."
+                            type:
+                              type: string
+                              nullable: true
+                              example: "스트레칭/찜질"
+                            duration:
+                              type: string
+                              nullable: true
+                              example: "약 10분 소요"
 
   /homes/expert-summary/{answerId}:
     get:
       tags:
         - Home
       summary: 전문의 답변 요약 조회
-      description: 특정 전문의 답변의 요약본을 조회합니다.
+      description: 특정 전문의 답변의 요약본을 조회합니다. 사용자가 선택한 증상에 해당하는 답변만 조회 가능합니다.
       security:
         - bearerAuth: []
       parameters:
@@ -629,13 +695,42 @@ paths:
                     example: "전문의 답변 요약 조회 성공"
                   data:
                     type: object
+                    properties:
+                      answerId:
+                        type: integer
+                        example: 1
+                      painAreaId:
+                        type: integer
+                        example: 1
+                      painAreaName:
+                        type: string
+                        example: "어깨"
+                      symptomId:
+                        type: integer
+                        example: 1
+                      symptomName:
+                        type: string
+                        example: "회전근개 파열"
+                      summary:
+                        type: string
+                        example: "전문의 답변 요약 내용..."
+                      updatedAt:
+                        type: string
+                        format: date-time
+                        example: "2026-01-01T00:00:00.000Z"
+        "404":
+          description: 답변을 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   /homes/expert-answers/{answerId}:
     get:
       tags:
         - Home
       summary: 전문의 답변 상세 조회
-      description: 특정 전문의 답변의 상세 내용을 조회합니다.
+      description: 특정 전문의 답변의 상세 내용을 조회합니다. 사용자가 선택한 증상에 해당하는 답변만 조회 가능합니다.
       security:
         - bearerAuth: []
       parameters:
@@ -661,6 +756,67 @@ paths:
                     example: "전문의 답변 조회 성공"
                   data:
                     type: object
+                    properties:
+                      answerId:
+                        type: integer
+                        example: 1
+                      painAreaId:
+                        type: integer
+                        example: 1
+                      painAreaName:
+                        type: string
+                        example: "어깨"
+                      symptomId:
+                        type: integer
+                        example: 1
+                      symptomName:
+                        type: string
+                        example: "회전근개 파열"
+                      title:
+                        type: string
+                        example: "회전근개 파열 전문의 소견"
+                      content:
+                        type: string
+                        example: "전문의 답변 상세 내용..."
+                      imageUrl:
+                        type: string
+                        nullable: true
+                        example: null
+                      sourceUrl:
+                        type: string
+                        example: "https://source-url.com"
+                      updatedAt:
+                        type: string
+                        format: date-time
+                        example: "2026-01-01T00:00:00.000Z"
+                      morePosts:
+                        type: array
+                        description: "같은 통증 부위의 다른 답변 (최대 2개)"
+                        items:
+                          type: object
+                          properties:
+                            answerId:
+                              type: integer
+                              example: 2
+                            painAreaId:
+                              type: integer
+                              example: 1
+                            symptomId:
+                              type: integer
+                              example: 2
+                            title:
+                              type: string
+                              example: "오십견 전문의 소견"
+                            imageUrl:
+                              type: string
+                              nullable: true
+                              example: null
+        "404":
+          description: 답변을 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   # ========== Lifestyle Guide ==========
   /lifestyle-videos/{painAreaId}:
@@ -693,13 +849,151 @@ paths:
                   data:
                     type: object
                     properties:
+                      painAreaId:
+                        type: integer
+                        nullable: true
+                        example: 1
                       painAreaName:
                         type: string
+                        nullable: true
                         example: "어깨"
+                      title:
+                        type: string
+                        nullable: true
+                        example: "어깨 스트레칭"
+                      subtitle:
+                        type: string
+                        nullable: true
+                        example: "아래 영상은 어깨 불편 시 가볍게 참고할 수 있는 스트레칭 예시에요."
                       videos:
                         type: array
                         items:
                           $ref: "#/components/schemas/LifestyleVideo"
+
+  # ========== Agreements ==========
+  /agreements:
+    post:
+      tags:
+        - Agreements
+      summary: 약관 동의
+      description: |
+        서비스 이용 약관, 개인정보 수집 및 이용 동의, 위치기반 서비스 이용 동의를 처리합니다.
+        3개 약관 모두 true로 전달해야 합니다.
+        이미 동의한 약관이 있으면 동의 시간이 갱신됩니다.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - termsOfService
+                - privacyPolicy
+                - locationService
+              properties:
+                termsOfService:
+                  type: boolean
+                  description: "서비스 이용 약관 동의"
+                  example: true
+                privacyPolicy:
+                  type: boolean
+                  description: "개인정보 수집 및 이용 동의"
+                  example: true
+                locationService:
+                  type: boolean
+                  description: "위치기반 서비스 이용 동의"
+                  example: true
+      responses:
+        "200":
+          description: 약관 동의 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  agreedAt:
+                    type: string
+                    format: date-time
+                    example: "2026-02-06T18:04:38.000Z"
+        "400":
+          description: 모든 약관에 동의하지 않은 경우
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "401":
+          description: 인증 실패
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /agreements/me:
+    get:
+      tags:
+        - Agreements
+      summary: 내 약관 동의 현황 조회
+      description: 인증된 사용자의 약관 동의 현황을 조회합니다.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: 조회 성공
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: true
+                  agreements:
+                    type: object
+                    properties:
+                      termsOfService:
+                        type: object
+                        nullable: true
+                        properties:
+                          agreement_type:
+                            type: string
+                            example: "TOS"
+                          agreed_at:
+                            type: string
+                            format: date-time
+                            example: "2026-02-06T18:04:38.000Z"
+                      privacyPolicy:
+                        type: object
+                        nullable: true
+                        properties:
+                          agreement_type:
+                            type: string
+                            example: "PRIVACY"
+                          agreed_at:
+                            type: string
+                            format: date-time
+                            example: "2026-02-06T18:04:38.000Z"
+                      locationService:
+                        type: object
+                        nullable: true
+                        properties:
+                          agreement_type:
+                            type: string
+                            example: "LOCATION"
+                          agreed_at:
+                            type: string
+                            format: date-time
+                            example: "2026-02-06T18:04:38.000Z"
+        "401":
+          description: 인증 실패
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
 
   # ========== Admin ==========
   /admin/issue-master-token:
@@ -830,19 +1124,18 @@ components:
     LifestyleVideo:
       type: object
       properties:
-        video_id:
+        videoId:
           type: integer
           example: 1
-        title:
+        youtubeUrl:
+          type: string
+          example: "https://youtube.com/watch?v=..."
+        youtubeTitle:
           type: string
           example: "어깨 스트레칭"
         description:
           type: string
-        youtube_url:
-          type: string
-          example: "https://youtube.com/watch?v=..."
-        thumbnail_url:
-          type: string
+          example: "영상 설명..."
 
     SuccessResponse:
       type: object
