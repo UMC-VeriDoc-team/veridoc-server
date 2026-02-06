@@ -9,6 +9,8 @@ tags:
     description: 홈 화면 관련 API
   - name: LifestyleGuide
     description: 생활 관리 가이드 API
+  - name: TemporaryGuides
+    description: 임시 대처 가이드 API
   - name: Agreements
     description: 약관 동의 API
   - name: Admin
@@ -818,6 +820,71 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
+  # ========== Temporary Guides ==========
+  /temporary-guides/{guideId}:
+    get:
+      tags:
+        - TemporaryGuides
+      summary: 임시 대처 가이드 상세 조회
+      description: |
+        임시 대처 가이드 상세 내용을 조회합니다.
+        morePosts는 같은 통증 부위의 다른 임시 대처 가이드에서 최대 2개를 제공합니다.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: guideId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 임시 대처 가이드 ID
+      responses:
+        "200":
+          description: 조회 성공
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/TemporaryGuideDetailResponse"
+        "401":
+          description: 인증 실패
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+              examples:
+                unauthorized:
+                  summary: 로그인이 필요합니다.
+                  value:
+                    error:
+                      code: UNAUTHORIZED
+                      message: "로그인이 필요합니다."
+        "404":
+          description: 가이드를 찾을 수 없음
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+              examples:
+                notFound:
+                  summary: 임시 대처 가이드 없음
+                  value:
+                    error:
+                      code: CONTENT_NOT_FOUND
+                      message: "요청하신 임시 대처 가이드를 찾을 수 없습니다."
+        "500":
+          description: 서버 오류
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorEnvelope"
+              examples:
+                serverError:
+                  summary: 서버 내부 오류
+                  value:
+                    error:
+                      code: SERVER_ERROR
+                      message: "서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+
   # ========== Lifestyle Guide ==========
   /lifestyle-videos/{painAreaId}:
     get:
@@ -1140,27 +1207,202 @@ components:
     SuccessResponse:
       type: object
       properties:
-        code:
-          type: integer
-          example: 200
-        message:
+        resultType:
           type: string
-          example: "성공"
-        data:
+          example: "SUCCESS"
+        error:
           type: object
+          nullable: true
+          example: null
+        success:
+          type: object
+          properties:
+            data:
+              type: object
+            pagination:
+              type: object
+              nullable: true
+              properties:
+                cursor:
+                  type: integer
+                  nullable: true
+                  example: null
 
     ErrorResponse:
       type: object
       properties:
-        code:
+        resultType:
+          type: string
+          example: "FAIL"
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: "VALIDATION_ERROR"
+            message:
+              type: string
+              example: "잘못된 요청입니다."
+        success:
+          type: object
+          nullable: true
+          example: null
+
+    ErrorEnvelope:
+      type: object
+      properties:
+        error:
+          type: object
+          properties:
+            code:
+              type: string
+              example: "UNAUTHORIZED"
+            message:
+              type: string
+              example: "로그인이 필요합니다."
+
+    TemporaryGuideDetailResponse:
+      type: object
+      properties:
+        data:
+          $ref: "#/components/schemas/TemporaryGuideDetail"
+
+    TemporaryGuideDetail:
+      type: object
+      properties:
+        painAreaId:
           type: integer
-          example: 400
-        errorCode:
+          example: 1
+        painAreaName:
           type: string
-          example: "VALIDATION_ERROR"
-        message:
+          example: "어깨"
+        symptomId:
+          type: integer
+          nullable: true
+          example: null
+        type:
           type: string
-          example: "잘못된 요청입니다."
+          example: "어깨 · 스트레칭/찜질"
+        guideId:
+          type: integer
+          example: 3001
+        title:
+          type: string
+          example: "어깨 스트레칭 방법"
+        subtitle:
+          type: string
+          nullable: true
+          example: null
+        imageUrl:
+          type: string
+          nullable: true
+          example: "https://example.com/image.png"
+        duration:
+          type: string
+          nullable: true
+          example: "평균 소요 시간 10분"
+        sourceName:
+          type: string
+          nullable: true
+          example: null
+        sourceUrl:
+          type: string
+          nullable: true
+          example: null
+        highlighter:
+          type: string
+          nullable: true
+          example: null
+        content:
+          type: string
+          example: "어깨 통증은 장시간 같은 자세를..."
+        badges:
+          type: array
+          items:
+            type: string
+          example: ["통증 직후", "하루 1~2회"]
+        notes:
+          type: array
+          items:
+            $ref: "#/components/schemas/GuideNote"
+        cautions:
+          type: array
+          items:
+            $ref: "#/components/schemas/GuideCaution"
+        helps:
+          type: array
+          items:
+            $ref: "#/components/schemas/GuideHelp"
+        morePosts:
+          type: array
+          items:
+            $ref: "#/components/schemas/TemporaryGuideMorePost"
+
+    GuideNote:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        imageUrl:
+          type: string
+          nullable: true
+          example: "https://example.com/image101.png"
+        title:
+          type: string
+          example: "어깨를 천천히 앞뒤로 돌려줍니다."
+        description:
+          type: string
+          example: "처음에는 작은 범위로 시작해 점차 늘려보세요."
+
+    GuideCaution:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        iconUrl:
+          type: string
+          nullable: true
+          example: "https://example.com/icon1.png"
+        title:
+          type: string
+          example: "통증이 지속되거나 심해질 때"
+        description:
+          type: string
+          example: "단순 근육 피로가 아닌 원인이 있을 수 있습니다."
+
+    GuideHelp:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        description:
+          type: string
+          example: "통증 직후 가벼운 스트레칭이 도움이 될 수 있어요."
+
+    TemporaryGuideMorePost:
+      type: object
+      properties:
+        answerId:
+          type: integer
+          description: "현재는 guide_id 값을 내려줍니다."
+          example: 3002
+        painAreaId:
+          type: integer
+          example: 1
+        symptomId:
+          type: integer
+          nullable: true
+          example: null
+        title:
+          type: string
+          example: "어깨 온찜질/냉찜질"
+        imageUrl:
+          type: string
+          nullable: true
+          example: "https://example.com/post02.webp"
 
   securitySchemes:
     bearerAuth:

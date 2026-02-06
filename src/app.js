@@ -1,8 +1,8 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
-import swaggerUi from "swagger-ui-express";
-import swaggerSpec from "./config/swagger.config.js";
+import swaggerUiExpress from "swagger-ui-express";
+import swaggerAutogen from "swagger-autogen";
 import routes from "./routes/index.js";
 import errorHandler from "./middleware/errorHandler.js";
 
@@ -40,8 +40,53 @@ if (process.env.NODE_ENV !== "production") {
 }
 app.use("/api/v1", routes);
 
-// Swagger UI
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+// Swagger UI + Autogen
+app.use(
+  "/docs",
+  swaggerUiExpress.serve,
+  swaggerUiExpress.setup({}, {
+    swaggerOptions: {
+      url: "/openapi.json",
+    },
+  })
+);
+
+app.use(
+  "/api-docs",
+  swaggerUiExpress.serve,
+  swaggerUiExpress.setup({}, {
+    swaggerOptions: {
+      url: "/openapi.json",
+    },
+  })
+);
+
+app.get("/openapi.json", async (req, res, next) => {
+  // #swagger.ignore = true
+  try {
+    const options = {
+      openapi: "3.0.0",
+      disableLogs: true,
+      writeOutputFile: false,
+    };
+    const outputFile = "/dev/null";
+    const apiRoutes = ["./src/routes/index.js"];
+    const doc = {
+      info: {
+        title: "VeriDoc API",
+        description: "VeriDoc 서비스의 API 문서입니다.",
+      },
+      host: "localhost:3000",
+      basePath: "/api/v1",
+      schemes: ["http"],
+    };
+
+    const result = await swaggerAutogen(options)(outputFile, apiRoutes, doc);
+    return res.json(result ? result.data : null);
+  } catch (err) {
+    return next(err);
+  }
+});
 
 // Health
 app.get("/health", (req, res) => res.json({ success: true, message: "ok" }));
