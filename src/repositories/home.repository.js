@@ -39,7 +39,7 @@ class HomeRepository {
       return {
         banners: [],
         symptoms: [],
-        commonGuides: []
+        temporaryGuides: []
       };
     }
 
@@ -83,15 +83,15 @@ class HomeRepository {
       formattedSymptoms.push({ symptomId: null, name: null });
     }
 
-    // commonGuides: 사용자가 선택한 통증 부위의 임시 치료법 조회 (최대 3개)
-    const commonGuides = await this.client.temporary_care_guides.findMany({
+    // temporaryGuides: 사용자가 선택한 통증 부위의 임시 대처 가이드 조회 (최대 3개)
+    const temporaryGuides = await this.client.temporary_care_guides.findMany({
       where: { pain_area_id: painAreaId },
       orderBy: { display_order: 'asc' },
       take: 3,
       select: { guide_id: true, title: true, content: true, image_url: true, guide_type: true }
     });
 
-    const formattedGuides = commonGuides.map(guide => {
+    const formattedGuides = temporaryGuides.map(guide => {
       const meta = GUIDE_META_BY_TYPE[guide.guide_type] || { badges: [], duration: null };
       // 복원: seed나 DB에 이스케이프된 '\n'이 들어있을 수 있어 실제 줄바꿈으로 변환
       const description = guide.content ? String(guide.content).replace(/\\n/g, '\n') : null;
@@ -111,30 +111,12 @@ class HomeRepository {
       formattedGuides.push({ guideId: null, title: null, badges: [], description: null, imageUrl: null, type: null, duration: null });
     }
 
-    const mappedMorePosts = morePosts.map(post => ({
-      answerId: Number(post.answer_id),
-      painAreaId: Number(post.symptoms.pain_area_id),
-      symptomId: Number(post.symptom_id),
-      title: `${post.symptoms?.name} 전문의 소견`,
-      imageUrl: null
-    }));
-
-    while (mappedMorePosts.length < 2) {
-      mappedMorePosts.push({
-        answerId: null,
-        painAreaId: null,
-        symptomId: null,
-        title: null,
-        imageUrl: null
-      });
-    }
-
     return {
       painAreaId: Number(primaryPainArea.pain_area_id),
       painAreaName: primaryPainArea.name,
       banners,
       symptoms: formattedSymptoms,
-      commonGuides: formattedGuides
+      temporaryGuides: formattedGuides
     };
   }
 

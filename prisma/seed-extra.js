@@ -110,32 +110,77 @@ async function main() {
   // ============================
   // 2-1) temporary_care_guides 보강
   // ============================
-  const existingGuides = await prisma.temporary_care_guides.count();
-  if (existingGuides <= painAreas.length * 3) {
-    const extraGuides = [];
-    let displayOrder = 100;
+  const existingGuides = await prisma.temporary_care_guides.findMany({
+    select: { pain_area_id: true, title: true, display_order: true },
+  });
 
-    for (const painArea of painAreas) {
-      extraGuides.push(
-        {
-          pain_area_id: painArea.pain_area_id,
-          guide_type: '스트레칭/찜질',
-          title: `${painArea.name} 간단 스트레칭`,
-          content: `${painArea.name} 주변 근육을 부드럽게 풀어주는 가벼운 스트레칭을 권장합니다.\n통증이 심하면 즉시 중단하세요.`,
-          image_url: 'https://example.com/guides/extra-stretch.png',
-          display_order: displayOrder++,
-        },
-        {
-          pain_area_id: painArea.pain_area_id,
-          guide_type: '생활 습관',
-          title: `${painArea.name} 생활 습관 점검`,
-          content: `장시간 같은 자세를 피하고, ${painArea.name}에 무리가 가는 동작을 줄여주세요.\n규칙적인 휴식이 도움이 됩니다.`,
-          image_url: 'https://example.com/guides/extra-habit.png',
-          display_order: displayOrder++,
-        }
-      );
+  const guideCounts = new Map();
+  const guideTitles = new Map();
+  const guideMaxOrder = new Map();
+
+  for (const guide of existingGuides) {
+    const key = Number(guide.pain_area_id);
+    guideCounts.set(key, (guideCounts.get(key) || 0) + 1);
+
+    const titles = guideTitles.get(key) || new Set();
+    titles.add(guide.title);
+    guideTitles.set(key, titles);
+
+    const currentMax = guideMaxOrder.get(key) || 0;
+    const nextMax = Math.max(currentMax, Number(guide.display_order || 0));
+    guideMaxOrder.set(key, nextMax);
+  }
+
+  const guideTemplates = [
+    {
+      guide_type: '스트레칭/찜질',
+      title: (name) => `${name} 간단 스트레칭`,
+      content: (name) => `${name} 주변 근육을 부드럽게 풀어주는 가벼운 스트레칭을 권장합니다.\n통증이 심하면 즉시 중단하세요.`,
+      image_url: 'https://example.com/guides/extra-stretch.png',
+    },
+    {
+      guide_type: '스트레칭/찜질',
+      title: (name) => `${name} 온찜질/냉찜질`,
+      content: () => '급성 통증에는 냉찜질을, 만성 통증에는 온찜질을 시도해보세요.',
+      image_url: 'https://example.com/guides/extra-heat.png',
+    },
+    {
+      guide_type: '생활 습관',
+      title: (name) => `${name} 생활 습관 점검`,
+      content: (name) => `장시간 같은 자세를 피하고, ${name}에 무리가 가는 동작을 줄여주세요.\n규칙적인 휴식이 도움이 됩니다.`,
+      image_url: 'https://example.com/guides/extra-habit.png',
+    },
+  ];
+
+  const extraGuides = [];
+
+  for (const painArea of painAreas) {
+    const painAreaKey = Number(painArea.pain_area_id);
+    let existingCount = guideCounts.get(painAreaKey) || 0;
+    let nextOrder = (guideMaxOrder.get(painAreaKey) || 0) + 1;
+    const titles = guideTitles.get(painAreaKey) || new Set();
+
+    for (const template of guideTemplates) {
+      if (existingCount >= 3) break;
+
+      const title = template.title(painArea.name);
+      if (titles.has(title)) continue;
+
+      extraGuides.push({
+        pain_area_id: painArea.pain_area_id,
+        guide_type: template.guide_type,
+        title,
+        content: template.content(painArea.name),
+        image_url: template.image_url,
+        display_order: nextOrder++,
+      });
+
+      titles.add(title);
+      existingCount += 1;
     }
+  }
 
+  if (extraGuides.length > 0) {
     await prisma.temporary_care_guides.createMany({ data: extraGuides });
     console.log(`temporary_care_guides 추가 ${extraGuides.length}건 삽입 완료`);
   } else {
