@@ -6,6 +6,7 @@ import painAreaRoutes from './painArea.routes.js';
 import adminRoutes from './admin.routes.js';
 import homesRoutes from './homes.routes.js';
 import lifestyleGuideRoutes from './lifestyleGuide.routes.js';
+import termsRoutes from './terms.routes.js';
 
 const router = express.Router();
 
@@ -15,4 +16,5 @@ router.use('/hospital', hospitalRoutes);
 router.use('/pain-areas', painAreaRoutes);
 router.use('/admin', adminRoutes);
 router.use('/lifestyle-videos', lifestyleGuideRoutes);
+router.use('/terms', termsRoutes);
 export default router;
