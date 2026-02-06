@@ -111,6 +111,24 @@ class HomeRepository {
       formattedGuides.push({ guideId: null, title: null, badges: [], description: null, imageUrl: null, type: null, duration: null });
     }
 
+    const mappedMorePosts = morePosts.map(post => ({
+      answerId: Number(post.answer_id),
+      painAreaId: Number(post.symptoms.pain_area_id),
+      symptomId: Number(post.symptom_id),
+      title: `${post.symptoms?.name} 전문의 소견`,
+      imageUrl: null
+    }));
+
+    while (mappedMorePosts.length < 2) {
+      mappedMorePosts.push({
+        answerId: null,
+        painAreaId: null,
+        symptomId: null,
+        title: null,
+        imageUrl: null
+      });
+    }
+
     return {
       painAreaId: Number(primaryPainArea.pain_area_id),
       painAreaName: primaryPainArea.name,
@@ -245,14 +263,30 @@ class HomeRepository {
       imageUrl: null, // expert_answers에 imageUrl 필드가 없으므로 null
       sourceUrl: answer.source_url,
       updatedAt: answer.updated_at,
-      morePosts: morePosts.map(post => ({
-        answerId: Number(post.answer_id),
-        painAreaId: Number(post.symptoms.pain_area_id),
-        symptomId: Number(post.symptom_id),
-        title: `${post.symptoms?.name} 전문의 소견`,
-        imageUrl: null
-      }))
+      morePosts: mappedMorePosts
     };
+  }
+
+  // 전문의 답변 ID 전체 조회 (테스트용)
+  async getAllExpertAnswerIds() {
+    const answers = await this.client.expert_answers.findMany({
+      select: {
+        answer_id: true,
+        symptoms: {
+          select: {
+            name: true,
+            pain_areas: { select: { name: true } }
+          }
+        }
+      },
+      orderBy: { answer_id: 'asc' }
+    });
+
+    return answers.map(answer => ({
+      answerId: Number(answer.answer_id),
+      painAreaName: answer.symptoms.pain_areas?.name ?? null,
+      symptomName: answer.symptoms?.name ?? null
+    }));
   }
 }
 

@@ -8,6 +8,7 @@ class HomeController {
     this.getHome = this.getHome.bind(this);
     this.getDoctorAnswerSummary = this.getDoctorAnswerSummary.bind(this);
     this.getDoctorAnswerDetail = this.getDoctorAnswerDetail.bind(this);
+    this.getAllAnswerIds = this.getAllAnswerIds.bind(this);
   }
 
   // 홈 전체 불러오기
@@ -42,6 +43,16 @@ class HomeController {
       const result = await this.service.getDoctorAnswerDetail(answerId, userId);
       
       return sendSuccess(res, result, '전문의 답변 조회 성공');
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  // 전문의 답변 ID 전체 조회 (테스트용)
+  async getAllAnswerIds(req, res, next) {
+    try {
+      const answers = await this.service.getAllAnswerIds();
+      return sendSuccess(res, { answers }, '전문의 답변 ID 조회 성공');
     } catch (err) {
       next(err);
     }
