@@ -9,6 +9,7 @@ async function main() {
   // Clean up existing seed data (order matters due to FK constraints)
   await prisma.user_symptoms.deleteMany();
   await prisma.user_pain_areas.deleteMany();
+  await prisma.user_terms_agreements.deleteMany();
   await prisma.temporary_care_guides.deleteMany();
   await prisma.usage_guides.deleteMany();
   await prisma.expert_answers.deleteMany();
@@ -28,6 +29,7 @@ async function main() {
   await prisma.$executeRaw`ALTER TABLE temporary_care_guides AUTO_INCREMENT = 1`;
   await prisma.$executeRaw`ALTER TABLE content_sections AUTO_INCREMENT = 1`;
   await prisma.$executeRaw`ALTER TABLE usage_guides AUTO_INCREMENT = 1`;
+  await prisma.$executeRaw`ALTER TABLE user_terms_agreements AUTO_INCREMENT = 1`;
 
   // Users
   const hashedPassword = await bcrypt.hash('password', 10);
@@ -38,6 +40,19 @@ async function main() {
       password: hashedPassword,
       birth: new Date('1990-01-01'),
       gender: 'OTHER'
+    }
+  });
+
+  await prisma.user_terms_agreements.create({
+    data: {
+      user_id: user.user_id,
+      service_agreed: true,
+      service_version: '2026-02-01',
+      privacy_agreed: true,
+      privacy_version: '2026-02-01',
+      location_agreed: true,
+      location_version: '2026-02-01',
+      agreed_at: new Date('2026-02-07T09:00:00Z')
     }
   });
 
