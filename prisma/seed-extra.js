@@ -108,6 +108,41 @@ async function main() {
   }
 
   // ============================
+  // 2-1) temporary_care_guides 보강
+  // ============================
+  const existingGuides = await prisma.temporary_care_guides.count();
+  if (existingGuides <= painAreas.length * 3) {
+    const extraGuides = [];
+    let displayOrder = 100;
+
+    for (const painArea of painAreas) {
+      extraGuides.push(
+        {
+          pain_area_id: painArea.pain_area_id,
+          guide_type: '스트레칭/찜질',
+          title: `${painArea.name} 간단 스트레칭`,
+          content: `${painArea.name} 주변 근육을 부드럽게 풀어주는 가벼운 스트레칭을 권장합니다.\n통증이 심하면 즉시 중단하세요.`,
+          image_url: 'https://example.com/guides/extra-stretch.png',
+          display_order: displayOrder++,
+        },
+        {
+          pain_area_id: painArea.pain_area_id,
+          guide_type: '생활 습관',
+          title: `${painArea.name} 생활 습관 점검`,
+          content: `장시간 같은 자세를 피하고, ${painArea.name}에 무리가 가는 동작을 줄여주세요.\n규칙적인 휴식이 도움이 됩니다.`,
+          image_url: 'https://example.com/guides/extra-habit.png',
+          display_order: displayOrder++,
+        }
+      );
+    }
+
+    await prisma.temporary_care_guides.createMany({ data: extraGuides });
+    console.log(`temporary_care_guides 추가 ${extraGuides.length}건 삽입 완료`);
+  } else {
+    console.log('temporary_care_guides 충분히 존재, 보강 건너뜀');
+  }
+
+  // ============================
   // 3) Seed User 증상 보강 (어깨 3개 모두)
   // ============================
   const seedUser = await prisma.users.findFirst({ orderBy: { user_id: 'asc' } });
