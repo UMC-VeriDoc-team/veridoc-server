@@ -29,3 +29,21 @@ export const generateMasterToken = (payload = {}, options = {}) => {
 export const verifyMasterToken = (token) => {
     return jwt.verify(token, authConfig.masterJwtSecret);
 };
+
+// 비밀번호 리셋 토큰 생성 (15분 만료)
+export const generatePasswordResetToken = (userID, email) => {
+    return jwt.sign(
+        { userID, email, type: 'password-reset' },
+        authConfig.jwtSecret,
+        { expiresIn: '15m' }
+    );
+};
+
+// 비밀번호 리셋 토큰 검증
+export const verifyPasswordResetToken = (token) => {
+    const decoded = jwt.verify(token, authConfig.jwtSecret);
+    if (decoded.type !== 'password-reset') {
+        throw new Error('Invalid token type');
+    }
+    return decoded;
+};

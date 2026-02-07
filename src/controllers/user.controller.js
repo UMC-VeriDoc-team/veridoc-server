@@ -15,9 +15,15 @@ class UserController {
     this.deleteUser = this.deleteUser.bind(this);
     this.login = this.login.bind(this);
 
+    // 비밀번호 재설정
+    this.forgotPassword = this.forgotPassword.bind(this);
+    this.resetPassword = this.resetPassword.bind(this);
+
     // 마이페이지
     this.getMe = this.getMe.bind(this);
     this.updateMe = this.updateMe.bind(this);
+    this.updateProfile = this.updateProfile.bind(this);
+    this.changePassword = this.changePassword.bind(this);
     this.updatePainArea = this.updatePainArea.bind(this);
     this.deleteMe = this.deleteMe.bind(this);
   }
@@ -98,6 +104,29 @@ class UserController {
     }
   }
 
+  // 비밀번호 재설정 요청
+  async forgotPassword(req, res, next) {
+    try {
+      const { email } = req.body;
+      await this.service.forgotPassword(email);
+      // 보안: 이메일 존재 여부와 관계없이 동일한 응답
+      sendSuccess(res, null, '비밀번호 재설정 이메일이 전송되었습니다.');
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  // 비밀번호 재설정
+  async resetPassword(req, res, next) {
+    try {
+      const { token, newPassword } = req.body;
+      await this.service.resetPassword(token, newPassword);
+      sendSuccess(res, null, '비밀번호가 성공적으로 변경되었습니다.');
+    } catch (err) {
+      next(err);
+    }
+  }
+
   // 마이페이지
 
   // 2.1.1 사용자 정보 조회
@@ -138,7 +167,38 @@ class UserController {
     }
   }
 
-  // 2.1.4 주요 아픈 부위 저장
+  // 프로필 수정 (이름, 생년월일, 성별)
+  async updateProfile(req, res, next) {
+    try {
+      const userID = this._getAuthUserId(req);
+      if (!userID) {
+        throw new ApiError(401, errorCodes.UNAUTHORIZED, "인증이 필요합니다.");
+      }
+
+      await this.service.updateProfile(userID, req.body);
+      sendSuccess(res, null, "프로필이 수정되었습니다.");
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  // 비밀번호 변경 (로그인 상태)
+  async changePassword(req, res, next) {
+    try {
+      const userID = this._getAuthUserId(req);
+      if (!userID) {
+        throw new ApiError(401, errorCodes.UNAUTHORIZED, "인증이 필요합니다.");
+      }
+
+      const { currentPassword, newPassword } = req.body;
+      await this.service.changePassword(userID, currentPassword, newPassword);
+      sendSuccess(res, null, "비밀번호가 변경되었습니다.");
+    } catch (err) {
+      next(err);
+    }
+  }
+
+  // 2.1.4 주요 아픈 부위 변경
   async updatePainArea(req, res, next) {
     try {
       const userID = this._getAuthUserId(req);

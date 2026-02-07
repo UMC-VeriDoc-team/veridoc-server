@@ -8,10 +8,14 @@ const userController = new UserController();
 // 토큰 없이 허용
 router.post('/signup', userController.createUser);
 router.post('/login', userController.login);
+router.post('/forgot-password', userController.forgotPassword);
+router.post('/reset-password', userController.resetPassword);
 
 // 마이페이지 (반드시 /:id 보다 위에!)
 router.get('/me', authenticate, userController.getMe);
 router.put('/me', authenticate, userController.updateMe);
+router.put('/me/profile', authenticate, userController.updateProfile);
+router.put('/me/password', authenticate, userController.changePassword);
 router.put('/me/pain-area', authenticate, userController.updatePainArea);
 router.delete('/me', authenticate, userController.deleteMe);
 
