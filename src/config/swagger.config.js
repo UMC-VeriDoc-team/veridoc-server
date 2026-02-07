@@ -20,6 +20,10 @@ const swaggerSpec = {
       url: 'http://localhost:3000/api/v1',
       description: '로컬 개발 서버',
     },
+    {
+      url: 'http://43.203.179.84/api/v1',
+      description: '배포 서버',
+    },
   ],
   ...swaggerDocument,
 };
