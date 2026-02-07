@@ -5,6 +5,7 @@ import swaggerUiExpress from "swagger-ui-express";
 import swaggerSpec from "./config/swagger.config.js";
 import routes from "./routes/index.js";
 import errorHandler from "./middleware/errorHandler.js";
+import symptomGuideRoutes from './routes/symptomGuide.routes.js';
 
 dotenv.config();
 
@@ -39,6 +40,7 @@ if (process.env.NODE_ENV !== "production") {
   app.set("json spaces", 2);
 }
 app.use("/api/v1", routes);
+app.use('/api/v1/symptoms', symptomGuideRoutes);
 
 // Swagger UI
 app.use(
