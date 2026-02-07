@@ -114,7 +114,13 @@ class UserService {
     if (!user) {
       throw new ApiError(404, errorCodes.USER_NOT_FOUND, '유저를 찾을 수 없습니다.');
     }
-    return user;
+
+    const { user_pain_areas, ...rest } = user;
+    const painAreaID = user_pain_areas?.[0]?.pain_areas?.pain_area_id
+      ? Number(user_pain_areas[0].pain_areas.pain_area_id)
+      : 8;
+
+    return { ...rest, painAreaID };
   }
 
   // 마이페이지: 내 정보 수정

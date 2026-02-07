@@ -15,6 +15,8 @@ tags:
     description: 약관 동의 API
   - name: Admin
     description: 관리자 API
+  - name: Users - not use
+    description: 미사용 API
 
 paths:
   # ========== Users ==========
@@ -288,21 +290,10 @@ paths:
                         type: string
                         enum: [MALE, FEMALE, OTHER]
                         example: "MALE"
-                      user_pain_areas:
-                        type: array
-                        description: "사용자의 주요 아픈 부위 목록"
-                        items:
-                          type: object
-                          properties:
-                            pain_areas:
-                              type: object
-                              properties:
-                                pain_area_id:
-                                  type: integer
-                                  example: 1
-                                name:
-                                  type: string
-                                  example: "어깨"
+                      painAreaID:
+                        type: integer
+                        description: "주요 아픈 부위 ID (미설정 시 기본값 8)"
+                        example: 1
         "401":
           description: 인증 실패
           content:
@@ -581,7 +572,7 @@ paths:
   /users/{id}:
     get:
       tags:
-        - Users
+        - Users - not use
       summary: 사용자 조회
       description: 특정 사용자 정보를 조회합니다.
       security:
@@ -621,7 +612,7 @@ paths:
 
     put:
       tags:
-        - Users
+        - Users - not use
       summary: 사용자 정보 수정
       description: 사용자 정보를 수정합니다.
       security:
@@ -656,7 +647,7 @@ paths:
 
     delete:
       tags:
-        - Users
+        - Users - not use
       summary: 사용자 삭제
       description: 사용자를 삭제합니다.
       security:
