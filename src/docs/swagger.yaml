@@ -905,40 +905,19 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorEnvelope"
-              examples:
-                unauthorized:
-                  summary: 로그인이 필요합니다.
-                  value:
-                    error:
-                      code: UNAUTHORIZED
-                      message: "로그인이 필요합니다."
+                $ref: "#/components/schemas/ErrorResponse"
         "404":
           description: 가이드를 찾을 수 없음
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorEnvelope"
-              examples:
-                notFound:
-                  summary: 임시 대처 가이드 없음
-                  value:
-                    error:
-                      code: CONTENT_NOT_FOUND
-                      message: "요청하신 임시 대처 가이드를 찾을 수 없습니다."
+                $ref: "#/components/schemas/ErrorResponse"
         "500":
           description: 서버 오류
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorEnvelope"
-              examples:
-                serverError:
-                  summary: 서버 내부 오류
-                  value:
-                    error:
-                      code: SERVER_ERROR
-                      message: "서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+                $ref: "#/components/schemas/ErrorResponse"
 
   # ========== Lifestyle Guide ==========
   /lifestyle-videos/{painAreaId}:
@@ -1270,78 +1249,39 @@ components:
               answerId:
                 type: integer
                 example: 1
-              symptomId:
-                type: integer
-                example: 10
-              painAreaId:
-                type: integer
-                example: 1
               painAreaName:
                 type: string
                 example: "어깨"
+              symptomName:
+                type: string
+                example: "회전근개 파열"
 
     SuccessResponse:
       type: object
       properties:
-        resultType:
+        code:
+          type: integer
+          example: 200
+        message:
           type: string
-          example: "SUCCESS"
-        error:
+          example: "요청이 완료되었습니다."
+        data:
           type: object
           nullable: true
-          example: null
-        success:
-          type: object
-          properties:
-            data:
-              type: object
-            pagination:
-              type: object
-              nullable: true
-              properties:
-                cursor:
-                  type: integer
-                  nullable: true
-                  example: null
 
     ErrorResponse:
       type: object
       properties:
-        resultType:
+        code:
           type: string
-          example: "FAIL"
-        error:
-          type: object
-          properties:
-            code:
-              type: string
-              example: "VALIDATION_ERROR"
-            message:
-              type: string
-              example: "잘못된 요청입니다."
-        success:
+          example: "VALIDATION_ERROR"
+        message:
+          type: string
+          example: "잘못된 요청입니다."
+        data:
           type: object
           nullable: true
           example: null
-
-    ErrorEnvelope:
-      type: object
-      properties:
-        error:
-          type: object
-          properties:
-            code:
-              type: string
-              example: "UNAUTHORIZED"
-            message:
-              type: string
-              example: "로그인이 필요합니다."
-
-    TemporaryGuideDetailResponse:
-      type: object
-      properties:
-        data:
-          $ref: "#/components/schemas/TemporaryGuideDetail"
 
     TemporaryGuideDetail:
       type: object

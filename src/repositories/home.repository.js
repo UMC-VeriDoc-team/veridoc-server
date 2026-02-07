@@ -234,6 +234,14 @@ class HomeRepository {
       take: 2
     });
 
+    const mappedMorePosts = morePosts.map(mp => ({
+      answerId: Number(mp.answer_id),
+      painAreaId: Number(mp.symptoms.pain_area_id),
+      symptomId: Number(mp.symptom_id),
+      title: `${mp.symptoms?.name} 전문의 소견`,
+      imageUrl: null
+    }));
+
     return {
       answerId: Number(answer.answer_id),
       painAreaId: Number(answer.symptoms.pain_area_id),
@@ -242,7 +250,7 @@ class HomeRepository {
       symptomName: answer.symptoms?.name,
       title: `${answer.symptoms?.name} 전문의 소견`,
       content: answer.full_content,
-      imageUrl: null, // expert_answers에 imageUrl 필드가 없으므로 null
+      imageUrl: null,
       sourceUrl: answer.source_url,
       updatedAt: answer.updated_at,
       morePosts: mappedMorePosts
