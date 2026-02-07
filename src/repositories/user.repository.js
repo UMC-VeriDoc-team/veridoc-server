@@ -127,7 +127,8 @@ class UserRepository {
           pain_area_id: BigInt(painAreaID),
         },
       });
-    }  
+    }
+
 }
 
 export default UserRepository;

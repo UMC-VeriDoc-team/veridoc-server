@@ -4,7 +4,9 @@ import ApiError from '../errors/ApiError.js';
 import errorCodes from '../errors/errorCodes.js';
 import prisma from '../config/db.config.js';
 import bcrypt from 'bcrypt';
-import { generateAccessToken } from '../utils/jwt.util.js';
+import { generateAccessToken, generatePasswordResetToken, verifyPasswordResetToken } from '../utils/jwt.util.js';
+import { sendPasswordResetEmail } from '../utils/email.util.js';
+import emailConfig from '../config/email.config.js';
 
 class UserService {
   constructor(repository = new UserRepository()) {
@@ -120,7 +122,105 @@ class UserService {
     return this.repository.update(userID, payload);
   }
 
-  // 마이페이지: 주요 아픈 부위 저장
+  // 비밀번호 재설정 요청
+  async forgotPassword(email) {
+    if (!email || email.trim() === '') {
+      throw new ApiError(400, errorCodes.VALIDATION_ERROR, '이메일을 입력해주세요.');
+    }
+
+    const user = await this.repository.findByEmail(email);
+    if (!user) {
+      // 보안: 이메일 존재 여부를 노출하지 않음
+      return;
+    }
+
+    const token = generatePasswordResetToken(Number(user.user_id), user.email);
+    const resetUrl = `${emailConfig.passwordResetUrl}?token=${token}`;
+    await sendPasswordResetEmail(user.email, resetUrl);
+  }
+
+  // 비밀번호 재설정
+  async resetPassword(token, newPassword) {
+    if (!token) {
+      throw new ApiError(400, errorCodes.PASSWORD_RESET_TOKEN_INVALID, '토큰이 필요합니다.');
+    }
+
+    if (!newPassword) {
+      throw new ApiError(400, errorCodes.VALIDATION_ERROR, '새 비밀번호를 입력해주세요.');
+    }
+
+    // 비밀번호 형식 검증
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(newPassword)) {
+      throw new ApiError(400, errorCodes.INVALID_PASSWORD_FORMAT, '비밀번호 형식이 올바르지 않습니다.');
+    }
+
+    let decoded;
+    try {
+      decoded = verifyPasswordResetToken(token);
+    } catch (err) {
+      if (err.name === 'TokenExpiredError') {
+        throw new ApiError(400, errorCodes.PASSWORD_RESET_TOKEN_EXPIRED, '만료된 토큰입니다. 다시 요청해주세요.');
+      }
+      throw new ApiError(400, errorCodes.PASSWORD_RESET_TOKEN_INVALID, '유효하지 않은 토큰입니다.');
+    }
+
+    const user = await this.repository.findById(decoded.userID);
+    if (!user) {
+      throw new ApiError(404, errorCodes.USER_NOT_FOUND, '유저를 찾을 수 없습니다.');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await this.repository.update(decoded.userID, { password: hashedPassword });
+  }
+
+  // 마이페이지: 프로필 수정 (이름, 생년월일, 성별)
+  async updateProfile(userID, payload) {
+    const { name, birth, gender } = payload;
+
+    const updateData = {};
+    if (name !== undefined) updateData.name = name;
+    if (birth !== undefined) updateData.birth = new Date(birth);
+    if (gender !== undefined) {
+      if (!['MALE', 'FEMALE', 'OTHER'].includes(gender)) {
+        throw new ApiError(400, errorCodes.VALIDATION_ERROR, '성별 값이 올바르지 않습니다.');
+      }
+      updateData.gender = gender;
+    }
+
+    if (Object.keys(updateData).length === 0) {
+      throw new ApiError(400, errorCodes.VALIDATION_ERROR, '수정할 항목을 입력해주세요.');
+    }
+
+    await this.repository.update(userID, updateData);
+  }
+
+  // 마이페이지: 비밀번호 변경 (로그인 상태)
+  async changePassword(userID, currentPassword, newPassword) {
+    if (!currentPassword || !newPassword) {
+      throw new ApiError(400, errorCodes.VALIDATION_ERROR, '현재 비밀번호와 새 비밀번호를 모두 입력해주세요.');
+    }
+
+    const user = await this.repository.findById(userID);
+    if (!user) {
+      throw new ApiError(404, errorCodes.USER_NOT_FOUND, '유저를 찾을 수 없습니다.');
+    }
+
+    const isValid = await bcrypt.compare(currentPassword, user.password);
+    if (!isValid) {
+      throw new ApiError(400, errorCodes.INVALID_CREDENTIALS, '현재 비밀번호가 올바르지 않습니다.');
+    }
+
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(newPassword)) {
+      throw new ApiError(400, errorCodes.INVALID_PASSWORD_FORMAT, '비밀번호 형식이 올바르지 않습니다.');
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await this.repository.update(userID, { password: hashedPassword });
+  }
+
+  // 마이페이지: 주요 아픈 부위 변경
   async updatePainArea(userID, painAreaID) {
     // painAreaID 존재 여부 확인
     const painArea = await this.repository.findPainAreaById(painAreaID);

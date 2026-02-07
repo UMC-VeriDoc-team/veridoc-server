@@ -57,6 +57,11 @@ async function main() {
     createdPainAreas[area.name] = pa;
   }
 
+  // 미선택 pain_area (ID = 8)
+  await prisma.$executeRaw`ALTER TABLE pain_areas AUTO_INCREMENT = 8`;
+  const noPainArea = await prisma.pain_areas.create({ data: { name: '미선택' } });
+  createdPainAreas['미선택'] = noPainArea;
+
   // Pain area specialties mapping
   const painAreaSpecialties = [
     // 어깨 (1)
