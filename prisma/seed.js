@@ -32,7 +32,7 @@ async function main() {
   await prisma.$executeRaw`ALTER TABLE usage_guides AUTO_INCREMENT = 1`;
 
   // Users
-  const hashedPassword = await bcrypt.hash('password', 10);
+  const hashedPassword = await bcrypt.hash('Password1!', 10);
   const user = await prisma.users.create({
     data: {
       name: 'Seed User',

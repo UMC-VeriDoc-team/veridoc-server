@@ -106,19 +106,19 @@ model pain_area_specialties {
 
 model symptom_steps {
   step_id      BigInt   @id @default(autoincrement())
-  pain_area_id BigInt
+  pain_area_id BigInt?
 
   step_number  Int
   title        String   @db.VarChar(200)
-  subtitle     String   @db.VarChar(200)
-  caption      String   @db.Text
-  description  String   @db.Text
+  subtitle     String?   @db.VarChar(200)
+  caption      String?   @db.Text
+  description  String?   @db.Text
   image_url    String   @db.VarChar(255)
 
   created_at   DateTime @default(now()) @db.DateTime(6)
   updated_at   DateTime @default(now()) @db.DateTime(6)
 
-  pain_area    pain_areas @relation(fields: [pain_area_id], references: [pain_area_id], onDelete: Cascade)
+  pain_area    pain_areas? @relation(fields: [pain_area_id], references: [pain_area_id], onDelete: Cascade)
 
   @@unique([pain_area_id, step_number])
   @@index([pain_area_id])
@@ -224,6 +224,8 @@ model users {
   user_pain_areas user_pain_areas[]
   user_symptoms   user_symptoms[]
   user_agreements user_agreements[]
+  symptom_guide_progresses symptom_guide_progress[]
+  symptom_guide_events     symptom_guide_events[]
 }
 
 model user_agreements {
@@ -241,8 +243,6 @@ enum agreement_type {
   TOS
   PRIVACY
   LOCATION
-  guide_progresses symptom_guide_progress[]
-  guide_events     symptom_guide_events[]
 }
 
 enum users_gender {
