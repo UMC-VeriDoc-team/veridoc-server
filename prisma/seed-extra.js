@@ -26,20 +26,7 @@ async function main() {
 
   const buildGuideContent = (title, painAreaName) => (
     `${title}에 대한 임시 대처 가이드입니다. ` +
-    `${painAreaName}에 무리가 가지 않도록 천천히 진행하세요. ` +
-    '--- ' +
-    'BADGES: ' +
-    '- 통증 직후 ' +
-    '- 하루 1~2회 ' +
-    '--- ' +
-    'NOTES: ' +
-    '- 통증이 심해지면 즉시 중단하세요. ' +
-    '--- ' +
-    'CAUTIONS: ' +
-    '- 심한 통증이나 붓기가 있으면 병원 진료를 권장합니다. ' +
-    '--- ' +
-    'HELPS: ' +
-    '- 가벼운 스트레칭이 도움이 됩니다.'
+    `${painAreaName}에 무리가 가지 않도록 천천히 진행하세요.`
   );
 
   // pain_area_id별 증상 그룹핑
