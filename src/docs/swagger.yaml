@@ -15,8 +15,6 @@ tags:
     description: 약관 동의 API
   - name: Admin
     description: 관리자 API
-  - name: Users - not use
-    description: 미사용 API
 
 paths:
   # ========== Users ==========
@@ -145,109 +143,6 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /users/forgot-password:
-    post:
-      tags:
-        - Users
-      summary: 비밀번호 재설정 요청
-      description: |
-        입력한 이메일로 비밀번호 재설정 링크를 전송합니다.
-        보안상 이메일 존재 여부와 관계없이 동일한 응답을 반환합니다.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - email
-              properties:
-                email:
-                  type: string
-                  format: email
-                  example: "user@example.com"
-      responses:
-        "200":
-          description: 이메일 전송 요청 완료
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                    example: 200
-                  message:
-                    type: string
-                    example: "비밀번호 재설정 이메일이 전송되었습니다."
-                  data:
-                    type: object
-                    nullable: true
-                    example: null
-        "400":
-          description: 잘못된 요청
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
-  /users/reset-password:
-    post:
-      tags:
-        - Users
-      summary: 비밀번호 재설정
-      description: |
-        이메일로 받은 토큰과 새 비밀번호로 비밀번호를 변경합니다.
-        토큰은 15분간 유효합니다.
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - token
-                - newPassword
-              properties:
-                token:
-                  type: string
-                  description: "이메일로 전송된 비밀번호 재설정 토큰"
-                  example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
-                newPassword:
-                  type: string
-                  description: "최소 8자, 대문자/소문자/숫자/특수문자(@$!%*?&) 포함"
-                  example: "NewPassword1!"
-      responses:
-        "200":
-          description: 비밀번호 변경 성공
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                    example: 200
-                  message:
-                    type: string
-                    example: "비밀번호가 성공적으로 변경되었습니다."
-                  data:
-                    type: object
-                    nullable: true
-                    example: null
-        "400":
-          description: 유효하지 않은 토큰 또는 비밀번호 형식 오류
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "404":
-          description: 사용자를 찾을 수 없음
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
   /users/me:
     get:
       tags:
@@ -290,10 +185,21 @@ paths:
                         type: string
                         enum: [MALE, FEMALE, OTHER]
                         example: "MALE"
-                      painAreaID:
-                        type: integer
-                        description: "주요 아픈 부위 ID (미설정 시 기본값 8)"
-                        example: 1
+                      user_pain_areas:
+                        type: array
+                        description: "사용자의 주요 아픈 부위 목록"
+                        items:
+                          type: object
+                          properties:
+                            pain_areas:
+                              type: object
+                              properties:
+                                pain_area_id:
+                                  type: integer
+                                  example: 1
+                                name:
+                                  type: string
+                                  example: "어깨"
         "401":
           description: 인증 실패
           content:
@@ -368,125 +274,11 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /users/me/profile:
-    put:
-      tags:
-        - Users
-      summary: 프로필 수정
-      description: 이름, 생년월일, 성별을 수정합니다. 수정할 항목만 전달하면 됩니다.
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  example: "베리닥수정"
-                birth:
-                  type: string
-                  format: date
-                  example: "1995-06-15"
-                gender:
-                  type: string
-                  enum: [MALE, FEMALE, OTHER]
-                  example: "FEMALE"
-      responses:
-        "200":
-          description: 수정 성공
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                    example: 200
-                  message:
-                    type: string
-                    example: "프로필이 수정되었습니다."
-                  data:
-                    type: object
-                    nullable: true
-                    example: null
-        "400":
-          description: 잘못된 요청
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "401":
-          description: 인증 실패
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
-  /users/me/password:
-    put:
-      tags:
-        - Users
-      summary: 비밀번호 변경 (로그인 상태)
-      description: 현재 비밀번호를 확인한 후 새 비밀번호로 변경합니다.
-      security:
-        - bearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              required:
-                - currentPassword
-                - newPassword
-              properties:
-                currentPassword:
-                  type: string
-                  description: "현재 비밀번호"
-                  example: "Password1!"
-                newPassword:
-                  type: string
-                  description: "최소 8자, 대문자/소문자/숫자/특수문자(@$!%*?&) 포함"
-                  example: "NewPassword1!"
-      responses:
-        "200":
-          description: 변경 성공
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                    example: 200
-                  message:
-                    type: string
-                    example: "비밀번호가 변경되었습니다."
-                  data:
-                    type: object
-                    nullable: true
-                    example: null
-        "400":
-          description: 현재 비밀번호 불일치 또는 형식 오류
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-        "401":
-          description: 인증 실패
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorResponse"
-
   /users/me/pain-area:
     put:
       tags:
         - Users
-      summary: 주요 아픈 부위 변경
+      summary: 주요 아픈 부위 저장
       description: 인증된 사용자의 주요 아픈 부위를 저장합니다.
       security:
         - bearerAuth: []
@@ -516,7 +308,7 @@ paths:
                     example: 200
                   message:
                     type: string
-                    example: "주요 아픈 부위 변경 성공"
+                    example: "주요 아픈 부위 저장 성공"
                   data:
                     type: object
                     properties:
@@ -572,7 +364,7 @@ paths:
   /users/{id}:
     get:
       tags:
-        - Users - not use
+        - Users
       summary: 사용자 조회
       description: 특정 사용자 정보를 조회합니다.
       security:
@@ -612,7 +404,7 @@ paths:
 
     put:
       tags:
-        - Users - not use
+        - Users
       summary: 사용자 정보 수정
       description: 사용자 정보를 수정합니다.
       security:
@@ -647,7 +439,7 @@ paths:
 
     delete:
       tags:
-        - Users - not use
+        - Users
       summary: 사용자 삭제
       description: 사용자를 삭제합니다.
       security:
@@ -838,9 +630,9 @@ paths:
                               type: string
                               nullable: true
                               example: "회전근개 파열"
-                      temporaryGuides:
+                      commonGuides:
                         type: array
-                        description: "임시 대처 가이드 (최대 3개, 부족 시 null 패딩)"
+                        description: "임시 치료법 가이드 (최대 3개, 부족 시 null 패딩)"
                         items:
                           type: object
                           properties:
@@ -874,30 +666,7 @@ paths:
                               nullable: true
                               example: "약 10분 소요"
 
-  /expert-answers/ids:
-    get:
-      tags:
-        - Home
-      summary: 전문의 답변 ID 목록 조회
-      description: 테스트를 위한 전문의 답변 ID와 통증 부위 정보를 조회합니다.
-      responses:
-        "200":
-          description: 조회 성공
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                    example: 200
-                  message:
-                    type: string
-                    example: "전문의 답변 ID 조회 성공"
-                  data:
-                    $ref: "#/components/schemas/ExpertAnswerIdList"
-
-  /expert-answers/{answerId}/summary:
+  /homes/expert-summary/{answerId}:
     get:
       tags:
         - Home
@@ -958,7 +727,7 @@ paths:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
 
-  /expert-answers/{answerId}:
+  /homes/expert-answers/{answerId}:
     get:
       tags:
         - Home
@@ -1052,29 +821,6 @@ paths:
                 $ref: "#/components/schemas/ErrorResponse"
 
   # ========== Temporary Guides ==========
-  /temporary-guides/ids:
-    get:
-      tags:
-        - TemporaryGuides
-      summary: 임시 대처 가이드 ID 목록 조회
-      description: 프런트 테스트를 위한 임시 대처 가이드 ID와 부위 이름을 조회합니다.
-      responses:
-        "200":
-          description: 조회 성공
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                    example: 200
-                  message:
-                    type: string
-                    example: "임시 대처 가이드 ID 조회 성공"
-                  data:
-                    $ref: "#/components/schemas/TemporaryGuideIdList"
-
   /temporary-guides/{guideId}:
     get:
       tags:
@@ -1098,34 +844,46 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                    example: 200
-                  message:
-                    type: string
-                    example: "임시 대처 가이드 상세 조회 성공"
-                  data:
-                    $ref: "#/components/schemas/TemporaryGuideDetail"
+                $ref: "#/components/schemas/TemporaryGuideDetailResponse"
         "401":
           description: 인증 실패
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: "#/components/schemas/ErrorEnvelope"
+              examples:
+                unauthorized:
+                  summary: 로그인이 필요합니다.
+                  value:
+                    error:
+                      code: UNAUTHORIZED
+                      message: "로그인이 필요합니다."
         "404":
           description: 가이드를 찾을 수 없음
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: "#/components/schemas/ErrorEnvelope"
+              examples:
+                notFound:
+                  summary: 임시 대처 가이드 없음
+                  value:
+                    error:
+                      code: CONTENT_NOT_FOUND
+                      message: "요청하신 임시 대처 가이드를 찾을 수 없습니다."
         "500":
           description: 서버 오류
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/ErrorResponse"
+                $ref: "#/components/schemas/ErrorEnvelope"
+              examples:
+                serverError:
+                  summary: 서버 내부 오류
+                  value:
+                    error:
+                      code: SERVER_ERROR
+                      message: "서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
 
   # ========== Lifestyle Guide ==========
   /lifestyle-videos/{painAreaId}:
@@ -1446,24 +1204,6 @@ components:
           type: string
           example: "영상 설명..."
 
-    ExpertAnswerIdList:
-      type: object
-      properties:
-        answers:
-          type: array
-          items:
-            type: object
-            properties:
-              answerId:
-                type: integer
-                example: 1
-              painAreaName:
-                type: string
-                example: "어깨"
-              symptomName:
-                type: string
-                example: "회전근개 파열"
-
     SuccessResponse:
       type: object
       properties:
@@ -1472,169 +1212,22 @@ components:
           example: 200
         message:
           type: string
-          example: "요청이 완료되었습니다."
+          example: "성공"
         data:
           type: object
-          nullable: true
 
     ErrorResponse:
       type: object
       properties:
         code:
+          type: integer
+          example: 400
+        errorCode:
           type: string
           example: "VALIDATION_ERROR"
         message:
           type: string
           example: "잘못된 요청입니다."
-        data:
-          type: object
-          nullable: true
-          example: null
-
-    TemporaryGuideDetail:
-      type: object
-      properties:
-        painAreaId:
-          type: integer
-          example: 1
-        painAreaName:
-          type: string
-          example: "어깨"
-        type:
-          type: string
-          example: "어깨 · 스트레칭/찜질"
-        guideId:
-          type: integer
-          example: 3001
-        title:
-          type: string
-          example: "어깨 스트레칭 방법"
-        subtitle:
-          type: string
-          nullable: true
-          example: null
-        imageUrl:
-          type: string
-          nullable: true
-          example: "https://example.com/image.png"
-        duration:
-          type: string
-          nullable: true
-          example: "평균 소요 시간 10분"
-        sourceName:
-          type: string
-          nullable: true
-          example: null
-        sourceUrl:
-          type: string
-          nullable: true
-          example: null
-        highlighter:
-          type: string
-          nullable: true
-          example: null
-        content:
-          type: string
-          example: "어깨 통증은 장시간 같은 자세를..."
-        badges:
-          type: array
-          items:
-            type: string
-          example: ["통증 직후", "하루 1~2회"]
-        notes:
-          type: array
-          items:
-            $ref: "#/components/schemas/GuideNote"
-        cautions:
-          type: array
-          items:
-            $ref: "#/components/schemas/GuideCaution"
-        helps:
-          type: array
-          items:
-            $ref: "#/components/schemas/GuideHelp"
-        morePosts:
-          type: array
-          items:
-            $ref: "#/components/schemas/TemporaryGuideMorePost"
-
-    GuideNote:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        imageUrl:
-          type: string
-          nullable: true
-          example: "https://example.com/image101.png"
-        title:
-          type: string
-          example: "어깨를 천천히 앞뒤로 돌려줍니다."
-        description:
-          type: string
-          example: "처음에는 작은 범위로 시작해 점차 늘려보세요."
-
-    GuideCaution:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        iconUrl:
-          type: string
-          nullable: true
-          example: "https://example.com/icon1.png"
-        title:
-          type: string
-          example: "통증이 지속되거나 심해질 때"
-        description:
-          type: string
-          example: "단순 근육 피로가 아닌 원인이 있을 수 있습니다."
-
-    GuideHelp:
-      type: object
-      properties:
-        id:
-          type: integer
-          example: 1
-        description:
-          type: string
-          example: "통증 직후 가벼운 스트레칭이 도움이 될 수 있어요."
-
-    TemporaryGuideMorePost:
-      type: object
-      properties:
-        answerId:
-          type: integer
-          description: "현재는 guide_id 값을 내려줍니다."
-          example: 3002
-        painAreaId:
-          type: integer
-          example: 1
-        title:
-          type: string
-          example: "어깨 온찜질/냉찜질"
-        imageUrl:
-          type: string
-          nullable: true
-          example: "https://example.com/post02.webp"
-
-    TemporaryGuideIdList:
-      type: object
-      properties:
-        guides:
-          type: array
-          items:
-            type: object
-            properties:
-              guideId:
-                type: integer
-                example: 1
-              painAreaName:
-                type: string
-                nullable: true
-                example: "어깨"
 
   securitySchemes:
     bearerAuth:
