@@ -6,9 +6,7 @@ class HomeController {
   constructor(service = new HomeService()) {
     this.service = service;
     this.getHome = this.getHome.bind(this);
-    this.getDoctorAnswerSummary = this.getDoctorAnswerSummary.bind(this);
-    this.getDoctorAnswerDetail = this.getDoctorAnswerDetail.bind(this);
-    this.getAllAnswerIds = this.getAllAnswerIds.bind(this);
+    // ...existing code...
   }
 
   // 홈 전체 불러오기
@@ -22,41 +20,7 @@ class HomeController {
     }
   }
 
-  // 전문의 답변 요약본 조회
-  async getDoctorAnswerSummary(req, res, next) {
-    try {
-      const userId = req.user.userID;
-      const answerId = Number(req.params.answerId);
-      const result = await this.service.getDoctorAnswerSummary(answerId, userId);
-      
-      return sendSuccess(res, result, '전문의 답변 요약 조회 성공');
-    } catch (err) {
-      next(err);
-    }
-  }
-
-  // 전문의 답변 상세 조회
-  async getDoctorAnswerDetail(req, res, next) {
-    try {
-      const userId = req.user.userID;
-      const answerId = Number(req.params.answerId);
-      const result = await this.service.getDoctorAnswerDetail(answerId, userId);
-      
-      return sendSuccess(res, result, '전문의 답변 조회 성공');
-    } catch (err) {
-      next(err);
-    }
-  }
-
-  // 전문의 답변 ID 전체 조회 (테스트용)
-  async getAllAnswerIds(req, res, next) {
-    try {
-      const answers = await this.service.getAllAnswerIds();
-      return sendSuccess(res, { answers }, '전문의 답변 ID 조회 성공');
-    } catch (err) {
-      next(err);
-    }
-  }
+  // ...existing code...
 }
 
 export default HomeController;

@@ -170,11 +170,12 @@ class HomeRepository {
       }
     });
 
-    if (!answer) return null;
+
+    if (!answer) return { notFound: true };
 
     // 사용자가 선택한 증상에 포함되는지 확인
     if (!allowedSymptomIds.some(id => id === answer.symptom_id)) {
-      return null;
+      return { notMatchedSymptom: true };
     }
 
     return {
