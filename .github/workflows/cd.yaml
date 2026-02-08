@@ -58,7 +58,7 @@ jobs:
             set -e
             cd /home/ubuntu/veridoc-server
             git reset --hard HEAD
-            git pull origin dev
+            git pull --no-rebase origin dev
             cat << ENV_EOF > .env
             ${{ secrets.BACKEND_ENV }}
             ENV_EOF
