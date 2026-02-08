@@ -42,7 +42,7 @@ jobs:
       - name: Add runner IP to AWS SG
         run: |
           aws ec2 authorize-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32 --region ${{ secrets.AWS_DEFAULT_REGION }}
-          sleep 10 # AWS 보안 그룹 적용 대기시간을 늘려 SSH 연결 안정성 확보
+          sleep 10
 
       - name: Connect & Deploy to EC2
         env:
@@ -56,7 +56,7 @@ jobs:
           # SSH 상세 로그와 타임아웃 추가
           ssh -v -o StrictHostKeyChecking=no -o ConnectTimeout=60 $EC2_USER@$EC2_HOST << 'EOF'
             set -e
-            cd /home/ubuntu/veridoc_server
+            cd /home/ubuntu/veridoc-server
             git pull origin dev
             cat << ENV_EOF > .env
             ${{ secrets.BACKEND_ENV }}
