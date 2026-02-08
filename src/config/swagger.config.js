@@ -21,7 +21,7 @@ const swaggerSpec = {
       description: '로컬 개발 서버',
     },
     {
-      url: 'http://43.201.60.191/api/v1',
+      url: 'http://13.125.170.209/api/v1',
       description: '배포 서버',
     },
   ],
