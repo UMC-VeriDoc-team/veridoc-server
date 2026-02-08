@@ -218,6 +218,14 @@ paths:
                 password:
                   type: string
                   example: "NewPassword1!"
+                birth:
+                  type: string
+                  format: date
+                  example: "1990-01-01"
+                gender:
+                  type: string
+                  enum: [MALE, FEMALE]
+                  example: "MALE"
       responses:
         "200":
           description: 수정 성공
