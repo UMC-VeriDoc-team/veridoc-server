@@ -14,9 +14,9 @@ class LifestyleGuideService {
     }
 
     const painArea =
-      await LifestyleGuideRepository.findPainAreaWithLifestyleVideos(painAreaId);
+      await LifestyleGuideRepository.findPainAreaWithLifestyleVideo(painAreaId);
 
-    // 존재하지 않는 painArea
+    // 존재하지 않는 부위
     if (!painArea) {
       return {
         painAreaId: null,
@@ -27,22 +27,34 @@ class LifestyleGuideService {
       };
     }
 
-    // symptoms 배열에서 lifestyle_videos를 평탄화(flatten)
-    const allVideos = painArea.symptoms.flatMap(symptom =>
-      symptom.lifestyle_videos.map(video => ({
-        videoId: Number(video.video_id),
-        youtubeUrl: video.youtube_url,
-        youtubeTitle: video.title,
-        description: video.description,
-      }))
-    );
+    const video = painArea.lifestyle_videos[0]; // 부위당 1개 고정
+
+    if (!video) {
+      return {
+        painAreaId: Number(painArea.pain_area_id),
+        painAreaName: painArea.name,
+        title: null,
+        subtitle: null,
+        videos: [],
+      };
+    }
 
     return {
       painAreaId: Number(painArea.pain_area_id),
       painAreaName: painArea.name,
-      title: `${painArea.name} 스트레칭`,
-      subtitle: `아래 영상은 ${painArea.name} 불편 시 가볍게 참고할 수 있는 스트레칭 예시에요.`,
-      videos: allVideos,
+      title: video.title,
+      subtitle: video.subtitle,
+      videos: [
+        {
+          videoId: Number(video.video_id),
+          youtubeUrl: video.youtube_url,
+          youtubeTitle: video.youtube_title,
+          source: {
+            name: video.source_name,
+          },
+          description: video.description,
+        },
+      ],
     };
   }
 }

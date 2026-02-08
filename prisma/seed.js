@@ -65,35 +65,70 @@ async function main() {
   await prisma.$executeRaw`ALTER TABLE pain_areas AUTO_INCREMENT = 8`;
   const noPainArea = await prisma.pain_areas.create({ data: { name: '미선택' } });
   createdPainAreas['미선택'] = noPainArea;
-
-  // 5. lifestyle_videos (증상별 2개, 중복 방지)
-  // (증상 생성 이후에 반드시 실행)
-  const allSymptomsList2 = await prisma.symptoms.findMany({ select: { symptom_id: true, name: true, pain_area_id: true }, orderBy: { symptom_id: 'asc' } });
-  const painAreasDb = await prisma.pain_areas.findMany({ orderBy: { pain_area_id: 'asc' } });
-  const painAreaMap = Object.fromEntries(painAreasDb.map((pa) => [Number(pa.pain_area_id), pa.name]));
+  
+  // 5. lifestyle_videos (부위별 1개, 6개 고정)
   const existingVideos = await prisma.lifestyle_videos.count();
+
   if (existingVideos === 0) {
-    const videoData = [];
-    let displayOrder = 1;
-    // 부위별 1개 증상만 lifestyle_videos 생성
-    const painAreaNames = ['어깨', '허리', '목', '무릎', '두통', '복통'];
-    for (const areaName of painAreaNames) {
-      const symptoms = allSymptomsList2.filter((s) => s.pain_area_id === createdPainAreas[areaName].pain_area_id);
-      if (symptoms.length > 0) {
-        const symptom = symptoms[0];
-        videoData.push({
-          symptom_id: symptom.symptom_id,
-          title: `${areaName} ${symptom.name} 스트레칭`,
-          description: `${symptom.name} 증상 완화를 위한 기본 스트레칭 영상입니다. 하루 1~2회 따라해보세요.`,
-          youtube_url: `https://www.youtube.com/watch?v=dummy_${Number(symptom.symptom_id)}_1`,
-          thumbnail_url: `https://img.youtube.com/vi/dummy_${Number(symptom.symptom_id)}_1/hqdefault.jpg`,
-          display_order: displayOrder++,
-          is_active: true,
-        });
-      }
-    }
-    await prisma.lifestyle_videos.createMany({ data: videoData });
-    console.log(`lifestyle_videos ${videoData.length}건 삽입 완료`);
+    const lifestyleVideoSeed = [
+      {
+        pain_area_id: createdPainAreas['어깨'].pain_area_id,
+        title: '어깨 스트레칭',
+        subtitle: '아래 영상은 어깨 불편 시 가볍게 참고할 수 있는 스트레칭 예시예요.',
+        youtube_url: 'https://youtube.com/lifestyle/shoulder',
+        youtube_title: '어깨가 뻐근할 때 따라 해볼 수 있는 스트레칭 영상',
+        source_name: '새움병원',
+        description: `이 스트레칭은 근육의 길이와 탄성을 회복시키고, 관절 주변의 움직임을 부드럽게 만들어 목과 어깨에 걸리는 부담을 줄이는 데 도움이 될 수 있습니다. 특히 오랜 시간 고정된 자세로 일하거나 스마트기기를 자주 사용하는 사람에게는, 근육에 쌓인 미세한 긴장을 풀고 재발성 통증을 예방하는 데 의미가 있습니다. 다만 이 스트레칭은 염증이나 신경 손상, 디스크 질환을 직접 치료하는 것은 아니며, 통증이 심하거나 팔 저림, 감각 이상이 동반된다면 전문적인 진료가 필요합니다. 정상적인 근육 긴장과 자세 문제로 인한 목·어깨 불편감이라면, 이 루틴은 일상 속에서 통증을 관리하고 몸의 균형을 되찾는 데 유용한 보조 수단이 될 수 있습니다.`,
+      },
+      {
+        pain_area_id: createdPainAreas['허리'].pain_area_id,
+        title: '허리 스트레칭',
+        subtitle: '아래 영상은 허리 불편 시 가볍게 참고할 수 있는 스트레칭 예시예요.',
+        youtube_url: 'https://youtube.com/lifestyle/back',
+        youtube_title: '허리가 뻐근할 때 따라 해볼 수 있는 스트레칭 영상',
+        source_name: '대찬병원',
+        description: `이 스트레칭은 허리 주변 근육과 근막의 긴장을 풀고, 척추와 골반 주위 관절의 움직임을 부드럽게 만들어 허리에 가해지는 부담을 줄이는 데 도움이 될 수 있습니다. 특히 오래 앉아 있거나, 서서 일하는 시간이 길거나, 구부정한 자세로 스마트기기를 자주 사용하는 사람에게는 굽어 있는 요추와 엉덩이 근육을 이완시키고 반복적으로 나타나는 허리 통증을 예방하는 데 의미가 있습니다. 다만 이 스트레칭은 허리 디스크, 신경 압박, 염증성 질환을 직접 치료하는 방법은 아니며, 다리로 뻗치는 통증, 저림, 힘 빠짐 같은 신경 증상이 동반된다면 전문적인 진료가 필요합니다. 자세 불균형이나 근육 긴장으로 인한 일반적인 허리 불편감이라면, 이 루틴은 일상 속에서 통증을 관리하고 허리와 골반의 균형을 회복하는 데 도움이 되는 보조 수단이 될 수 있습니다.`,
+      },
+      {
+        pain_area_id: createdPainAreas['무릎'].pain_area_id,
+        title: '무릎 스트레칭',
+        subtitle: '아래 영상은 무릎 불편 시 가볍게 참고할 수 있는 스트레칭 예시예요.',
+        youtube_url: 'https://youtube.com/lifestyle/knee',
+        youtube_title: '무릎이 뻐근할 때 따라 해볼 수 있는 스트레칭 영상',
+        source_name: '서울예병원',
+        description: `이 스트레칭은 무릎 주변 근육(허벅지 앞·뒤, 종아리)의 긴장을 풀고 관절을 지지하는 조직의 유연성과 탄성을 회복시켜 무릎에 가해지는 부담을 줄이는 데 도움이 될 수 있습니다. 특히 오래 서 있거나 많이 걷는 경우, 계단을 자주 오르내리는 생활을 하는 사람에게는 뻣뻣해진 근육과 힘줄을 이완시키고 반복적으로 나타나는 무릎 통증을 완화·예방하는 데 의미가 있습니다. 다만 이 스트레칭은 연골 손상, 인대 파열, 관절염 같은 구조적 문제를 직접 치료하는 것은 아니며, 부기나 열감, 무릎이 꺾이는 느낌, 체중을 실을 수 없을 정도의 통증이 있다면 전문적인 진료가 필요합니다. 근육 긴장이나 사용 과부하로 인한 일반적인 무릎 불편감이라면, 이 루틴은 일상 속에서 관절 부담을 줄이고 무릎의 움직임을 보다 안정적으로 유지하는 데 도움이 되는 보조 수단이 될 수 있습니다.`,
+      },
+      {
+        pain_area_id: createdPainAreas['목'].pain_area_id,
+        title: '목 스트레칭',
+        subtitle: '아래 영상은 목 불편 시 가볍게 참고할 수 있는 스트레칭 예시예요.',
+        youtube_url: 'https://youtube.com/lifestyle/neck',
+        youtube_title: '목이 뻐근할 때 따라 해볼 수 있는 스트레칭 영상',
+        source_name: 'CM병원',
+        description: `이 스트레칭은 목 주변 근육과 근막의 긴장을 완화하고 경추 관절의 움직임을 부드럽게 만들어 머리와 목에 가해지는 부담을 줄이는 데 도움이 될 수 있습니다. 특히 장시간 컴퓨터나 스마트기기를 사용하는 경우, 고개를 앞으로 내민 자세가 반복되는 사람에게는 짧아지고 굳어진 근육을 이완시키고 반복적으로 나타나는 목 통증과 불편감을 줄이는 데 의미가 있습니다. 다만 이 스트레칭은 디스크나 신경 압박, 염증성 질환을 직접 치료하는 것은 아니며 팔 저림, 감각 이상, 힘 빠짐 같은 신경 증상이 동반된다면 전문적인 진료가 필요합니다. 자세 불균형과 근육 긴장으로 인한 일반적인 목 불편감이라면, 이 루틴은 일상 속에서 통증을 관리하고 목과 어깨의 균형을 회복하는 데 도움이 되는 보조 수단이 될 수 있습니다.`,
+      },
+      {
+        pain_area_id: createdPainAreas['두통'].pain_area_id,
+        title: '두통 스트레칭',
+        subtitle: '아래 영상은 두통 시 가볍게 참고할 수 있는 스트레칭 예시예요.',
+        youtube_url: 'https://youtube.com/lifestyle/headache',
+        youtube_title: '두통으로 불편할 때 가볍게 따라 해볼 수 있는 스트레칭 영상',
+        source_name: '국제성모TV',
+        description: `이 스트레칭은 머리와 목, 어깨 주변 근육의 긴장을 완화하고 혈류 흐름을 부드럽게 만들어 두통에 기여하는 압박과 당김을 줄이는 데 도움이 될 수 있습니다. 특히 긴 시간 화면을 보거나 스트레스와 수면 부족으로 머리와 목이 굳어 있는 경우, 뭉친 근육을 이완시키고 긴장성 두통이 반복되는 것을 완화·예방하는 데 의미가 있습니다. 다만 이 스트레칭은 편두통이나 신경계 질환, 감각소실은 극심한 두통의 원인을 직접 치료하는 방법은 아니며 시야 이상, 마비, 구토를 동반한 두통이나 이전과 다른 양상의 심한 통증이 있다면 전문적인 진료가 필요합니다. 근육 긴장과 자세 문제로 인한 일반적인 두통이라면, 이 루틴은 일상 속에서 통증을 관리하고 머리와 목의 부담을 줄이는 데 도움이 되는 보조 수단이 될 수 있습니다.`,
+      },
+      {
+        pain_area_id: createdPainAreas['복통'].pain_area_id,
+        title: '복통 스트레칭',
+        subtitle: '아래 영상은 복통 시 가볍게 참고할 수 있는 스트레칭 예시예요.',
+        youtube_url: 'https://youtube.com/lifestyle/abdomen',
+        youtube_title: '복통으로 불편할 때 참고할 수 있는 원인 영상',
+        source_name: '건강채널 민트TV',
+        description: `이 스트레칭은 복부와 허리, 골반 주변 근육의 긴장을 완화하고 장과 복부 장기의 움직임을 방해하는 압박을 줄여 복부 불편감과 복통을 완화하는 데 도움이 될 수 있습니다. 특히 오래 앉아 있거나 자세가 굽어 있는 상태에서 소화가 더디고 더부룩함이 동반되는 경우, 굳은 복부와 골반 근육을 이완시키고 긴장성 복통이나 가스 정체로 인한 통증들을 줄이는 데 의미가 있습니다. 다만 이 스트레칭은 위장관 질환, 염증, 장폐색, 충수염과 같은 급성 복통의 원인을 직접 치료하는 방법은 아니며 심한 통증, 발열, 구토, 피 섞인 변, 통증이 점점 악화되는 경우에는 전문적인 진료가 필요합니다. 근육 긴장이나 일시적인 소화 불균형으로 인한 일반적인 복부 불편감이라면, 이 루틴은 일상 속에서 복부 긴장을 낮추고 통증을 관리하는 데 도움이 되는 보조 수단이 될 수 있습니다.`,
+      },
+    ];
+
+    await prisma.lifestyle_videos.createMany({ data: lifestyleVideoSeed });
+    console.log(`lifestyle_videos ${lifestyleVideoSeed.length}건 삽입 완료`);
   } else {
     console.log(`lifestyle_videos 이미 ${existingVideos}건 존재, 건너뜀`);
   }

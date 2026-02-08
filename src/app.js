@@ -6,6 +6,7 @@ import swaggerSpec from "./config/swagger.config.js";
 import routes from "./routes/index.js";
 import errorHandler from "./middleware/errorHandler.js";
 import symptomGuideRoutes from './routes/symptomGuide.routes.js';
+import lifestyleGuideRouter from './routes/lifestyleGuide.routes.js';
 
 dotenv.config();
 
@@ -41,6 +42,7 @@ if (process.env.NODE_ENV !== "production") {
 }
 app.use("/api/v1", routes);
 app.use('/api/v1/symptoms', symptomGuideRoutes);
+app.use('/api/v1/symptoms', lifestyleGuideRouter);
 
 // Swagger UI
 app.use(

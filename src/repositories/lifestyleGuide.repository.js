@@ -1,7 +1,7 @@
 import prisma from '../config/db.config.js';
 
 class LifestyleGuideRepository {
-  static async findPainAreaWithLifestyleVideos(painAreaId) {
+  static async findPainAreaWithLifestyleVideo(painAreaId) {
     return prisma.pain_areas.findUnique({
       where: {
         pain_area_id: BigInt(painAreaId),
@@ -9,22 +9,15 @@ class LifestyleGuideRepository {
       select: {
         pain_area_id: true,
         name: true,
-        symptoms: {
+        lifestyle_videos: {
           select: {
-            lifestyle_videos: {
-              where: {
-                is_active: true,
-              },
-              select: {
-                video_id: true,
-                title: true,
-                youtube_url: true,
-                description: true,
-              },
-              orderBy: {
-                display_order: 'asc',
-              },
-            },
+            video_id: true,
+            title: true,
+            subtitle: true,
+            youtube_url: true,
+            youtube_title: true,
+            source_name: true,
+            description: true,
           },
         },
       },
