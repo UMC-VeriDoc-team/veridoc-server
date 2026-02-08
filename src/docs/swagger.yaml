@@ -1074,6 +1074,20 @@ paths:
                     example: "임시 대처 가이드 ID 조회 성공"
                   data:
                     $ref: "#/components/schemas/TemporaryGuideIdList"
+              examples:
+                success:
+                  summary: 성공 예시
+                  value:
+                    code: 200
+                    message: 임시 대처 가이드 ID 조회 성공
+                    data:
+                      guides:
+                        - guideId: 3001
+                          painAreaName: "어깨"
+                        - guideId: 3002
+                          painAreaName: "어깨"
+                        - guideId: 3003
+                          painAreaName: "어깨"
 
   /temporary-guides/{guideId}:
     get:
@@ -1108,6 +1122,58 @@ paths:
                     example: "임시 대처 가이드 상세 조회 성공"
                   data:
                     $ref: "#/components/schemas/TemporaryGuideDetail"
+              examples:
+                success:
+                  summary: 성공 예시
+                  value:
+                    code: 200
+                    message: 임시 대처 가이드 상세 조회 성공
+                    data:
+                      painAreaId: 1
+                      painAreaName: "어깨"
+                      type: "어깨 · 스트레칭/찜질"
+                      guideId: 3001
+                      title: "어깨 스트레칭 방법"
+                      subtitle: "어깨 통증 완화에 도움이 되는 스트레칭"
+                      imageUrl: "https://example.com/image.png"
+                      duration: "평균 소요 시간 10분"
+                      sourceName: "대한정형외과학회"
+                      sourceUrl: "https://www.koa.or.kr/"
+                      highlighter: "가벼운 통증 시에만 시행하세요."
+                      content: "어깨 통증은 장시간 같은 자세를 유지할 때 자주 발생합니다. 아래 스트레칭을 따라 해보세요."
+                      badges: ["통증 직후", "하루 1~2회", "집 · 사무실"]
+                      notes:
+                        - id: 1
+                          imageUrl: "https://example.com/image101.png"
+                          title: "어깨를 천천히 앞뒤로 돌려줍니다."
+                          description: "처음에는 작은 범위로 시작해 점차 늘려보세요."
+                        - id: 2
+                          imageUrl: "https://example.com/image102.png"
+                          title: "팔을 들어 올려 스트레칭합니다."
+                          description: "통증이 심하지 않다면 10초간 유지하세요."
+                      cautions:
+                        - id: 1
+                          iconUrl: "https://example.com/icon1.png"
+                          title: "통증이 지속되거나 심해질 때"
+                          description: "단순 근육 피로가 아닌 원인이 있을 수 있습니다."
+                        - id: 2
+                          iconUrl: "https://example.com/icon2.png"
+                          title: "붓기, 열감 동반 시"
+                          description: "즉시 전문의 상담을 권장합니다."
+                      helps:
+                        - id: 1
+                          description: "통증 직후 가벼운 스트레칭이 도움이 될 수 있어요."
+                        - id: 2
+                          description: "찜질은 10~15분 이내로 시행하세요."
+                      morePosts:
+                        - answerId: 3002
+                          painAreaId: 1
+                          title: "어깨 온찜질/냉찜질"
+                          imageUrl: "https://example.com/post02.webp"
+                        - answerId: 3003
+                          painAreaId: 1
+                          title: "어깨 자세 교정"
+                          imageUrl: "https://example.com/post03.webp"
         "401":
           description: 인증 실패
           content:
@@ -1511,52 +1577,78 @@ components:
           example: "어깨 스트레칭 방법"
         subtitle:
           type: string
-          nullable: true
-          example: null
+          example: "어깨 통증 완화에 도움이 되는 스트레칭"
         imageUrl:
           type: string
-          nullable: true
           example: "https://example.com/image.png"
         duration:
           type: string
-          nullable: true
           example: "평균 소요 시간 10분"
         sourceName:
           type: string
-          nullable: true
-          example: null
+          example: "대한정형외과학회"
         sourceUrl:
           type: string
-          nullable: true
-          example: null
+          example: "https://www.koa.or.kr/"
         highlighter:
           type: string
-          nullable: true
-          example: null
+          example: "가벼운 통증 시에만 시행하세요."
         content:
           type: string
-          example: "어깨 통증은 장시간 같은 자세를..."
+          example: "어깨 통증은 장시간 같은 자세를 유지할 때 자주 발생합니다. 아래 스트레칭을 따라 해보세요."
         badges:
           type: array
           items:
             type: string
-          example: ["통증 직후", "하루 1~2회"]
+          example: ["통증 직후", "하루 1~2회", "집 · 사무실"]
         notes:
           type: array
           items:
             $ref: "#/components/schemas/GuideNote"
+          example:
+            - id: 1
+              imageUrl: "https://example.com/image101.png"
+              title: "어깨를 천천히 앞뒤로 돌려줍니다."
+              description: "처음에는 작은 범위로 시작해 점차 늘려보세요."
+            - id: 2
+              imageUrl: "https://example.com/image102.png"
+              title: "팔을 들어 올려 스트레칭합니다."
+              description: "통증이 심하지 않다면 10초간 유지하세요."
         cautions:
           type: array
           items:
             $ref: "#/components/schemas/GuideCaution"
+          example:
+            - id: 1
+              iconUrl: "https://example.com/icon1.png"
+              title: "통증이 지속되거나 심해질 때"
+              description: "단순 근육 피로가 아닌 원인이 있을 수 있습니다."
+            - id: 2
+              iconUrl: "https://example.com/icon2.png"
+              title: "붓기, 열감 동반 시"
+              description: "즉시 전문의 상담을 권장합니다."
         helps:
           type: array
           items:
             $ref: "#/components/schemas/GuideHelp"
+          example:
+            - id: 1
+              description: "통증 직후 가벼운 스트레칭이 도움이 될 수 있어요."
+            - id: 2
+              description: "찜질은 10~15분 이내로 시행하세요."
         morePosts:
           type: array
           items:
             $ref: "#/components/schemas/TemporaryGuideMorePost"
+          example:
+            - answerId: 3002
+              painAreaId: 1
+              title: "어깨 온찜질/냉찜질"
+              imageUrl: "https://example.com/post02.webp"
+            - answerId: 3003
+              painAreaId: 1
+              title: "어깨 자세 교정"
+              imageUrl: "https://example.com/post03.webp"
 
     GuideNote:
       type: object
@@ -1566,7 +1658,6 @@ components:
           example: 1
         imageUrl:
           type: string
-          nullable: true
           example: "https://example.com/image101.png"
         title:
           type: string
@@ -1583,7 +1674,6 @@ components:
           example: 1
         iconUrl:
           type: string
-          nullable: true
           example: "https://example.com/icon1.png"
         title:
           type: string
@@ -1617,7 +1707,6 @@ components:
           example: "어깨 온찜질/냉찜질"
         imageUrl:
           type: string
-          nullable: true
           example: "https://example.com/post02.webp"
 
     TemporaryGuideIdList:

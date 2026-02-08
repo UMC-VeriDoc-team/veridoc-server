@@ -2,16 +2,7 @@ import TemporaryGuideRepository from "../repositories/temporaryGuide.repository.
 import ApiError from "../errors/ApiError.js";
 import errorCodes from "../errors/errorCodes.js";
 
-const GUIDE_META_BY_TYPE = {
-  "스트레칭/찜질": {
-    badges: ["통증 직후", "하루 1~2회"],
-    duration: "평균 소요 시간 10분",
-  },
-  "생활 습관": {
-    badges: ["작은 자세 변화", "하루 여러 회"],
-    duration: "평균 소요 시간 1분",
-  },
-};
+
 
 class TemporaryGuideService {
   constructor(repository = new TemporaryGuideRepository()) {
@@ -39,7 +30,6 @@ class TemporaryGuideService {
 
     const painAreaId = Number(guide.pain_areas?.pain_area_id ?? guide.pain_area_id);
     const painAreaName = guide.pain_areas?.name ?? null;
-    const meta = GUIDE_META_BY_TYPE[guide.guide_type] || { badges: [], duration: null };
 
     const moreGuidesRaw = await this.repository.findMoreGuidesByPainArea(
       painAreaId,
@@ -48,7 +38,7 @@ class TemporaryGuideService {
     );
 
     const morePosts = moreGuidesRaw.map((item) => ({
-      answerId: Number(item.guide_id),
+      guideId: Number(item.guide_id),
       painAreaId: Number(item.pain_area_id),
       title: item.title,
       imageUrl: item.image_url,
@@ -60,17 +50,30 @@ class TemporaryGuideService {
       type: painAreaName ? `${painAreaName} · ${guide.guide_type}` : guide.guide_type,
       guideId: Number(guide.guide_id),
       title: guide.title,
-      subtitle: null,
+      subtitle: guide.subtitle,
       imageUrl: guide.image_url,
-      duration: meta.duration,
-      sourceName: null,
-      sourceUrl: null,
-      highlighter: null,
-      content: guide.content ? String(guide.content).replace(/\\n/g, "\n") : null,
-      badges: meta.badges,
-      notes: [],
-      cautions: [],
-      helps: [],
+      duration: guide.duration,
+      sourceName: guide.source_name,
+      sourceUrl: guide.source_url,
+      highlighter: guide.highlighter,
+      content: guide.content ? String(guide.content) : null,
+      badges: (guide.badges || []).map(b => b.text),
+      notes: (guide.notes || []).map(n => ({
+        noteId: Number(n.note_id),
+        imageUrl: n.image_url,
+        bold: n.bold,
+        text: n.text
+      })),
+      cautions: (guide.cautions || []).map(c => ({
+        cautionId: Number(c.caution_id),
+        iconUrl: c.icon_url,
+        bold: c.bold,
+        text: c.text
+      })),
+      helps: (guide.helps || []).map(h => ({
+        helpId: Number(h.help_id),
+        text: h.text
+      })),
       morePosts,
     };
   }

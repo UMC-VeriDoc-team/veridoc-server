@@ -169,14 +169,57 @@ model temporary_care_guides {
   pain_area_id  BigInt
   guide_type    String     @db.VarChar(200)
   title         String     @db.VarChar(200)
+  subtitle      String?    @db.VarChar(255)
   content       String     @db.Text
   image_url     String     @db.VarChar(255)
+  duration      String?    @db.VarChar(100)
+  source_name   String?    @db.VarChar(255)
+  source_url    String?    @db.VarChar(255)
+  highlighter   String?    @db.VarChar(255)
   display_order Int?       @default(0)
   created_at    DateTime   @default(now()) @db.DateTime(6)
   updated_at    DateTime   @default(now()) @db.DateTime(6)
   pain_areas    pain_areas @relation(fields: [pain_area_id], references: [pain_area_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_care_guides_pain_area")
 
+  badges    badges[]
+  notes     notes[]
+  cautions  cautions[]
+  helps     helps[]
+
   @@index([pain_area_id], map: "fk_care_guides_pain_area")
+
+}
+
+model badges {
+  badge_id   BigInt   @id @default(autoincrement())
+  guide_id   BigInt
+  text       String   @db.VarChar(200)
+  temporary_care_guides temporary_care_guides @relation(fields: [guide_id], references: [guide_id], onDelete: Cascade)
+}
+
+model notes {
+  note_id    BigInt   @id @default(autoincrement())
+  guide_id   BigInt
+  image_url  String?  @db.VarChar(255)
+  bold       String?  @db.VarChar(100)
+  text       String   @db.VarChar(500)
+  temporary_care_guides temporary_care_guides @relation(fields: [guide_id], references: [guide_id], onDelete: Cascade)
+}
+
+model cautions {
+  caution_id BigInt   @id @default(autoincrement())
+  guide_id   BigInt
+  icon_url   String?  @db.VarChar(255)
+  bold       String?  @db.VarChar(100)
+  text       String   @db.VarChar(500)
+  temporary_care_guides temporary_care_guides @relation(fields: [guide_id], references: [guide_id], onDelete: Cascade)
+}
+
+model helps {
+  help_id    BigInt   @id @default(autoincrement())
+  guide_id   BigInt
+  text       String   @db.VarChar(500)
+  temporary_care_guides temporary_care_guides @relation(fields: [guide_id], references: [guide_id], onDelete: Cascade)
 }
 
 model usage_guides {
