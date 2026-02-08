@@ -14,6 +14,8 @@ async function main() {
   await prisma.expert_answers.deleteMany();
   await prisma.symptom_steps.deleteMany();
   await prisma.pain_area_specialties.deleteMany();
+  await prisma.hospital_symptoms.deleteMany();
+  await prisma.lifestyle_videos.deleteMany();
   await prisma.symptoms.deleteMany();
   await prisma.content_sections.deleteMany();
   await prisma.pain_areas.deleteMany();
