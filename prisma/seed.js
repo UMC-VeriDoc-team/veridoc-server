@@ -14,13 +14,25 @@ async function main() {
   await prisma.expert_answers.deleteMany();
   await prisma.symptom_steps.deleteMany();
   await prisma.pain_area_specialties.deleteMany();
+  await prisma.hospital_symptoms.deleteMany();
+  await prisma.lifestyle_videos.deleteMany();
   await prisma.symptoms.deleteMany();
   await prisma.content_sections.deleteMany();
   await prisma.pain_areas.deleteMany();
   await prisma.users.deleteMany();
 
+  // Auto increment 초기화
+  await prisma.$executeRaw`ALTER TABLE pain_areas AUTO_INCREMENT = 1`;
+  await prisma.$executeRaw`ALTER TABLE users AUTO_INCREMENT = 1`;
+  await prisma.$executeRaw`ALTER TABLE symptoms AUTO_INCREMENT = 1`;
+  await prisma.$executeRaw`ALTER TABLE expert_answers AUTO_INCREMENT = 1`;
+  await prisma.$executeRaw`ALTER TABLE pain_area_specialties AUTO_INCREMENT = 1`;
+  await prisma.$executeRaw`ALTER TABLE temporary_care_guides AUTO_INCREMENT = 1`;
+  await prisma.$executeRaw`ALTER TABLE content_sections AUTO_INCREMENT = 1`;
+  await prisma.$executeRaw`ALTER TABLE usage_guides AUTO_INCREMENT = 1`;
+
   // Users
-  const hashedPassword = await bcrypt.hash('password', 10);
+  const hashedPassword = await bcrypt.hash('Password1!', 10);
   const user = await prisma.users.create({
     data: {
       name: 'Seed User',
@@ -47,16 +59,11 @@ async function main() {
     createdPainAreas[area.name] = pa;
   }
 
-  for (const area of painAreas) {
-    await prisma.pain_areas.upsert({
-      where: { pain_area_id: BigInt(area.pain_area_id) },
-      update: { name: area.name },
-      create: {
-        pain_area_id: BigInt(area.pain_area_id),
-        name: area.name,
-      },
-    });
-  }
+  // 미선택 pain_area (ID = 8)
+  await prisma.$executeRaw`ALTER TABLE pain_areas AUTO_INCREMENT = 8`;
+  const noPainArea = await prisma.pain_areas.create({ data: { name: '미선택' } });
+  createdPainAreas['미선택'] = noPainArea;
+
   // Pain area specialties mapping
   const painAreaSpecialties = [
     // 어깨 (1)
@@ -121,27 +128,26 @@ async function main() {
     { pain_area_id: 6, specialty_keyword: '항문' },
   ];
 
+  // pain_areas 이름으로 ID 매핑
+  const painAreaIdMap = {
+    1: createdPainAreas['어깨'].pain_area_id,
+    2: createdPainAreas['허리'].pain_area_id,
+    3: createdPainAreas['무릎'].pain_area_id,
+    4: createdPainAreas['목'].pain_area_id,
+    5: createdPainAreas['두통'].pain_area_id,
+    6: createdPainAreas['복통'].pain_area_id,
+  };
+
+// pain_area_specialties 삽입
   for (const data of painAreaSpecialties) {
     await prisma.pain_area_specialties.create({
       data: {
-        pain_area_id: BigInt(data.pain_area_id),
+        pain_area_id: painAreaIdMap[data.pain_area_id],  // ✅ 실제 ID 사용
         specialty_keyword: data.specialty_keyword,
       },
     });
   }
   console.log('pain_area_specialties 데이터 삽입 완료');
-
-  for (const spec of painAreaSpecialties) {
-    const painArea = createdPainAreas[spec.area];
-    for (const keyword of spec.keywords) {
-      await prisma.pain_area_specialties.create({
-        data: {
-          pain_area_id: painArea.pain_area_id,
-          specialty_keyword: keyword,
-        },
-      });
-    }
-  }
 
   // Use shoulder for symptom examples
   const shoulder = createdPainAreas['어깨'];

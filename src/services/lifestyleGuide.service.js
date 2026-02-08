@@ -27,20 +27,22 @@ class LifestyleGuideService {
       };
     }
 
+    // symptoms 배열에서 lifestyle_videos를 평탄화(flatten)
+    const allVideos = painArea.symptoms.flatMap(symptom =>
+      symptom.lifestyle_videos.map(video => ({
+        videoId: Number(video.video_id),
+        youtubeUrl: video.youtube_url,
+        youtubeTitle: video.title,
+        description: video.description,
+      }))
+    );
+
     return {
       painAreaId: Number(painArea.pain_area_id),
       painAreaName: painArea.name,
       title: `${painArea.name} 스트레칭`,
       subtitle: `아래 영상은 ${painArea.name} 불편 시 가볍게 참고할 수 있는 스트레칭 예시에요.`,
-      videos: painArea.lifestyle_videos.map(video => ({
-        videoId: Number(video.video_id),
-        youtubeUrl: video.youtube_url,
-        youtubeTitle: video.title,
-        source: {
-          name: painArea.source_name,
-        },
-        description: video.description,
-      })),
+      videos: allVideos,
     };
   }
 }

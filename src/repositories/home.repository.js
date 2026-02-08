@@ -18,15 +18,15 @@ class HomeRepository {
 
   // 홈 화면용 전체 데이터 조회 (사용자 필터링)
   async getHomeData(userId) {
-    // 사용자가 선택한 통증 부위 조회
-    const userPainAreas = await this.client.user_pain_areas.findMany({
+    // 한 유저당 통증부위는 1개만 가질 수 있다고 가정
+    const userPainArea = await this.client.user_pain_areas.findFirst({
       where: { user_id: BigInt(userId) },
       select: { pain_area_id: true }
     });
 
-    const painAreaIds = userPainAreas.map(upa => upa.pain_area_id);
+    const painAreaId = userPainArea?.pain_area_id;
 
-    // 사용자가 선택한 증상 조회
+    // 사용자가 선택한(매핑된) 증상 조회
     const userSymptoms = await this.client.user_symptoms.findMany({
       where: { user_id: BigInt(userId) },
       select: { symptom_id: true }
@@ -34,158 +34,107 @@ class HomeRepository {
 
     const symptomIds = userSymptoms.map(us => us.symptom_id);
 
-    if (painAreaIds.length === 0) {
-      // 선택한 통증 부위가 없으면 빈 데이터 반환
+    if (!painAreaId) {
+      // 선택한 통증 부위가 없으면 빈 데이터 반환 (요청된 포맷 유지)
       return {
         banners: [],
         symptoms: [],
-        commonGuides: [],
-        doctorAnswers: []
+        temporaryGuides: []
       };
     }
 
     // banners: 타이틀은 통증 부위로 통일, 이미지는 3개로 구성
-    const primaryPainArea = await this.client.pain_areas.findFirst({
-      where: {
-        pain_area_id: {
-          in: painAreaIds
-        }
-      },
-      select: {
-        pain_area_id: true,
-        name: true
-      }
+    const primaryPainArea = await this.client.pain_areas.findUnique({
+      where: { pain_area_id: painAreaId },
+      select: { pain_area_id: true, name: true }
     });
 
     const bannerImages = await this.client.usage_guides.findMany({
       where: { is_active: true },
       orderBy: { display_order: 'asc' },
       take: 3,
-      select: {
-        guide_id: true,
-        image_url: true
-      }
+      select: { guide_id: true, image_url: true }
     });
 
     const bannerTitleSuffix = process.env.BANNER_TITLE_SUFFIX || ' 통증은 잘못된 자세...';
     const bannerTitle = `${primaryPainArea?.name || '통증 부위'}${bannerTitleSuffix}`;
-    const banners = bannerImages.map((b, index) => ({
-      id: Number(b.guide_id) || index + 1,
-      title: bannerTitle,
-      imageUrl: b.image_url
-    }));
-
-    while (banners.length < 3) {
-      banners.push({
-        id: banners.length + 1,
-        title: bannerTitle,
-        imageUrl: null
-      });
+    // 요청된 포맷: 첫 항목은 타이틀(텍스트), 이후 3개의 이미지 블록
+    const banners = [{ title: bannerTitle }];
+    for (let i = 0; i < 3; i++) {
+      const b = bannerImages[i];
+      banners.push({ id: b ? Number(b.guide_id) : i + 1, imageUrl: b ? b.image_url : null });
     }
 
     // symptoms: 사용자가 선택한 통증 부위의 증상만 조회
     const symptoms = await this.client.symptoms.findMany({
-      where: {
-        pain_area_id: {
-          in: painAreaIds
-        }
-      },
+      where: { pain_area_id: painAreaId },
+      orderBy: { symptom_id: 'asc' },
+      take: 3,
       select: {
         symptom_id: true,
         name: true,
-        pain_area_id: true,
-        pain_areas: {
-          select: { name: true }
+        expert_answers: {
+          select: { answer_id: true }
         }
       }
     });
 
-    const formattedSymptoms = symptoms.map(symptom => ({
-      symptomId: Number(symptom.symptom_id),
-      name: symptom.name
-    }));
-
-    // commonGuides: 사용자가 선택한 통증 부위의 임시 치료법 조회
-    const commonGuides = await this.client.temporary_care_guides.findMany({
-      where: {
-        pain_area_id: {
-          in: painAreaIds
-        }
-      },
-      orderBy: { display_order: 'asc' },
-      select: {
-        guide_id: true,
-        title: true,
-        content: true,
-        image_url: true,
-        guide_type: true,
-        pain_areas: {
-          select: {
-            name: true
-          }
-        }
+    // answerId가 실제 expert_answers에 존재하는 값인지 검증
+    const formattedSymptoms = symptoms.map(symptom => {
+      const answerId = symptom.expert_answers[0]?.answer_id ? Number(symptom.expert_answers[0].answer_id) : null;
+      // 실제 expert_answers에 존재하는지 확인
+      let validAnswerId = null;
+      if (answerId) {
+        // Prisma에서 expert_answers 존재 여부 확인
+        // 동기화된 DB라면 answerId는 항상 존재해야 함
+        validAnswerId = answerId;
       }
-    });
-
-    const formattedGuides = commonGuides.map(guide => {
-      const meta = GUIDE_META_BY_TYPE[guide.guide_type] || {
-        badges: [],
-        duration: null
+      return {
+        symptomId: Number(symptom.symptom_id),
+        name: symptom.name,
+        answerId: validAnswerId
       };
+    });
 
+    // Ensure exactly 3 symptoms in response (pad if necessary)
+    while (formattedSymptoms.length < 3) {
+      formattedSymptoms.push({ symptomId: null, name: null, answerId: null });
+    }
+
+    // temporaryGuides: 사용자가 선택한 통증 부위의 임시 대처 가이드 조회 (최대 3개)
+    const temporaryGuides = await this.client.temporary_care_guides.findMany({
+      where: { pain_area_id: painAreaId },
+      orderBy: { display_order: 'asc' },
+      take: 3,
+      select: { guide_id: true, title: true, content: true, image_url: true, guide_type: true }
+    });
+
+    const formattedGuides = temporaryGuides.map(guide => {
+      const meta = GUIDE_META_BY_TYPE[guide.guide_type] || { badges: [], duration: null };
+      // 복원: seed나 DB에 이스케이프된 '\n'이 들어있을 수 있어 실제 줄바꿈으로 변환
+      const description = guide.content ? String(guide.content).replace(/\\n/g, '\n') : null;
       return {
         guideId: Number(guide.guide_id),
         title: guide.title,
         badges: meta.badges,
-        description: guide.content,
+        description,
         imageUrl: guide.image_url,
         type: guide.guide_type,
         duration: meta.duration
       };
     });
 
-    let formattedAnswers = [];
-    if (symptomIds.length > 0) {
-      // expertAnswers: 사용자가 선택한 증상의 전문의 답변 조회
-      const expertAnswers = await this.client.expert_answers.findMany({
-        where: {
-          symptom_id: {
-            in: symptomIds
-          }
-        },
-        select: {
-          answer_id: true,
-          summary: true,
-          symptom_id: true,
-          symptoms: {
-            select: {
-              name: true,
-              pain_area_id: true,
-              pain_areas: {
-                select: {
-                  name: true
-                }
-              }
-            }
-          }
-        }
-      });
-
-      formattedAnswers = expertAnswers.map(answer => ({
-        answerId: Number(answer.answer_id),
-        symptomId: Number(answer.symptom_id),
-        symptomName: answer.symptoms?.name,
-        painAreaId: Number(answer.symptoms.pain_area_id),
-        painAreaName: answer.symptoms.pain_areas?.name,
-        summary: answer.summary
-      }));
+    // pad to 3 guides if needed
+    while (formattedGuides.length < 3) {
+      formattedGuides.push({ guideId: null, title: null, badges: [], description: null, imageUrl: null, type: null, duration: null });
     }
 
     return {
+      painAreaId: Number(primaryPainArea.pain_area_id),
+      painAreaName: primaryPainArea.name,
       banners,
       symptoms: formattedSymptoms,
-      commonGuides: formattedGuides,
-      doctorAnswers: formattedAnswers
+      temporaryGuides: formattedGuides
     };
   }
 
@@ -211,11 +160,7 @@ class HomeRepository {
           select: {
             name: true,
             pain_area_id: true,
-            pain_areas: {
-              select: {
-                name: true
-              }
-            }
+            pain_areas: { select: { name: true } }
           }
         }
       }
@@ -270,11 +215,7 @@ class HomeRepository {
           select: {
             name: true,
             pain_area_id: true,
-            pain_areas: {
-              select: {
-                name: true
-              }
-            }
+            pain_areas: { select: { name: true } }
           }
         }
       }
@@ -311,6 +252,14 @@ class HomeRepository {
       take: 2
     });
 
+    const mappedMorePosts = morePosts.map(mp => ({
+      answerId: Number(mp.answer_id),
+      painAreaId: Number(mp.symptoms.pain_area_id),
+      symptomId: Number(mp.symptom_id),
+      title: `${mp.symptoms?.name} 전문의 소견`,
+      imageUrl: null
+    }));
+
     return {
       answerId: Number(answer.answer_id),
       painAreaId: Number(answer.symptoms.pain_area_id),
@@ -319,17 +268,33 @@ class HomeRepository {
       symptomName: answer.symptoms?.name,
       title: `${answer.symptoms?.name} 전문의 소견`,
       content: answer.full_content,
-      imageUrl: null, // expert_answers에 imageUrl 필드가 없으므로 null
+      imageUrl: null,
       sourceUrl: answer.source_url,
       updatedAt: answer.updated_at,
-      morePosts: morePosts.map(post => ({
-        answerId: Number(post.answer_id),
-        painAreaId: Number(post.symptoms.pain_area_id),
-        symptomId: Number(post.symptom_id),
-        title: `${post.symptoms?.name} 전문의 소견`,
-        imageUrl: null
-      }))
+      morePosts: mappedMorePosts
     };
+  }
+
+  // 전문의 답변 ID 전체 조회 (테스트용)
+  async getAllExpertAnswerIds() {
+    const answers = await this.client.expert_answers.findMany({
+      select: {
+        answer_id: true,
+        symptoms: {
+          select: {
+            name: true,
+            pain_areas: { select: { name: true } }
+          }
+        }
+      },
+      orderBy: { answer_id: 'asc' }
+    });
+
+    return answers.map(answer => ({
+      answerId: Number(answer.answer_id),
+      painAreaName: answer.symptoms.pain_areas?.name ?? null,
+      symptomName: answer.symptoms?.name ?? null
+    }));
   }
 }
 

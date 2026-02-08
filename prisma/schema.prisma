@@ -90,6 +90,9 @@ model pain_areas {
   temporary_care_guides temporary_care_guides[]
   user_pain_areas       user_pain_areas[]
   pain_area_specialties pain_area_specialties[]
+  symptom_steps         symptom_steps[]
+  guide_progresses      symptom_guide_progress[]
+  guide_events          symptom_guide_events[]
 }
 
 model pain_area_specialties {
@@ -102,17 +105,50 @@ model pain_area_specialties {
 }
 
 model symptom_steps {
-  step_id     BigInt   @id @default(autoincrement())
-  symptom_id  BigInt
-  step_number Int
-  title       String   @db.VarChar(200)
-  content     String   @db.Text
-  image_url   String   @db.VarChar(255)
-  created_at  DateTime @default(now()) @db.DateTime(6)
-  updated_at  DateTime @default(now()) @db.DateTime(6)
-  symptoms    symptoms @relation(fields: [symptom_id], references: [symptom_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_symptom_steps_symptom")
+  step_id      BigInt   @id @default(autoincrement())
+  pain_area_id BigInt?
 
-  @@index([symptom_id], map: "fk_symptom_steps_symptom")
+  step_number  Int
+  title        String   @db.VarChar(200)
+  subtitle     String?   @db.VarChar(200)
+  caption      String?   @db.Text
+  description  String?   @db.Text
+  image_url    String   @db.VarChar(255)
+
+  created_at   DateTime @default(now()) @db.DateTime(6)
+  updated_at   DateTime @default(now()) @db.DateTime(6)
+
+  pain_area    pain_areas? @relation(fields: [pain_area_id], references: [pain_area_id], onDelete: Cascade)
+
+  @@unique([pain_area_id, step_number])
+  @@index([pain_area_id])
+}
+
+model symptom_guide_progress {
+  progress_id     BigInt   @id @default(autoincrement())
+  user_id         BigInt
+  pain_area_id    BigInt
+
+  current_step    Int
+  last_visited_at DateTime @default(now())
+
+  users           users      @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  pain_areas      pain_areas @relation(fields: [pain_area_id], references: [pain_area_id], onDelete: Cascade)
+
+  @@unique([user_id, pain_area_id])
+}
+
+model symptom_guide_events {
+  event_id     BigInt   @id @default(autoincrement())
+  user_id      BigInt
+  pain_area_id BigInt
+  event_type   String   @db.VarChar(50)
+  created_at   DateTime @default(now())
+
+  users        users      @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
+  pain_areas   pain_areas @relation(fields: [pain_area_id], references: [pain_area_id], onDelete: Cascade)
+
+  @@index([user_id, pain_area_id, event_type])
 }
 
 model symptoms {
@@ -122,7 +158,6 @@ model symptoms {
   expert_answers    expert_answers[]
   hospital_symptoms hospital_symptoms[]
   lifestyle_videos  lifestyle_videos[]
-  symptom_steps     symptom_steps[]
   pain_areas        pain_areas          @relation(fields: [pain_area_id], references: [pain_area_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_symptoms_pain_area")
   user_symptoms     user_symptoms[]
 
@@ -188,6 +223,26 @@ model users {
   deleted_at      DateTime?         @db.DateTime(6)
   user_pain_areas user_pain_areas[]
   user_symptoms   user_symptoms[]
+  user_agreements user_agreements[]
+  symptom_guide_progresses symptom_guide_progress[]
+  symptom_guide_events     symptom_guide_events[]
+}
+
+model user_agreements {
+  agreement_id   BigInt         @id @default(autoincrement())
+  user_id        BigInt
+  agreement_type agreement_type
+  agreed_at      DateTime       @default(now()) @db.DateTime(6)
+  users          users          @relation(fields: [user_id], references: [user_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_ua_user")
+
+  @@unique([user_id, agreement_type], map: "uk_user_agreement")
+  @@index([user_id], map: "fk_ua_user")
+}
+
+enum agreement_type {
+  TOS
+  PRIVACY
+  LOCATION
 }
 
 enum users_gender {

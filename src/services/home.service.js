@@ -44,6 +44,11 @@ class HomeService {
 
     return answer;
   }
+
+  // 전문의 답변 ID 전체 조회 (테스트용)
+  async getAllAnswerIds() {
+    return this.repository.getAllExpertAnswerIds();
+  }
 }
 
 export default HomeService;

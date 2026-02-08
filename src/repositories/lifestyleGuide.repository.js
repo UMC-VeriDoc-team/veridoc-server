@@ -9,16 +9,22 @@ class LifestyleGuideRepository {
       select: {
         pain_area_id: true,
         name: true,
-        source_name: true,
-        lifestyle_videos: {
-          where: {
-            is_active: true,
-          },
+        symptoms: {
           select: {
-            video_id: true,
-            title: true,
-            youtube_url: true,
-            description: true,
+            lifestyle_videos: {
+              where: {
+                is_active: true,
+              },
+              select: {
+                video_id: true,
+                title: true,
+                youtube_url: true,
+                description: true,
+              },
+              orderBy: {
+                display_order: 'asc',
+              },
+            },
           },
         },
       },
