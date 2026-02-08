@@ -25,20 +25,20 @@ async function main() {
   );
 
   const buildGuideContent = (title, painAreaName) => (
-    `${title}에 대한 임시 대처 가이드입니다.\n` +
-    `${painAreaName}에 무리가 가지 않도록 천천히 진행하세요.\n` +
-    '---\n' +
-    'BADGES:\n' +
-    '- 통증 직후\n' +
-    '- 하루 1~2회\n' +
-    '---\n' +
-    'NOTES:\n' +
-    '- 통증이 심해지면 즉시 중단하세요.\n' +
-    '---\n' +
-    'CAUTIONS:\n' +
-    '- 심한 통증이나 붓기가 있으면 병원 진료를 권장합니다.\n' +
-    '---\n' +
-    'HELPS:\n' +
+    `${title}에 대한 임시 대처 가이드입니다. ` +
+    `${painAreaName}에 무리가 가지 않도록 천천히 진행하세요. ` +
+    '--- ' +
+    'BADGES: ' +
+    '- 통증 직후 ' +
+    '- 하루 1~2회 ' +
+    '--- ' +
+    'NOTES: ' +
+    '- 통증이 심해지면 즉시 중단하세요. ' +
+    '--- ' +
+    'CAUTIONS: ' +
+    '- 심한 통증이나 붓기가 있으면 병원 진료를 권장합니다. ' +
+    '--- ' +
+    'HELPS: ' +
     '- 가벼운 스트레칭이 도움이 됩니다.'
   );
 
@@ -197,6 +197,11 @@ async function main() {
       const title = template.title(painArea.name);
       if (titles.has(title)) continue;
 
+      // duration 값은 guide_type에 따라 다르게 설정
+      let duration = null;
+      if (template.guide_type === '스트레칭/찜질') duration = '평균 소요 시간 10분';
+      else if (template.guide_type === '생활 습관') duration = '상시';
+
       extraGuides.push({
         pain_area_id: painArea.pain_area_id,
         guide_type: template.guide_type,
@@ -204,6 +209,7 @@ async function main() {
         content: template.content(painArea.name),
         image_url: template.image_url,
         display_order: nextOrder++,
+        duration,
       });
 
       titles.add(title);
@@ -218,17 +224,66 @@ async function main() {
     console.log('temporary_care_guides 충분히 존재, 보강 건너뜀');
   }
 
+  // 각 임시 가이드별 badge/note/caution/help 더미 데이터 생성
   const allGuides = await prisma.temporary_care_guides.findMany({
     select: { guide_id: true, pain_area_id: true, title: true },
   });
 
   for (const guide of allGuides) {
     const painAreaName = painAreaMap[Number(guide.pain_area_id)] || '통증 부위';
-    const content = buildGuideContent(guide.title, painAreaName);
+    // 각 필드에 더미 데이터 입력
+    // duration도 업데이트 (guide_type에 따라)
+    let duration = null;
+    if (guide.title.includes('스트레칭') || guide.title.includes('찜질')) duration = '평균 소요 시간 10분';
+    else if (guide.title.includes('생활 습관')) duration = '상시';
+    else duration = '약 10분 소요';
 
     await prisma.temporary_care_guides.update({
       where: { guide_id: guide.guide_id },
-      data: { content },
+      data: {
+        content: `${painAreaName}에 대한 임시 대처 가이드입니다.`,
+        subtitle: `${painAreaName} 근육을 풀어주는 방법`,
+        source_name: `${painAreaName} 건강정보`,
+        source_url: `https://example.com/${encodeURIComponent(painAreaName)}`,
+        highlighter: `${painAreaName}는 무리하지 않는 선에서!`,
+        duration,
+      },
+    });
+
+    // badge
+    await prisma.badges.createMany({
+      data: [
+        { guide_id: guide.guide_id, text: `${painAreaName} · 스트레칭/찜질` },
+        { guide_id: guide.guide_id, text: '평균 소요 시간 10분' },
+      ],
+      skipDuplicates: true,
+    });
+    // note
+    await prisma.notes.createMany({
+      data: [
+        { guide_id: guide.guide_id, image_url: 'http://image1.png', bold: `${painAreaName}를 천천히`, text: `${painAreaName} 부위를 천천히 움직이며 작은 범위로 시작해 점차 넓혀보세요.` },
+        { guide_id: guide.guide_id, image_url: 'http://image2.png', bold: '무리하지 않기', text: '통증이 심해지면 즉시 중단하세요.' },
+        { guide_id: guide.guide_id, image_url: 'http://image3.png', bold: '호흡 유지', text: '스트레칭 중에는 천천히 호흡을 유지하세요.' },
+      ],
+      skipDuplicates: true,
+    });
+    // caution
+    await prisma.cautions.createMany({
+      data: [
+        { guide_id: guide.guide_id, icon_url: 'http://icon1.png', bold: '통증이 지속되거나 심해질 때', text: '단순 근육 피로가 아닌 원인이 있을 수 있으니 전문가 상담을 권장합니다.' },
+        { guide_id: guide.guide_id, icon_url: 'http://icon2.png', bold: '관절 움직임 제한', text: '팔을 들기 어렵거나 움직임이 제한된다면 병원 진료가 필요합니다.' },
+        { guide_id: guide.guide_id, icon_url: 'http://icon3.png', bold: '야간 통증', text: '수면 중 통증이 심하다면 염증이나 구조적 문제일 수 있습니다.' },
+      ],
+      skipDuplicates: true,
+    });
+    // help
+    await prisma.helps.createMany({
+      data: [
+        { guide_id: guide.guide_id, text: '오랜 시간 앉아 있거나 같은 자세를 유지할 때' },
+        { guide_id: guide.guide_id, text: `${painAreaName} 주변 근육에 긴장이 쌓였을 때` },
+        { guide_id: guide.guide_id, text: `${painAreaName}의 가동 범위가 줄어든 것처럼 느껴질 때` },
+      ],
+      skipDuplicates: true,
     });
   }
 

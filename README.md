@@ -165,4 +165,8 @@ if (!user) {
 - `JWT_SECRET`: 일반 사용자 로그인용 JWT 시크릿
 - `MASTER_JWT_SECRET`: 마스터 JWT 시크릿 (관리자/시스템용, 절대 공유 금지)
 - `ADMIN_API_KEY`: 마스터 토큰 발급 API 호출 시 필요한 비밀 키 (PM/팀원에게 이 값만 전달)
+- `AWS_ACCESS_KEY_ID`: AWS IAM 사용자 ACCESS 키
+- `WS_SECRET_ACCESS_KEY`: AWS IAM 사용자 시크릿 ACCESS 키
+- `AWS_REGION`: AWS 리전
+- `AWS_S3_BUCKET`: 버킷 이름 (verdioc-storage)
 
