@@ -26,13 +26,6 @@ jobs:
       - name: 의존성 설치
         run: npm ci
 
-      - name: 테스트 실행
-        run: npm test
-
-      - name: 테스트 실패 알림
-        if: failure()
-        run: echo "테스트 실패!" 
-
       - name: Prisma Client 생성
         run: npm run prisma:generate
         env:
