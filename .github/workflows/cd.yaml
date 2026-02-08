@@ -21,37 +21,56 @@ jobs:
       - name: Install Dependencies
         run: npm install
 
+      - name: Install AWS CLI
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          sudo ./aws/install --update || sudo ./aws/install
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_DEFAULT_REGION }}
+        # Ensure that AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, and AWS_DEFAULT_REGION are set in your repository's secrets at https://github.com/<owner>/<repo>/settings/secrets/actions
+
+      - name: Get Github runner IP
+        id: ip
+        run: echo "ipv4=$(curl -s https://checkip.amazonaws.com)" >> $GITHUB_OUTPUT
+
+      - name: Add runner IP to AWS SG
+        run: |
+          aws ec2 authorize-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32 --region ${{ secrets.AWS_DEFAULT_REGION }}
+          sleep 10
+
       - name: Connect & Deploy to EC2
         env:
           SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
           EC2_HOST: ${{ secrets.EC2_HOST }}
           EC2_USER: ${{ secrets.EC2_USER }}
-          BACKEND_ENV: ${{ secrets.BACKEND_ENV }}
-
         run: |
           mkdir -p ~/.ssh
           echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
-
-          ssh -o StrictHostKeyChecking=no $EC2_USER@$EC2_HOST << 'EOF'
-          
-            # 프로젝트 root로 이동
-            cd /home/ubuntu/veridoc_server
-
-            # pull 받아오기
-            git pull origin dev
-
-            # env 파일 생성
-            export BACKEND_ENV="${{ secrets.BACKEND_ENV }}" # echo로만 안될 때 사용
-            echo "${BACKEND_ENV}" > .env
-
-            # 종속성 설치
+          # SSH 상세 로그와 타임아웃 추가
+          ssh -v -o StrictHostKeyChecking=no -o ConnectTimeout=60 $EC2_USER@$EC2_HOST << 'EOF'
+            set -e
+            cd /home/ubuntu/veridoc-server
+            git reset --hard HEAD
+            git pull --no-rebase origin dev
+            cat << ENV_EOF > .env
+            ${{ secrets.BACKEND_ENV }}
+            ENV_EOF
             npm install
-
-            # 프리즈마 마이그레이션
             npx prisma migrate deploy
-
-            # 앱 재시작 - 변경사항 반영
+            npx prisma db seed
+            node prisma/seed-extra.js
             pm2 reload all || pm2 start src/server.js --name "veridoc_server"
-            pm2 status # 확인용
+            pm2 save
           EOF
+
+      - name: Remove runner IP from AWS SG
+        if: always()
+        run: |
+          aws ec2 revoke-security-group-ingress --group-id ${{ secrets.AWS_SG_ID }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32 --region ${{ secrets.AWS_DEFAULT_REGION }} || true

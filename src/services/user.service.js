@@ -58,6 +58,15 @@ class UserService {
 
   // 유저 정보 수정
   async update(id, payload) {
+    // 수정된 비밀번호 해싱
+    if(payload.password){
+      payload = {...payload, password: await bcrypt.hash(payload.password, 10)}
+    }
+
+    // 생년월일 형식 변환
+    if(payload.birth){
+      payload = {...payload, birth: new Date(payload.birth)}
+    }
     return this.repository.update(id, payload);
   }
   
@@ -125,6 +134,12 @@ class UserService {
 
   // 마이페이지: 내 정보 수정
   async updateMe(userID, payload) {
+    if(payload.password){
+      payload = {...payload, password: await bcrypt.hash(payload.password, 10)}
+    }
+    if(payload.birth){
+      payload = {...payload, birth: new Date(payload.birth)}
+    }
     return this.repository.update(userID, payload);
   }
 
