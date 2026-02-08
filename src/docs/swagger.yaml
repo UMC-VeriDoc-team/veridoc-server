@@ -21,6 +21,8 @@ tags:
     description: 관리자 API
   - name: Users - not use
     description: 사용자 관련 API (미사용)
+  - name: Home - not use
+    description: 홈 화면 관련 API (미사용)
 
 paths:
   # ========== Users ==========
@@ -636,7 +638,7 @@ paths:
   /homes/answers/{answerId}/summary:
     get:
       tags:
-        - Home
+        - Home - not use
       summary: 전문의 답변 요약본 조회
       security:
         - bearerAuth: []
@@ -677,7 +679,7 @@ paths:
   /homes/answers/{answerId}:
     get:
       tags:
-        - Home
+        - Home - not use
       summary: 전문의 답변 상세 조회
       security:
         - bearerAuth: []
