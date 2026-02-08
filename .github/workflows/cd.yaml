@@ -57,7 +57,8 @@ jobs:
           ssh -v -o StrictHostKeyChecking=no -o ConnectTimeout=60 $EC2_USER@$EC2_HOST << 'EOF'
             set -e
             cd /home/ubuntu/veridoc-server
-            git pull --no-rebase origin dev
+            git reset --hard HEAD
+            git pull origin dev
             cat << ENV_EOF > .env
             ${{ secrets.BACKEND_ENV }}
             ENV_EOF
