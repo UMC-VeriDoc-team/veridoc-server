@@ -1,9 +1,9 @@
 import express from "express";
-import HomeController from "../controllers/home.controller.js";
+import ExpertAnswerController from "../controllers/expertAnswer.controller.js";
 import { authenticate } from "../middleware/auth.middleware.js";
 
 const router = express.Router();
-const controller = new HomeController();
+const controller = new ExpertAnswerController();
 
 router.get("/ids", controller.getAllAnswerIds);
 router.get("/:answerId/summary", authenticate, controller.getDoctorAnswerSummary);
