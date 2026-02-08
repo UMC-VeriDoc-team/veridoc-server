@@ -144,13 +144,12 @@ class HomeRepository {
 
   // 전문의 답변 요약본 조회 (사용자 필터링)
   async getExpertAnswerSummary(answerId, userId) {
-    // 사용자가 선택한 증상 ID 조회
-    const userSymptoms = await this.client.user_symptoms.findMany({
+    // 사용자가 선택한 통증 부위 ID 조회
+    const userPainAreas = await this.client.user_pain_areas.findMany({
       where: { user_id: BigInt(userId) },
-      select: { symptom_id: true }
+      select: { pain_area_id: true }
     });
-
-    const allowedSymptomIds = userSymptoms.map(us => us.symptom_id);
+    const allowedPainAreaIds = userPainAreas.map(upa => upa.pain_area_id);
 
     // 전문의 답변 조회
     const answer = await this.client.expert_answers.findUnique({
@@ -170,11 +169,10 @@ class HomeRepository {
       }
     });
 
-
     if (!answer) return { notFound: true };
 
-    // 사용자가 선택한 증상에 포함되는지 확인
-    if (!allowedSymptomIds.some(id => id === answer.symptom_id)) {
+    // 사용자가 선택한 통증 부위에 포함되는지 확인
+    if (!allowedPainAreaIds.some(id => id === answer.symptoms.pain_area_id)) {
       return { notMatchedSymptom: true };
     }
 
@@ -191,20 +189,11 @@ class HomeRepository {
 
   // 전문의 답변 상세 조회 (사용자 필터링)
   async getExpertAnswerDetail(answerId, userId) {
-    // 사용자가 선택한 증상 ID 조회
-    const userSymptoms = await this.client.user_symptoms.findMany({
-      where: { user_id: BigInt(userId) },
-      select: { symptom_id: true }
-    });
-
-    const allowedSymptomIds = userSymptoms.map(us => us.symptom_id);
-
-    // 사용자가 선택한 통증 부위 조회
+    // 사용자가 선택한 통증 부위 ID 조회
     const userPainAreas = await this.client.user_pain_areas.findMany({
       where: { user_id: BigInt(userId) },
       select: { pain_area_id: true }
     });
-
     const allowedPainAreaIds = userPainAreas.map(upa => upa.pain_area_id);
 
     const answer = await this.client.expert_answers.findUnique({
@@ -228,8 +217,8 @@ class HomeRepository {
 
     if (!answer) return null;
 
-    // 사용자가 선택한 증상에 포함되는지 확인
-    if (!allowedSymptomIds.some(id => id === answer.symptom_id)) {
+    // 사용자가 선택한 통증 부위에 포함되는지 확인
+    if (!allowedPainAreaIds.some(id => id === answer.symptoms.pain_area_id)) {
       return null;
     }
 
