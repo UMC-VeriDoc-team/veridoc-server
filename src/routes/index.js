@@ -9,6 +9,7 @@ import expertAnswerRoutes from './expertAnswer.routes.js';
 import lifestyleGuideRoutes from './lifestyleGuide.routes.js';
 import agreementRoutes from './agreement.routes.js';
 import temporaryGuideRoutes from './temporaryGuide.routes.js';
+import symptomGuideRoutes from './symptomGuide.routes.js';
 
 const router = express.Router();
 
@@ -21,4 +22,5 @@ router.use('/admin', adminRoutes);
 router.use('/lifestyle-videos', lifestyleGuideRoutes);
 router.use('/agreements', agreementRoutes);
 router.use('/temporary-guides', temporaryGuideRoutes);
+router.use('/symptoms', symptomGuideRoutes);
 export default router;
