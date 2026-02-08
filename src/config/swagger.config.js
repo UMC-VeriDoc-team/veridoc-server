@@ -12,7 +12,7 @@ const swaggerSpec = {
   openapi: '3.0.0',
   info: {
     title: 'VeriDoc API',
-    version: '1.0.0',
+    version: '2.0.0',
     description: 'VeriDoc 서버 API 문서',
   },
   servers: [
@@ -21,7 +21,7 @@ const swaggerSpec = {
       description: '로컬 개발 서버',
     },
     {
-      url: 'http://43.203.179.84/api/v1',
+      url: 'http://43.201.60.191/api/v1',
       description: '배포 서버',
     },
   ],

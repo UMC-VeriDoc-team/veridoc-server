@@ -1,23 +1,1017 @@
 tags:
   - name: Users
     description: 사용자 관련 API
+  - name: Home
+    description: 홈 화면 관련 API
+  - name: ExpertAnswers
+    description: 전문의 답변 API
   - name: Hospital
     description: 병원 추천 API
   - name: PainAreas
     description: 아픈 부위 관련 API
-  - name: Home
-    description: 홈 화면 관련 API
   - name: LifestyleGuide
     description: 생활 관리 가이드 API
   - name: TemporaryGuides
     description: 임시 대처 가이드 API
+  - name: SymptomGuide
+    description: 증상 가이드 API
   - name: Agreements
     description: 약관 동의 API
   - name: Admin
     description: 관리자 API
+  - name: Users - not use
+    description: 사용자 관련 API (미사용)
 
 paths:
-  # ... (기존 Users, Hospital, PainAreas, Home 등 생략)
+  # ========== Users ==========
+  /users/signup:
+    post:
+      tags:
+        - Users
+      summary: 회원가입
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SignupRequest"
+            example:
+              name: "홍길동"
+              email: "test@example.com"
+              password: "Test1234!"
+              birth: "1995-03-15"
+              gender: "MALE"
+              painAreaID: 1
+      responses:
+        "201":
+          description: 회원가입 성공
+          content:
+            application/json:
+              example:
+                code: 201
+                message: "회원가입이 완료되었습니다."
+                data:
+                  userID: 1
+                  email: "test@example.com"
+        "400":
+          description: 유효성 검사 실패
+          content:
+            application/json:
+              examples:
+                missingFields:
+                  summary: 필수 항목 누락
+                  value:
+                    code: 400
+                    message: "모든 필수 항목을 입력해주세요."
+                    errorCode: VALIDATION_ERROR
+                invalidEmail:
+                  summary: 이메일 형식 오류
+                  value:
+                    code: 400
+                    message: "이메일 형식이 올바르지 않습니다."
+                    errorCode: INVALID_EMAIL_FORMAT
+                invalidPassword:
+                  summary: 비밀번호 형식 오류
+                  value:
+                    code: 400
+                    message: "비밀번호 형식이 올바르지 않습니다."
+                    errorCode: INVALID_PASSWORD_FORMAT
+        "409":
+          description: 이메일 중복
+          content:
+            application/json:
+              example:
+                code: 409
+                message: "이미 가입된 이메일 주소입니다."
+                errorCode: EMAIL_ALREADY_EXISTS
+
+  /users/login:
+    post:
+      tags:
+        - Users
+      summary: 로그인
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+            example:
+              email: "test@example.com"
+              password: "Test1234!"
+      responses:
+        "200":
+          description: 로그인 성공
+          content:
+            application/json:
+              example:
+                code: 200
+                message: "로그인 성공"
+                data:
+                  userID: 1
+                  accessToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        "400":
+          description: 입력 누락
+          content:
+            application/json:
+              example:
+                code: 400
+                message: "이메일과 비밀번호를 모두 입력해주세요."
+                errorCode: INVALID_REQUEST
+        "401":
+          description: 인증 실패
+          content:
+            application/json:
+              example:
+                code: 401
+                message: "이메일 또는 비밀번호가 올바르지 않습니다."
+                errorCode: INVALID_CREDENTIALS
+
+  /users/forgot-password:
+    post:
+      tags:
+        - Users
+      summary: 비밀번호 재설정 요청
+      description: 이메일로 비밀번호 재설정 링크를 전송합니다. 보안상 이메일 존재 여부와 관계없이 동일한 응답을 반환합니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+              properties:
+                email:
+                  type: string
+                  format: email
+            example:
+              email: "test@example.com"
+      responses:
+        "200":
+          description: 요청 완료
+          content:
+            application/json:
+              example:
+                code: 200
+                message: "비밀번호 재설정 이메일이 전송되었습니다."
+                data: null
+
+  /users/reset-password:
+    post:
+      tags:
+        - Users
+      summary: 비밀번호 재설정
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - token
+                - newPassword
+              properties:
+                token:
+                  type: string
+                newPassword:
+                  type: string
+            example:
+              token: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+              newPassword: "NewPass1234!"
+      responses:
+        "200":
+          description: 비밀번호 변경 성공
+          content:
+            application/json:
+              example:
+                code: 200
+                message: "비밀번호가 성공적으로 변경되었습니다."
+                data: null
+        "400":
+          description: 토큰 오류
+          content:
+            application/json:
+              examples:
+                invalidToken:
+                  summary: 유효하지 않은 토큰
+                  value:
+                    code: 400
+                    message: "유효하지 않은 토큰입니다."
+                    errorCode: PASSWORD_RESET_TOKEN_INVALID
+                expiredToken:
+                  summary: 만료된 토큰
+                  value:
+                    code: 400
+                    message: "만료된 토큰입니다. 다시 요청해주세요."
+                    errorCode: PASSWORD_RESET_TOKEN_EXPIRED
+
+  /users/me:
+    get:
+      tags:
+        - Users
+      summary: 내 정보 조회
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: 조회 성공
+          content:
+            application/json:
+              example:
+                code: 200
+                message: "사용자 정보 조회 성공"
+                data:
+                  user_id: 1
+                  name: "홍길동"
+                  email: "test@example.com"
+                  birth: "1995-03-15T00:00:00.000Z"
+                  gender: "MALE"
+                  painAreaID: 1
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+    put:
+      tags:
+        - Users
+      summary: 내 정보 수정
+      description: 이메일은 변경할 수 없습니다.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              name: "김철수"
+              birth: "1996-01-01"
+              gender: "MALE"
+      responses:
+        "200":
+          description: 수정 성공
+          content:
+            application/json:
+              example:
+                code: 200
+                message: "사용자 정보 수정 성공"
+                data: null
+        "400":
+          description: 이메일 변경 시도
+          content:
+            application/json:
+              example:
+                code: 400
+                message: "이메일은 변경할 수 없습니다."
+                errorCode: INVALID_REQUEST
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+    delete:
+      tags:
+        - Users
+      summary: 회원탈퇴
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: 탈퇴 성공
+          content:
+            application/json:
+              example:
+                code: 200
+                message: "회원탈퇴가 완료되었습니다."
+                data: null
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /users/me/profile:
+    put:
+      tags:
+        - Users
+      summary: 프로필 수정 (이름, 생년월일, 성별)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                birth:
+                  type: string
+                  format: date
+                gender:
+                  type: string
+                  enum: [MALE, FEMALE, OTHER]
+            example:
+              name: "김철수"
+              birth: "1996-01-01"
+              gender: "MALE"
+      responses:
+        "200":
+          description: 수정 성공
+          content:
+            application/json:
+              example:
+                code: 200
+                message: "프로필이 수정되었습니다."
+                data: null
+        "400":
+          description: 유효성 오류
+          content:
+            application/json:
+              examples:
+                invalidGender:
+                  summary: 잘못된 성별 값
+                  value:
+                    code: 400
+                    message: "성별 값이 올바르지 않습니다."
+                    errorCode: VALIDATION_ERROR
+                noInput:
+                  summary: 수정할 항목 없음
+                  value:
+                    code: 400
+                    message: "수정할 항목을 입력해주세요."
+                    errorCode: VALIDATION_ERROR
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /users/me/password:
+    put:
+      tags:
+        - Users
+      summary: 비밀번호 변경 (로그인 상태)
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - currentPassword
+                - newPassword
+              properties:
+                currentPassword:
+                  type: string
+                newPassword:
+                  type: string
+            example:
+              currentPassword: "Test1234!"
+              newPassword: "NewPass5678!"
+      responses:
+        "200":
+          description: 변경 성공
+          content:
+            application/json:
+              example:
+                code: 200
+                message: "비밀번호가 변경되었습니다."
+                data: null
+        "400":
+          description: 비밀번호 오류
+          content:
+            application/json:
+              examples:
+                wrongPassword:
+                  summary: 현재 비밀번호 불일치
+                  value:
+                    code: 400
+                    message: "현재 비밀번호가 올바르지 않습니다."
+                    errorCode: INVALID_CREDENTIALS
+                invalidFormat:
+                  summary: 비밀번호 형식 오류
+                  value:
+                    code: 400
+                    message: "비밀번호 형식이 올바르지 않습니다."
+                    errorCode: INVALID_PASSWORD_FORMAT
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /users/me/pain-area:
+    put:
+      tags:
+        - Users
+      summary: 주요 아픈 부위 변경
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - painAreaID
+              properties:
+                painAreaID:
+                  type: integer
+            example:
+              painAreaID: 2
+      responses:
+        "200":
+          description: 변경 성공
+          content:
+            application/json:
+              example:
+                code: 200
+                message: "주요 아픈 부위 저장 성공"
+                data:
+                  painAreaID: 2
+                  name: "허리"
+        "400":
+          description: 유효성 오류
+          content:
+            application/json:
+              examples:
+                missingField:
+                  summary: painAreaID 누락
+                  value:
+                    code: 400
+                    message: "painAreaID 값이 필요합니다."
+                    errorCode: INVALID_REQUEST
+                notFound:
+                  summary: 존재하지 않는 부위
+                  value:
+                    code: 400
+                    message: "존재하지 않는 아픈 부위입니다."
+                    errorCode: PAINAREA_NOT_FOUND
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /users:
+    get:
+      tags:
+        - Users
+      summary: 사용자 목록 조회
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: 조회 성공
+          content:
+            application/json:
+              example:
+                code: 200
+                message: "사용자 목록 조회 성공"
+                data:
+                  users:
+                    - user_id: 1
+                      name: "홍길동"
+                      email: "test@example.com"
+                      birth: "1995-03-15T00:00:00.000Z"
+                      gender: "MALE"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /users/{id}:
+    get:
+      tags:
+        - Users - not use
+      summary: 사용자 조회
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 사용자 ID
+      responses:
+        "200":
+          description: 조회 성공
+          content:
+            application/json:
+              example:
+                code: 200
+                message: "사용자 조회 성공"
+                data:
+                  user:
+                    user_id: 1
+                    name: "홍길동"
+                    email: "test@example.com"
+                    birth: "1995-03-15T00:00:00.000Z"
+                    gender: "MALE"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: 사용자 없음
+          content:
+            application/json:
+              example:
+                code: 404
+                message: "유저를 찾을 수 없습니다."
+                errorCode: USER_NOT_FOUND
+
+    put:
+      tags:
+        - Users - not use
+      summary: 사용자 정보 수정
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 사용자 ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              name: "김철수"
+              birth: "1996-01-01"
+              gender: "FEMALE"
+      responses:
+        "200":
+          description: 수정 성공
+          content:
+            application/json:
+              example:
+                code: 200
+                message: "사용자 정보 수정 성공"
+                data:
+                  updatedUser:
+                    user_id: 1
+                    name: "김철수"
+                    email: "test@example.com"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+    delete:
+      tags:
+        - Users - not use
+      summary: 사용자 삭제
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 사용자 ID
+      responses:
+        "200":
+          description: 삭제 성공
+          content:
+            application/json:
+              example:
+                code: 200
+                message: "사용자 삭제 성공"
+                data: null
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  # ========== Home ==========
+  /homes:
+    get:
+      tags:
+        - Home
+      summary: 홈 화면 조회
+      description: 로그인한 사용자의 통증 부위에 맞는 홈 화면 데이터를 조회합니다.
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: 조회 성공
+          content:
+            application/json:
+              example:
+                code: 200
+                message: "홈 화면 조회 성공"
+                data:
+                  painAreaId: 1
+                  painAreaName: "어깨"
+                  banners:
+                    - title: "어깨 통증은 잘못된 자세..."
+                    - id: 1
+                      imageUrl: "https://example.com/banner1.png"
+                    - id: 2
+                      imageUrl: "https://example.com/banner2.png"
+                    - id: 3
+                      imageUrl: "https://example.com/banner3.png"
+                  symptoms:
+                    - symptomId: 1
+                      name: "어깨 결림"
+                      answerId: 1001
+                    - symptomId: 2
+                      name: "어깨 통증"
+                      answerId: 1002
+                    - symptomId: 3
+                      name: "어깨 저림"
+                      answerId: 1003
+                  temporaryGuides:
+                    - guideId: 3001
+                      title: "어깨 스트레칭 방법"
+                      badges: ["집 · 사무실", "하루 1~2회"]
+                      description: "어깨 통증은 장시간 같은 자세를 유지할 때..."
+                      imageUrl: "https://example.com/guide1.png"
+                      type: "스트레칭/찜질"
+                      duration: "약 10분 소요"
+                    - guideId: 3002
+                      title: "어깨 온찜질/냉찜질"
+                      badges: ["집 · 사무실", "하루 1~2회"]
+                      description: "찜질은 통증 완화에 효과적입니다..."
+                      imageUrl: "https://example.com/guide2.png"
+                      type: "스트레칭/찜질"
+                      duration: "약 10분 소요"
+                    - guideId: 3003
+                      title: "바른 자세 유지하기"
+                      badges: ["작은 자세 변화", "하루 여러 회"]
+                      description: "올바른 자세로 어깨 부담을 줄이세요..."
+                      imageUrl: "https://example.com/guide3.png"
+                      type: "생활 습관"
+                      duration: "약 1분 소요"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /homes/answers/{answerId}/summary:
+    get:
+      tags:
+        - Home
+      summary: 전문의 답변 요약본 조회
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: answerId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 전문의 답변 ID
+      responses:
+        "200":
+          description: 조회 성공
+          content:
+            application/json:
+              example:
+                code: 200
+                message: "전문의 답변 요약 조회 성공"
+                data:
+                  answerId: 1001
+                  painAreaId: 1
+                  painAreaName: "어깨"
+                  symptomId: 1
+                  symptomName: "어깨 결림"
+                  summary: "어깨 결림은 장시간 같은 자세를 유지할 때 주로 발생합니다..."
+                  updatedAt: "2025-01-15T09:00:00.000Z"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: 답변 없음
+          content:
+            application/json:
+              example:
+                code: 404
+                message: "요청하신 전문의 답변을 찾을 수 없습니다."
+                errorCode: CONTENT_NOT_FOUND
+
+  /homes/answers/{answerId}:
+    get:
+      tags:
+        - Home
+      summary: 전문의 답변 상세 조회
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: answerId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 전문의 답변 ID
+      responses:
+        "200":
+          description: 조회 성공
+          content:
+            application/json:
+              example:
+                code: 200
+                message: "전문의 답변 조회 성공"
+                data:
+                  answerId: 1001
+                  painAreaId: 1
+                  painAreaName: "어깨"
+                  symptomId: 1
+                  symptomName: "어깨 결림"
+                  title: "어깨 결림 전문의 소견"
+                  content: "어깨 결림은 근육 긴장과 혈액순환 저하로 인해 발생합니다..."
+                  imageUrl: null
+                  sourceUrl: "https://www.koa.or.kr/"
+                  updatedAt: "2025-01-15T09:00:00.000Z"
+                  morePosts:
+                    - answerId: 1002
+                      painAreaId: 1
+                      symptomId: 2
+                      title: "어깨 통증 전문의 소견"
+                      imageUrl: null
+                    - answerId: 1003
+                      painAreaId: 1
+                      symptomId: 3
+                      title: "어깨 저림 전문의 소견"
+                      imageUrl: null
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: 답변 없음
+          content:
+            application/json:
+              example:
+                code: 404
+                message: "요청하신 전문의 답변을 찾을 수 없습니다."
+                errorCode: CONTENT_NOT_FOUND
+
+  # ========== Expert Answers ==========
+  /expert-answers/ids:
+    get:
+      tags:
+        - ExpertAnswers
+      summary: 전문의 답변 ID 전체 조회 (테스트용)
+      responses:
+        "200":
+          description: 조회 성공
+          content:
+            application/json:
+              example:
+                code: 200
+                message: "전문의 답변 ID 조회 성공"
+                data:
+                  answers:
+                    - answerId: 1001
+                      painAreaName: "어깨"
+                      symptomName: "어깨 결림"
+                    - answerId: 1002
+                      painAreaName: "어깨"
+                      symptomName: "어깨 통증"
+                    - answerId: 1003
+                      painAreaName: "허리"
+                      symptomName: "허리 통증"
+
+  /expert-answers/{answerId}/summary:
+    get:
+      tags:
+        - ExpertAnswers
+      summary: 전문의 답변 요약본 조회
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: answerId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 전문의 답변 ID
+      responses:
+        "200":
+          description: 조회 성공
+          content:
+            application/json:
+              example:
+                code: 200
+                message: "전문의 답변 요약 조회 성공"
+                data:
+                  answerId: 1001
+                  painAreaId: 1
+                  painAreaName: "어깨"
+                  symptomId: 1
+                  symptomName: "어깨 결림"
+                  summary: "어깨 결림은 장시간 같은 자세를 유지할 때 주로 발생합니다..."
+                  updatedAt: "2025-01-15T09:00:00.000Z"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: 답변 없음
+          content:
+            application/json:
+              example:
+                code: 404
+                message: "요청하신 전문의 답변을 찾을 수 없습니다."
+                errorCode: CONTENT_NOT_FOUND
+
+  /expert-answers/{answerId}:
+    get:
+      tags:
+        - ExpertAnswers
+      summary: 전문의 답변 상세 조회
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: answerId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 전문의 답변 ID
+      responses:
+        "200":
+          description: 조회 성공
+          content:
+            application/json:
+              example:
+                code: 200
+                message: "전문의 답변 조회 성공"
+                data:
+                  answerId: 1001
+                  painAreaId: 1
+                  painAreaName: "어깨"
+                  symptomId: 1
+                  symptomName: "어깨 결림"
+                  title: "어깨 결림 전문의 소견"
+                  content: "어깨 결림은 근육 긴장과 혈액순환 저하로 인해 발생합니다..."
+                  imageUrl: null
+                  sourceUrl: "https://www.koa.or.kr/"
+                  updatedAt: "2025-01-15T09:00:00.000Z"
+                  morePosts:
+                    - answerId: 1002
+                      painAreaId: 1
+                      symptomId: 2
+                      title: "어깨 통증 전문의 소견"
+                      imageUrl: null
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+        "404":
+          description: 답변 없음
+          content:
+            application/json:
+              example:
+                code: 404
+                message: "요청하신 전문의 답변을 찾을 수 없습니다."
+                errorCode: CONTENT_NOT_FOUND
+
+  # ========== Hospital ==========
+  /hospital/nearby:
+    get:
+      tags:
+        - Hospital
+      summary: 사용자 위치 기준 가까운 병원 조회
+      description: 공공데이터 API를 활용하여 사용자 위치 기준으로 가까운 병원을 조회합니다. painAreaId를 제공하면 해당 부위 관련 진료과 병원만 필터링합니다.
+      parameters:
+        - name: lat
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+          description: 사용자 위도 (-90 ~ 90)
+          example: 37.556
+        - name: lng
+          in: query
+          required: true
+          schema:
+            type: number
+            format: double
+          description: 사용자 경도 (-180 ~ 180)
+          example: 126.923
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+            default: 3
+          description: 반환할 병원 수 (기본값 3)
+        - name: painAreaId
+          in: query
+          required: false
+          schema:
+            type: integer
+          description: 아픈 부위 ID (필터링용)
+      responses:
+        "200":
+          description: 조회 성공
+          content:
+            application/json:
+              example:
+                code: 200
+                data:
+                  searchContext:
+                    center:
+                      lat: 37.556
+                      lng: 126.923
+                    painAreaId: 1
+                  hospitals:
+                    - hospitalId: "A1234567"
+                      name: "서울정형외과의원"
+                      category: "의원"
+                      matchedSpecialty: "정형외과"
+                      address: "서울특별시 마포구 ..."
+                      distanceMeters: 350
+                      coordinate:
+                        lat: 37.557
+                        lng: 126.924
+                      imageUrl: null
+                      homepageUrl: "https://example.com"
+                    - hospitalId: "A7654321"
+                      name: "마포재활의학과"
+                      category: "의원"
+                      matchedSpecialty: null
+                      address: "서울특별시 마포구 ..."
+                      distanceMeters: 520
+                      coordinate:
+                        lat: 37.555
+                        lng: 126.920
+                      imageUrl: null
+                      homepageUrl: null
+        "400":
+          description: 파라미터 오류
+          content:
+            application/json:
+              examples:
+                missingCoords:
+                  summary: 좌표 누락
+                  value:
+                    code: 400
+                    message: "lat(위도)와 lng(경도)는 필수입니다."
+                    errorCode: INVALID_COORDINATES
+                invalidCoords:
+                  summary: 좌표 범위 오류
+                  value:
+                    code: 400
+                    message: "위도는 -90~90, 경도는 -180~180 범위여야 합니다."
+                    errorCode: INVALID_COORDINATES
+
+  # ========== Pain Areas ==========
+  /pain-areas:
+    get:
+      tags:
+        - PainAreas
+      summary: 주요 아픈 부위 목록 조회
+      responses:
+        "200":
+          description: 조회 성공
+          content:
+            application/json:
+              example:
+                code: 200
+                message: "주요 아픈 부위 목록 조회 성공"
+                data:
+                  painAreas:
+                    - pain_area_id: 1
+                      name: "어깨"
+                    - pain_area_id: 2
+                      name: "허리"
+                    - pain_area_id: 3
+                      name: "무릎"
+
+  # ========== Lifestyle Guide ==========
+  /lifestyle-videos/{painAreaId}:
+    get:
+      tags:
+        - LifestyleGuide
+      summary: 생활 관리 가이드 조회
+      description: 특정 통증 부위의 생활 관리 스트레칭 영상 목록을 조회합니다.
+      parameters:
+        - name: painAreaId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 아픈 부위 ID
+      responses:
+        "200":
+          description: 조회 성공
+          content:
+            application/json:
+              examples:
+                withPainArea:
+                  summary: 부위 선택 시
+                  value:
+                    code: 200
+                    message: "어깨 생활관리"
+                    data:
+                      painAreaId: 1
+                      painAreaName: "어깨"
+                      title: "어깨 스트레칭"
+                      subtitle: "아래 영상은 어깨 불편 시 가볍게 참고할 수 있는 스트레칭 예시에요."
+                      videos:
+                        - videoId: 1
+                          youtubeUrl: "https://youtube.com/watch?v=..."
+                          youtubeTitle: "어깨 스트레칭 영상"
+                          description: "간단한 어깨 스트레칭"
+                        - videoId: 2
+                          youtubeUrl: "https://youtube.com/watch?v=..."
+                          youtubeTitle: "어깨 운동 영상"
+                          description: "어깨 강화 운동"
+                noPainArea:
+                  summary: 부위 미선택 시
+                  value:
+                    code: 200
+                    message: "증상 미선택"
+                    data:
+                      painAreaId: null
+                      painAreaName: null
+                      title: null
+                      subtitle: null
+                      videos: []
 
   # ========== Temporary Guides ==========
   /temporary-guides/ids:
@@ -31,31 +1025,17 @@ paths:
           description: 조회 성공
           content:
             application/json:
-              schema:
-                type: object
-                properties:
-                  code:
-                    type: integer
-                    example: 200
-                  message:
-                    type: string
-                    example: "임시 대처 가이드 ID 조회 성공"
-                  data:
-                    $ref: "#/components/schemas/TemporaryGuideIdList"
-              examples:
-                success:
-                  summary: 성공 예시
-                  value:
-                    code: 200
-                    message: 임시 대처 가이드 ID 조회 성공
-                    data:
-                      guides:
-                        - guideId: 3001
-                          painAreaName: "어깨"
-                        - guideId: 3002
-                          painAreaName: "어깨"
-                        - guideId: 3003
-                          painAreaName: "어깨"
+              example:
+                code: 200
+                message: "임시 대처 가이드 ID 조회 성공"
+                data:
+                  guides:
+                    - guideId: 3001
+                      painAreaName: "어깨"
+                    - guideId: 3002
+                      painAreaName: "어깨"
+                    - guideId: 3003
+                      painAreaName: "허리"
 
   /temporary-guides/{guideId}:
     get:
@@ -84,109 +1064,458 @@ paths:
                 properties:
                   code:
                     type: integer
-                    example: 200
                   message:
                     type: string
-                    example: "임시 대처 가이드 상세 조회 성공"
                   data:
                     $ref: "#/components/schemas/TemporaryGuideDetail"
-              examples:
-                success:
-                  summary: 성공 예시
-                  value:
-                    code: 200
-                    message: 임시 대처 가이드 상세 조회 성공
-                    data:
+              example:
+                code: 200
+                message: "임시 대처 가이드 상세 조회 성공"
+                data:
+                  painAreaId: 1
+                  painAreaName: "어깨"
+                  type: "어깨 · 스트레칭/찜질"
+                  guideId: 3001
+                  title: "어깨 스트레칭 방법"
+                  subtitle: "어깨 통증 완화에 도움이 되는 스트레칭"
+                  imageUrl: "https://example.com/image.png"
+                  duration: "평균 소요 시간 10분"
+                  sourceName: "대한정형외과학회"
+                  sourceUrl: "https://www.koa.or.kr/"
+                  highlighter: "가벼운 통증 시에만 시행하세요."
+                  content: "어깨 통증은 장시간 같은 자세를 유지할 때 자주 발생합니다."
+                  badges: ["통증 직후", "하루 1~2회", "집 · 사무실"]
+                  notes:
+                    - noteId: 1
+                      imageUrl: "https://example.com/image101.png"
+                      bold: "어깨를 천천히 앞뒤로 돌려줍니다."
+                      text: "처음에는 작은 범위로 시작해 점차 늘려보세요."
+                    - noteId: 2
+                      imageUrl: "https://example.com/image102.png"
+                      bold: "팔을 들어 올려 스트레칭합니다."
+                      text: "통증이 심하지 않다면 10초간 유지하세요."
+                  cautions:
+                    - cautionId: 1
+                      iconUrl: "https://example.com/icon1.png"
+                      bold: "통증이 지속되거나 심해질 때"
+                      text: "단순 근육 피로가 아닌 원인이 있을 수 있습니다."
+                    - cautionId: 2
+                      iconUrl: "https://example.com/icon2.png"
+                      bold: "붓기, 열감 동반 시"
+                      text: "즉시 전문의 상담을 권장합니다."
+                  helps:
+                    - helpId: 1
+                      text: "통증 직후 가벼운 스트레칭이 도움이 될 수 있어요."
+                    - helpId: 2
+                      text: "찜질은 10~15분 이내로 시행하세요."
+                  morePosts:
+                    - guideId: 3002
                       painAreaId: 1
-                      painAreaName: "어깨"
-                      type: "어깨 · 스트레칭/찜질"
-                      guideId: 3001
-                      title: "어깨 스트레칭 방법"
-                      subtitle: "어깨 통증 완화에 도움이 되는 스트레칭"
-                      imageUrl: "https://example.com/image.png"
-                      duration: "평균 소요 시간 10분"
-                      sourceName: "대한정형외과학회"
-                      sourceUrl: "https://www.koa.or.kr/"
-                      highlighter: "가벼운 통증 시에만 시행하세요."
-                      content: "어깨 통증은 장시간 같은 자세를 유지할 때 자주 발생합니다. 아래 스트레칭을 따라 해보세요."
-                      badges: ["통증 직후", "하루 1~2회", "집 · 사무실"]
-                      notes:
-                        - id: 1
-                          imageUrl: "https://example.com/image101.png"
-                          title: "어깨를 천천히 앞뒤로 돌려줍니다."
-                          description: "처음에는 작은 범위로 시작해 점차 늘려보세요."
-                        - id: 2
-                          imageUrl: "https://example.com/image102.png"
-                          title: "팔을 들어 올려 스트레칭합니다."
-                          description: "통증이 심하지 않다면 10초간 유지하세요."
-                      cautions:
-                        - id: 1
-                          iconUrl: "https://example.com/icon1.png"
-                          title: "통증이 지속되거나 심해질 때"
-                          description: "단순 근육 피로가 아닌 원인이 있을 수 있습니다."
-                        - id: 2
-                          iconUrl: "https://example.com/icon2.png"
-                          title: "붓기, 열감 동반 시"
-                          description: "즉시 전문의 상담을 권장합니다."
-                      helps:
-                        - id: 1
-                          description: "통증 직후 가벼운 스트레칭이 도움이 될 수 있어요."
-                        - id: 2
-                          description: "찜질은 10~15분 이내로 시행하세요."
-                      morePosts:
-                        - answerId: 3002
-                          painAreaId: 1
-                          title: "어깨 온찜질/냉찜질"
-                          imageUrl: "https://example.com/post02.webp"
-                        - answerId: 3003
-                          painAreaId: 1
-                          title: "어깨 자세 교정"
-                          imageUrl: "https://example.com/post03.webp"
+                      title: "어깨 온찜질/냉찜질"
+                      imageUrl: "https://example.com/post02.webp"
+                    - guideId: 3003
+                      painAreaId: 1
+                      title: "어깨 자세 교정"
+                      imageUrl: "https://example.com/post03.webp"
         "401":
-          description: 인증 실패
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorEnvelope"
-              examples:
-                unauthorized:
-                  summary: 로그인이 필요합니다.
-                  value:
-                    error:
-                      code: UNAUTHORIZED
-                      message: "로그인이 필요합니다."
+          $ref: "#/components/responses/Unauthorized"
         "404":
           description: 가이드를 찾을 수 없음
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorEnvelope"
-              examples:
-                notFound:
-                  summary: 임시 대처 가이드 없음
-                  value:
-                    error:
-                      code: CONTENT_NOT_FOUND
-                      message: "요청하신 임시 대처 가이드를 찾을 수 없습니다."
-        "500":
-          description: 서버 오류
+              example:
+                code: 404
+                message: "요청하신 임시 대처 가이드를 찾을 수 없습니다."
+                errorCode: CONTENT_NOT_FOUND
+
+  # ========== Symptom Guide ==========
+  /symptoms/{painAreaId}/guide:
+    get:
+      tags:
+        - SymptomGuide
+      summary: 증상 가이드 조회
+      description: 해당 통증 부위의 증상 가이드 단계와 사용자 진행 상태를 조회합니다.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: painAreaId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 아픈 부위 ID
+      responses:
+        "200":
+          description: 조회 성공
           content:
             application/json:
-              schema:
-                $ref: "#/components/schemas/ErrorEnvelope"
-              examples:
-                serverError:
-                  summary: 서버 내부 오류
-                  value:
-                    error:
-                      code: SERVER_ERROR
-                      message: "서버 내부 오류가 발생했습니다. 잠시 후 다시 시도해주세요."
+              example:
+                code: 200
+                message: "증상 가이드 불러오기 성공"
+                data:
+                  painAreaId: 1
+                  steps:
+                    - step: 1
+                      title: "증상 확인"
+                      subtitle: "현재 느끼는 증상을 확인해보세요."
+                      caption: "첫 번째 단계"
+                      description: "어떤 증상이 있는지 파악합니다."
+                      imageUrl: "https://example.com/step1.png"
+                    - step: 2
+                      title: "전문의 소견"
+                      subtitle: "전문의의 의견을 확인하세요."
+                      caption: "두 번째 단계"
+                      description: "전문의 답변을 확인합니다."
+                      imageUrl: "https://example.com/step2.png"
+                    - step: 3
+                      title: "임시 대처"
+                      subtitle: "지금 할 수 있는 대처법을 알아보세요."
+                      caption: "세 번째 단계"
+                      description: "임시 대처 가이드를 확인합니다."
+                      imageUrl: "https://example.com/step3.png"
+                    - step: 4
+                      title: "병원 방문"
+                      subtitle: "가까운 병원을 찾아보세요."
+                      caption: "네 번째 단계"
+                      description: "주변 병원 정보를 확인합니다."
+                      imageUrl: "https://example.com/step4.png"
+                  userProgress:
+                    currentStep: 2
+                    lastVisitedAt: "2025-01-15T09:00:00.000Z"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
 
-# ... (아래쪽 LifestyleGuide, Agreements, Admin 등 기존 내용 생략)
+  /symptoms/{painAreaId}/guide/validate:
+    post:
+      tags:
+        - SymptomGuide
+      summary: 단계 이동 가능 여부 검증
+      description: |
+        증상 가이드의 단계 이동이 가능한지 검증합니다.
+        - 1 → 2: 항상 가능
+        - 2 → 3: 전문의 답변 확인(DOCTOR_OPINION_VIEWED) 필요
+        - 3 → 4: 임시 대처 정보 확인(TREATMENT_INFO_VIEWED) 필요
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: painAreaId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 아픈 부위 ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - fromStep
+                - toStep
+              properties:
+                fromStep:
+                  type: integer
+                  description: 현재 단계
+                toStep:
+                  type: integer
+                  description: 이동할 단계
+            example:
+              fromStep: 2
+              toStep: 3
+      responses:
+        "200":
+          description: 검증 결과
+          content:
+            application/json:
+              examples:
+                canMove:
+                  summary: 이동 가능
+                  value:
+                    code: 200
+                    message: "단계 이동 가능"
+                    data:
+                      canMove: true
+                cannotMove:
+                  summary: 이동 불가
+                  value:
+                    code: 200
+                    message: "단계 이동 불가"
+                    data:
+                      canMove: false
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /symptoms/{painAreaId}/guide/events:
+    post:
+      tags:
+        - SymptomGuide
+      summary: 이벤트 기록 (트리거 해제용)
+      description: |
+        사용자의 행동 이벤트를 기록합니다. 기록된 이벤트는 단계 이동 검증에 사용됩니다.
+        - DOCTOR_OPINION_VIEWED: 전문의 답변 확인
+        - TREATMENT_INFO_VIEWED: 임시 대처 정보 확인
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: painAreaId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 아픈 부위 ID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - event
+              properties:
+                event:
+                  type: string
+                  enum:
+                    - DOCTOR_OPINION_VIEWED
+                    - TREATMENT_INFO_VIEWED
+            example:
+              event: "DOCTOR_OPINION_VIEWED"
+      responses:
+        "200":
+          description: 기록 성공
+          content:
+            application/json:
+              example:
+                code: 200
+                message: "이벤트 기록 성공"
+                data:
+                  painAreaId: 1
+                  event: "DOCTOR_OPINION_VIEWED"
+                  recordedAt: "2025-01-15T09:00:00.000Z"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /symptoms/{painAreaId}/guide/reset:
+    post:
+      tags:
+        - SymptomGuide
+      summary: 증상 가이드 진행 상태 초기화
+      description: 이벤트 기록과 진행 상태를 모두 초기화합니다.
+      security:
+        - bearerAuth: []
+      parameters:
+        - name: painAreaId
+          in: path
+          required: true
+          schema:
+            type: integer
+          description: 아픈 부위 ID
+      responses:
+        "200":
+          description: 초기화 성공
+          content:
+            application/json:
+              example:
+                code: 200
+                message: "증상 가이드 초기화 완료"
+                data:
+                  painAreaId: 1
+                  progress:
+                    currentStep: 1
+                    resetAt: "2025-01-15T09:00:00.000Z"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  # ========== Agreements ==========
+  /agreements:
+    post:
+      tags:
+        - Agreements
+      summary: 약관 동의
+      description: 서비스 이용약관, 개인정보 처리방침, 위치 서비스 약관에 동의합니다. 모든 항목에 동의해야 합니다.
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - termsOfService
+                - privacyPolicy
+                - locationService
+              properties:
+                termsOfService:
+                  type: boolean
+                privacyPolicy:
+                  type: boolean
+                locationService:
+                  type: boolean
+            example:
+              termsOfService: true
+              privacyPolicy: true
+              locationService: true
+      responses:
+        "200":
+          description: 동의 성공
+          content:
+            application/json:
+              example:
+                ok: true
+                agreedAt: "2025-01-15T09:00:00.000Z"
+        "400":
+          description: 모든 약관 미동의
+          content:
+            application/json:
+              example:
+                code: 400
+                message: "모든 약관에 동의해야 합니다. (termsOfService, privacyPolicy, locationService)"
+                errorCode: VALIDATION_ERROR
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  /agreements/me:
+    get:
+      tags:
+        - Agreements
+      summary: 내 약관 동의 현황 조회
+      security:
+        - bearerAuth: []
+      responses:
+        "200":
+          description: 조회 성공
+          content:
+            application/json:
+              example:
+                ok: true
+                agreements:
+                  termsOfService:
+                    agreement_id: 1
+                    user_id: 1
+                    agreement_type: "TOS"
+                    agreed_at: "2025-01-15T09:00:00.000Z"
+                  privacyPolicy:
+                    agreement_id: 2
+                    user_id: 1
+                    agreement_type: "PRIVACY"
+                    agreed_at: "2025-01-15T09:00:00.000Z"
+                  locationService:
+                    agreement_id: 3
+                    user_id: 1
+                    agreement_type: "LOCATION"
+                    agreed_at: "2025-01-15T09:00:00.000Z"
+        "401":
+          $ref: "#/components/responses/Unauthorized"
+
+  # ========== Admin ==========
+  /admin/issue-master-token:
+    post:
+      tags:
+        - Admin
+      summary: 마스터 토큰 발급
+      description: 관리자 API 키를 사용하여 마스터 JWT 토큰을 발급합니다. 마스터 토큰은 모든 인증이 필요한 API에 사용할 수 있습니다.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - apiKey
+              properties:
+                apiKey:
+                  type: string
+            example:
+              apiKey: "your-admin-api-key"
+      responses:
+        "200":
+          description: 토큰 발급 성공
+          content:
+            application/json:
+              example:
+                code: 200
+                message: "마스터 토큰 발급 성공"
+                data:
+                  masterToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+        "401":
+          description: 인증 실패
+          content:
+            application/json:
+              example:
+                code: 401
+                message: "유효한 API 키가 아닙니다"
+                errorCode: UNAUTHORIZED
 
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: |
+        Access Token 또는 Master Token을 사용합니다.
+        - Access Token: POST /users/login으로 발급
+        - Master Token: POST /admin/issue-master-token으로 발급
+
+  responses:
+    Unauthorized:
+      description: 인증 실패
+      content:
+        application/json:
+          example:
+            code: 401
+            message: "인증 토큰이 필요합니다."
+            errorCode: UNAUTHORIZED
+
   schemas:
-    # ... (기존 User, Hospital, PainArea, LifestyleVideo, SuccessResponse, ErrorResponse 등 생략)
+    SignupRequest:
+      type: object
+      required:
+        - name
+        - email
+        - password
+        - birth
+        - gender
+      properties:
+        name:
+          type: string
+          example: "홍길동"
+        email:
+          type: string
+          format: email
+          example: "test@example.com"
+        password:
+          type: string
+          description: "최소 8자, 대소문자/숫자/특수문자 포함"
+          example: "Test1234!"
+        birth:
+          type: string
+          format: date
+          example: "1995-03-15"
+        gender:
+          type: string
+          enum: [MALE, FEMALE, OTHER]
+          example: "MALE"
+        painAreaID:
+          type: integer
+          nullable: true
+          description: "선택 사항 (미입력 시 기본값 8)"
+          example: 1
+
+    LoginRequest:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          format: email
+          example: "test@example.com"
+        password:
+          type: string
+          example: "Test1234!"
 
     TemporaryGuideDetail:
       type: object
@@ -226,7 +1555,7 @@ components:
           example: "가벼운 통증 시에만 시행하세요."
         content:
           type: string
-          example: "어깨 통증은 장시간 같은 자세를 유지할 때 자주 발생합니다. 아래 스트레칭을 따라 해보세요."
+          example: "어깨 통증은 장시간 같은 자세를 유지할 때 자주 발생합니다."
         badges:
           type: array
           items:
@@ -236,99 +1565,66 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/GuideNote"
-          example:
-            - id: 1
-              imageUrl: "https://example.com/image101.png"
-              title: "어깨를 천천히 앞뒤로 돌려줍니다."
-              description: "처음에는 작은 범위로 시작해 점차 늘려보세요."
-            - id: 2
-              imageUrl: "https://example.com/image102.png"
-              title: "팔을 들어 올려 스트레칭합니다."
-              description: "통증이 심하지 않다면 10초간 유지하세요."
         cautions:
           type: array
           items:
             $ref: "#/components/schemas/GuideCaution"
-          example:
-            - id: 1
-              iconUrl: "https://example.com/icon1.png"
-              title: "통증이 지속되거나 심해질 때"
-              description: "단순 근육 피로가 아닌 원인이 있을 수 있습니다."
-            - id: 2
-              iconUrl: "https://example.com/icon2.png"
-              title: "붓기, 열감 동반 시"
-              description: "즉시 전문의 상담을 권장합니다."
         helps:
           type: array
           items:
             $ref: "#/components/schemas/GuideHelp"
-          example:
-            - id: 1
-              description: "통증 직후 가벼운 스트레칭이 도움이 될 수 있어요."
-            - id: 2
-              description: "찜질은 10~15분 이내로 시행하세요."
         morePosts:
           type: array
           items:
             $ref: "#/components/schemas/TemporaryGuideMorePost"
-          example:
-            - answerId: 3002
-              painAreaId: 1
-              title: "어깨 온찜질/냉찜질"
-              imageUrl: "https://example.com/post02.webp"
-            - answerId: 3003
-              painAreaId: 1
-              title: "어깨 자세 교정"
-              imageUrl: "https://example.com/post03.webp"
 
     GuideNote:
       type: object
       properties:
-        id:
+        noteId:
           type: integer
           example: 1
         imageUrl:
           type: string
           example: "https://example.com/image101.png"
-        title:
+        bold:
           type: string
           example: "어깨를 천천히 앞뒤로 돌려줍니다."
-        description:
+        text:
           type: string
           example: "처음에는 작은 범위로 시작해 점차 늘려보세요."
 
     GuideCaution:
       type: object
       properties:
-        id:
+        cautionId:
           type: integer
           example: 1
         iconUrl:
           type: string
           example: "https://example.com/icon1.png"
-        title:
+        bold:
           type: string
           example: "통증이 지속되거나 심해질 때"
-        description:
+        text:
           type: string
           example: "단순 근육 피로가 아닌 원인이 있을 수 있습니다."
 
     GuideHelp:
       type: object
       properties:
-        id:
+        helpId:
           type: integer
           example: 1
-        description:
+        text:
           type: string
           example: "통증 직후 가벼운 스트레칭이 도움이 될 수 있어요."
 
     TemporaryGuideMorePost:
       type: object
       properties:
-        answerId:
+        guideId:
           type: integer
-          description: "현재는 guide_id 값을 내려줍니다."
           example: 3002
         painAreaId:
           type: integer
@@ -339,21 +1635,3 @@ components:
         imageUrl:
           type: string
           example: "https://example.com/post02.webp"
-
-    TemporaryGuideIdList:
-      type: object
-      properties:
-        guides:
-          type: array
-          items:
-            type: object
-            properties:
-              guideId:
-                type: integer
-                example: 1
-              painAreaName:
-                type: string
-                nullable: true
-                example: "어깨"
-
-  # ... (기타 securitySchemes 등 생략)
