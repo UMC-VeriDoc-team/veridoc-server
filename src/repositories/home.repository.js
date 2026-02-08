@@ -80,21 +80,25 @@ class HomeRepository {
     });
 
     // answerId가 실제 expert_answers에 존재하는 값인지 검증
-    const formattedSymptoms = symptoms.map(symptom => {
-      const answerId = symptom.expert_answers[0]?.answer_id ? Number(symptom.expert_answers[0].answer_id) : null;
-      // 실제 expert_answers에 존재하는지 확인
-      let validAnswerId = null;
-      if (answerId) {
-        // Prisma에서 expert_answers 존재 여부 확인
-        // 동기화된 DB라면 answerId는 항상 존재해야 함
-        validAnswerId = answerId;
-      }
-      return {
-        symptomId: Number(symptom.symptom_id),
-        name: symptom.name,
-        answerId: validAnswerId
-      };
-    });
+    const formattedSymptoms = await Promise.all(
+      symptoms.map(async symptom => {
+        // 해당 pain_area_id와 symptom_id에 정확히 매칭되는 답변 찾기
+        const answer = await this.client.expert_answers.findFirst({
+          where: {
+            symptom_id: BigInt(symptom.symptom_id),
+            symptoms: {
+              pain_area_id: BigInt(painAreaId)
+            }
+          },
+          select: { answer_id: true }
+        });
+        return {
+          symptomId: Number(symptom.symptom_id),
+          name: symptom.name,
+          answerId: answer ? Number(answer.answer_id) : null
+        };
+      })
+    );
 
     // Ensure exactly 3 symptoms in response (pad if necessary)
     while (formattedSymptoms.length < 3) {
