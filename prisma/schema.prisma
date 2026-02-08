@@ -107,7 +107,6 @@ model pain_area_specialties {
 model symptom_steps {
   step_id      BigInt   @id @default(autoincrement())
   pain_area_id BigInt?
-
   step_number  Int
   title        String   @db.VarChar(200)
   subtitle     String?   @db.VarChar(200)
