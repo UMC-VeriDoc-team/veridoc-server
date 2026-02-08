@@ -81,9 +81,13 @@ async function main() {
   // ============================
   const existingSteps = await prisma.symptom_steps.count();
   if (existingSteps === 0) {
-      await prisma.symptom_steps.deleteMany();
+    await prisma.symptom_steps.deleteMany();
     const stepData = [];
     for (const symptom of symptoms) {
+      if (!symptom.symptom_id || !symptom.pain_area_id) {
+        console.warn('[seed-extra.js] 증상 데이터에 symptom_id 또는 pain_area_id가 없습니다:', symptom);
+        continue;
+      }
       stepData.push(
         {
           pain_area_id: symptom.pain_area_id,
@@ -119,8 +123,12 @@ async function main() {
         stepKeySet.add(key);
       }
     }
-    await prisma.symptom_steps.createMany({ data: uniqueStepData });
-    console.log(`symptom_steps ${uniqueStepData.length}건 삽입 완료`);
+    if (uniqueStepData.length === 0) {
+      console.error('[seed-extra.js] symptom_steps에 삽입할 데이터가 없습니다. 증상 데이터 확인 필요.');
+    } else {
+      await prisma.symptom_steps.createMany({ data: uniqueStepData });
+      console.log(`symptom_steps ${uniqueStepData.length}건 삽입 완료`);
+    }
   } else {
     console.log(`symptom_steps 이미 ${existingSteps}건 존재, 건너뜀`);
   }
