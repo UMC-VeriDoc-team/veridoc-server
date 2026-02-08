@@ -420,55 +420,73 @@ async function main() {
   ];
 
   for (const tu of testUsers) {
-    const existing = await prisma.users.findUnique({ where: { email: tu.email } });
-    if (existing) {
-      console.log(`${tu.email} 이미 존재, 건너뜀`);
+    // 이미 존재하는 유저면 user_id를 가져오고, 없으면 새로 생성
+    let user = await prisma.users.findUnique({ where: { email: tu.email } });
+    if (!user) {
+      user = await prisma.users.create({
+        data: {
+          name: tu.name,
+          email: tu.email,
+          password: hashedPassword,
+          birth: new Date('1995-06-15'),
+          gender: 'MALE',
+        },
+      });
+      console.log(`${tu.email} 새로 생성됨`);
+    } else {
+      console.log(`${tu.email} 이미 존재, user_id=${user.user_id}`);
+    }
+
+    // painArea가 존재하는지 확인
+    const painArea = painAreas.find((pa) => pa.name === tu.painArea);
+    if (!painArea) {
+      console.warn(`[seed-extra.js] ${tu.painArea} painArea 없음, ${tu.email} 매핑 건너뜀`);
       continue;
     }
 
-    const painArea = painAreas.find((pa) => pa.name === tu.painArea);
-    if (!painArea) continue;
-
-    const user = await prisma.users.create({
-      data: {
-        name: tu.name,
-        email: tu.email,
-        password: hashedPassword,
-        birth: new Date('1995-06-15'),
-        gender: 'MALE',
-      },
-    });
-
-    // pain_area 매핑
-    await prisma.user_pain_areas.create({
-      data: {
-        user_id: user.user_id,
-        pain_area_id: painArea.pain_area_id,
-      },
-    });
+    // user_pain_areas 매핑: users 테이블에 존재하는 user_id만 사용
+    try {
+      await prisma.user_pain_areas.create({
+        data: {
+          user_id: user.user_id,
+          pain_area_id: painArea.pain_area_id,
+        },
+      });
+    } catch (e) {
+      console.warn(`[seed-extra.js] user_pain_areas 매핑 실패: user_id=${user.user_id}, pain_area_id=${painArea.pain_area_id} (${tu.email})`, e.code || e.message);
+    }
 
     // 해당 부위의 모든 증상 매핑
     const areaSymptoms = symptomsByPainArea[Number(painArea.pain_area_id)] || [];
     for (const symptom of areaSymptoms) {
-      await prisma.user_symptoms.create({
-        data: {
-          user_id: user.user_id,
-          symptom_id: symptom.symptom_id,
-        },
-      });
+      try {
+        await prisma.user_symptoms.create({
+          data: {
+            user_id: user.user_id,
+            symptom_id: symptom.symptom_id,
+          },
+        });
+      } catch (e) {
+        console.warn(`[seed-extra.js] user_symptoms 매핑 실패: user_id=${user.user_id}, symptom_id=${symptom.symptom_id} (${tu.email})`, e.code || e.message);
+      }
     }
 
     // 약관 동의
     const now = new Date();
-    await prisma.user_agreements.createMany({
-      data: [
-        { user_id: user.user_id, agreement_type: 'TOS', agreed_at: now },
-        { user_id: user.user_id, agreement_type: 'PRIVACY', agreed_at: now },
-        { user_id: user.user_id, agreement_type: 'LOCATION', agreed_at: now },
-      ],
-    });
+    try {
+      await prisma.user_agreements.createMany({
+        data: [
+          { user_id: user.user_id, agreement_type: 'TOS', agreed_at: now },
+          { user_id: user.user_id, agreement_type: 'PRIVACY', agreed_at: now },
+          { user_id: user.user_id, agreement_type: 'LOCATION', agreed_at: now },
+        ],
+        skipDuplicates: true,
+      });
+    } catch (e) {
+      console.warn(`[seed-extra.js] user_agreements 매핑 실패: user_id=${user.user_id} (${tu.email})`, e.code || e.message);
+    }
 
-    console.log(`${tu.email} 생성 완료 (${tu.painArea}, 증상 ${areaSymptoms.length}개, 약관동의 완료)`);
+    console.log(`${tu.email} 처리 완료 (${tu.painArea}, 증상 ${areaSymptoms.length}개, 약관동의)`);
   }
 
   // ============================
