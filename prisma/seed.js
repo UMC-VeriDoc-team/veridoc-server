@@ -5,20 +5,22 @@ import bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 async function main() {
-  // 1. Clean up existing seed data (order matters due to FK constraints)
-  await prisma.user_symptoms.deleteMany();
-  await prisma.user_pain_areas.deleteMany();
-  await prisma.temporary_care_guides.deleteMany();
-  await prisma.usage_guides.deleteMany();
-  await prisma.symptom_steps.deleteMany();
-  await prisma.pain_area_specialties.deleteMany();
-  await prisma.hospital_symptoms.deleteMany();
-  await prisma.lifestyle_videos.deleteMany();
-  await prisma.expert_answers.deleteMany();
-  await prisma.content_sections.deleteMany();
-  await prisma.symptoms.deleteMany();
-  await prisma.pain_areas.deleteMany();
-  await prisma.users.deleteMany();
+  // 1. Full DB truncate for clean seed (order matters due to FK constraints)
+  await prisma.$executeRawUnsafe(`SET FOREIGN_KEY_CHECKS = 0`);
+  await prisma.$executeRawUnsafe(`TRUNCATE TABLE user_symptoms`);
+  await prisma.$executeRawUnsafe(`TRUNCATE TABLE user_pain_areas`);
+  await prisma.$executeRawUnsafe(`TRUNCATE TABLE temporary_care_guides`);
+  await prisma.$executeRawUnsafe(`TRUNCATE TABLE usage_guides`);
+  await prisma.$executeRawUnsafe(`TRUNCATE TABLE symptom_steps`);
+  await prisma.$executeRawUnsafe(`TRUNCATE TABLE pain_area_specialties`);
+  await prisma.$executeRawUnsafe(`TRUNCATE TABLE hospital_symptoms`);
+  await prisma.$executeRawUnsafe(`TRUNCATE TABLE lifestyle_videos`);
+  await prisma.$executeRawUnsafe(`TRUNCATE TABLE expert_answers`);
+  await prisma.$executeRawUnsafe(`TRUNCATE TABLE content_sections`);
+  await prisma.$executeRawUnsafe(`TRUNCATE TABLE symptoms`);
+  await prisma.$executeRawUnsafe(`TRUNCATE TABLE pain_areas`);
+  await prisma.$executeRawUnsafe(`TRUNCATE TABLE users`);
+  await prisma.$executeRawUnsafe(`SET FOREIGN_KEY_CHECKS = 1`);
 
   // Auto increment 초기화
   await prisma.$executeRaw`ALTER TABLE pain_areas AUTO_INCREMENT = 1`;
@@ -42,31 +44,7 @@ async function main() {
     }
   });
 
-  // Pain areas (중복 생성 방지, 한 번만 생성)
-  const painAreas = [
-    { name: '어깨' },
-    { name: '허리' },
-    { name: '무릎' },
-    { name: '목' },
-    { name: '두통' },
-    { name: '복통' },
-  ];
-  const createdPainAreas = {};
-  for (const area of painAreas) {
-    const pa = await prisma.pain_areas.create({ data: { name: area.name } });
-    createdPainAreas[area.name] = pa;
-  }
-  // 미선택 pain_area (ID = 8)
-  await prisma.$executeRaw`ALTER TABLE pain_areas AUTO_INCREMENT = 8`;
-  const noPainArea = await prisma.pain_areas.create({ data: { name: '미선택' } });
-  createdPainAreas['미선택'] = noPainArea;
-
-
-  // 3. Pain area specialties mapping
-  // ...existing code for pain_area_specialties...
-
-  // 4. 증상 데이터 생성 (pain_areas별 기본 증상)
-  // 각 pain_area별로 3개 증상 생성
+  // Pain areas 및 증상 생성 (중복 방지, 정확히 한 번만 생성)
   const symptomTemplates = {
     '어깨': ['뻐근함', '찌릿함', '움직일 때 통증'],
     '허리': ['뻐근함', '찌릿함', '움직일 때 통증'],
@@ -75,13 +53,18 @@ async function main() {
     '두통': ['조이는 듯한 두통', '욱신거리는 두통', '한쪽으로 심한 두통'],
     '복통': ['쥐어짜는 듯한 복통', '콕콕 찌르는 복통', '더부룩한 복통'],
   };
-  for (const [area, symptomNames] of Object.entries(symptomTemplates)) {
-    const pa = createdPainAreas[area];
-    if (!pa) continue;
-    for (const name of symptomNames) {
-      await prisma.symptoms.create({ data: { pain_area_id: pa.pain_area_id, name } });
+  const createdPainAreas = {};
+  for (const areaName of Object.keys(symptomTemplates)) {
+    const pa = await prisma.pain_areas.create({ data: { name: areaName } });
+    createdPainAreas[areaName] = pa;
+    for (const symptomName of symptomTemplates[areaName]) {
+      await prisma.symptoms.create({ data: { pain_area_id: pa.pain_area_id, name: symptomName } });
     }
   }
+  // 미선택 pain_area (ID = 8)
+  await prisma.$executeRaw`ALTER TABLE pain_areas AUTO_INCREMENT = 8`;
+  const noPainArea = await prisma.pain_areas.create({ data: { name: '미선택' } });
+  createdPainAreas['미선택'] = noPainArea;
 
   // 5. lifestyle_videos (증상별 2개, 중복 방지)
   // (증상 생성 이후에 반드시 실행)
@@ -92,10 +75,13 @@ async function main() {
   if (existingVideos === 0) {
     const videoData = [];
     let displayOrder = 1;
-    for (const symptom of allSymptomsList2) {
-      const areaName = painAreaMap[Number(symptom.pain_area_id)] || '통증 부위';
-      videoData.push(
-        {
+    // 부위별 1개 증상만 lifestyle_videos 생성
+    const painAreaNames = ['어깨', '허리', '목', '무릎', '두통', '복통'];
+    for (const areaName of painAreaNames) {
+      const symptoms = allSymptomsList2.filter((s) => s.pain_area_id === createdPainAreas[areaName].pain_area_id);
+      if (symptoms.length > 0) {
+        const symptom = symptoms[0];
+        videoData.push({
           symptom_id: symptom.symptom_id,
           title: `${areaName} ${symptom.name} 스트레칭`,
           description: `${symptom.name} 증상 완화를 위한 기본 스트레칭 영상입니다. 하루 1~2회 따라해보세요.`,
@@ -103,17 +89,8 @@ async function main() {
           thumbnail_url: `https://img.youtube.com/vi/dummy_${Number(symptom.symptom_id)}_1/hqdefault.jpg`,
           display_order: displayOrder++,
           is_active: true,
-        },
-        {
-          symptom_id: symptom.symptom_id,
-          title: `${areaName} ${symptom.name} 셀프 마사지`,
-          description: `${symptom.name} 증상에 도움이 되는 셀프 마사지 방법을 알려드립니다.`,
-          youtube_url: `https://www.youtube.com/watch?v=dummy_${Number(symptom.symptom_id)}_2`,
-          thumbnail_url: `https://img.youtube.com/vi/dummy_${Number(symptom.symptom_id)}_2/hqdefault.jpg`,
-          display_order: displayOrder++,
-          is_active: true,
-        }
-      );
+        });
+      }
     }
     await prisma.lifestyle_videos.createMany({ data: videoData });
     console.log(`lifestyle_videos ${videoData.length}건 삽입 완료`);
@@ -362,16 +339,12 @@ async function main() {
   // 6) Seed User 증상/약관 보강 (upsert)
   const seedUser = await prisma.users.findFirst({ orderBy: { user_id: 'asc' } });
   if (seedUser) {
+    // Seed User에게 한 pain_area(예: 어깨)의 증상만 매핑 (중복 방지)
     const shoulderPainArea = painAreasDb.find((pa) => pa.name === '어깨');
     if (shoulderPainArea) {
       const shoulderSymptoms = allSymptomsList2.filter((s) => s.pain_area_id === shoulderPainArea.pain_area_id);
-      for (const symptom of shoulderSymptoms) {
-        await prisma.user_symptoms.upsert({
-          where: { user_id_symptom_id: { user_id: seedUser.user_id, symptom_id: symptom.symptom_id } },
-          update: {},
-          create: { user_id: seedUser.user_id, symptom_id: symptom.symptom_id },
-        });
-      }
+      const userSymptomData = shoulderSymptoms.map(symptom => ({ user_id: seedUser.user_id, symptom_id: symptom.symptom_id }));
+      await prisma.user_symptoms.createMany({ data: userSymptomData, skipDuplicates: true });
       console.log(`Seed User(${seedUser.email}): 어깨 증상 ${shoulderSymptoms.length}개 매핑 완료`);
     }
     const now = new Date();
@@ -502,85 +475,45 @@ async function main() {
   }
   console.log('pain_area_specialties 데이터 삽입 완료');
 
-  // Use shoulder for symptom examples
-  const shoulder = createdPainAreas['어깨'];
-  const back = createdPainAreas['허리'];
-  const neck = createdPainAreas['목'];
-  const knee = createdPainAreas['무릎'];
-  const headache = createdPainAreas['두통'];
-  const abdomen = createdPainAreas['복통'];
-
-  // Create symptoms for each pain area
-  const shoulderSymptoms = [
-    await prisma.symptoms.create({ data: { pain_area_id: shoulder.pain_area_id, name: '뻐근함' } }),
-    await prisma.symptoms.create({ data: { pain_area_id: shoulder.pain_area_id, name: '찌릿함' } }),
-    await prisma.symptoms.create({ data: { pain_area_id: shoulder.pain_area_id, name: '움직일 때 통증' } }),
-  ];
-
-  const backSymptoms = [
-    await prisma.symptoms.create({ data: { pain_area_id: back.pain_area_id, name: '뻐근함' } }),
-    await prisma.symptoms.create({ data: { pain_area_id: back.pain_area_id, name: '찌릿함' } }),
-    await prisma.symptoms.create({ data: { pain_area_id: back.pain_area_id, name: '움직일 때 통증' } }),
-  ];
-
-  const neckSymptoms = [
-    await prisma.symptoms.create({ data: { pain_area_id: neck.pain_area_id, name: '뻐근함' } }),
-    await prisma.symptoms.create({ data: { pain_area_id: neck.pain_area_id, name: '찌릿함' } }),
-    await prisma.symptoms.create({ data: { pain_area_id: neck.pain_area_id, name: '움직일 때 통증' } }),
-  ];
-
-  const kneeSymptoms = [
-    await prisma.symptoms.create({ data: { pain_area_id: knee.pain_area_id, name: '뻐근함' } }),
-    await prisma.symptoms.create({ data: { pain_area_id: knee.pain_area_id, name: '찌릿함' } }),
-    await prisma.symptoms.create({ data: { pain_area_id: knee.pain_area_id, name: '움직일 때 통증' } }),
-  ];
-
-  const headacheSymptoms = [
-    await prisma.symptoms.create({ data: { pain_area_id: headache.pain_area_id, name: '조이는 듯한 두통' } }),
-    await prisma.symptoms.create({ data: { pain_area_id: headache.pain_area_id, name: '욱신거리는 두통' } }),
-    await prisma.symptoms.create({ data: { pain_area_id: headache.pain_area_id, name: '한쪽으로 심한 두통' } }),
-  ];
-
-  const abdomenSymptoms = [
-    await prisma.symptoms.create({ data: { pain_area_id: abdomen.pain_area_id, name: '쥐어짜는 듯한 복통' } }),
-    await prisma.symptoms.create({ data: { pain_area_id: abdomen.pain_area_id, name: '콕콕 찌르는 복통' } }),
-    await prisma.symptoms.create({ data: { pain_area_id: abdomen.pain_area_id, name: '더부룩한 복통' } }),
-  ];
-
   // User-Pain Areas 매핑 (사용자가 선택한 통증 부위)
+
   await prisma.user_pain_areas.createMany({
     data: [
-      { user_id: user.user_id, pain_area_id: shoulder.pain_area_id },
+      { user_id: user.user_id, pain_area_id: createdPainAreas['어깨'].pain_area_id },
     ]
   });
 
   // User-Symptoms 매핑 (사용자가 선택한 증상)
-  await prisma.user_symptoms.createMany({
-    data: [
-      { user_id: user.user_id, symptom_id: shoulderSymptoms[0].symptom_id },  // 어깨 뻐근함
-    ]
-  });
+  const shoulderSymptomsSeed = allSymptomsList2.filter((s) => s.pain_area_id === createdPainAreas['어깨'].pain_area_id);
+  if (shoulderSymptomsSeed.length > 0) {
+    await prisma.user_symptoms.createMany({
+      data: [
+        { user_id: user.user_id, symptom_id: shoulderSymptomsSeed[0].symptom_id },  // 어깨 뻐근함
+      ],
+      skipDuplicates: true
+    });
+  }
 
   // Temporary care guides
   await prisma.temporary_care_guides.createMany({
     data: [
       // 어깨
       {
-        pain_area_id: shoulder.pain_area_id,
+        pain_area_id: createdPainAreas['어깨'].pain_area_id,
         guide_type: '스트레칭/찜질',
         title: '어깨 스트레칭 방법',
         content: '목과 어깨를 부드럽게 스트레칭하여 근육의 긴장을 완화하세요.',
         image_url: 'https://example.com/guides/shoulder-01.jpg'
       },
       {
-        pain_area_id: shoulder.pain_area_id,
+        pain_area_id: createdPainAreas['어깨'].pain_area_id,
         guide_type: '스트레칭/찜질',
         title: '어깨 온찜질/냉찜질',
         content: '급성 통증에는 냉찜질을, 만성 통증에는 온찜질을 시도해보세요.',
         image_url: 'https://example.com/guides/shoulder-02.jpg'
       },
       {
-        pain_area_id: shoulder.pain_area_id,
+        pain_area_id: createdPainAreas['어깨'].pain_area_id,
         guide_type: '생활 습관',
         title: '올바른 자세 유지',
         content: '책상에 앉을 때 어깨를 펴고 목을 세워 자세를 유지하세요.',
@@ -588,21 +521,21 @@ async function main() {
       },
       // 허리
       {
-        pain_area_id: back.pain_area_id,
+        pain_area_id: createdPainAreas['허리'].pain_area_id,
         guide_type: '스트레칭/찜질',
         title: '허리 스트레칭 방법',
         content: '누워서 무릎을 가슴으로 당겨 허리 근육을 스트레칭하세요.',
         image_url: 'https://example.com/guides/back-01.jpg'
       },
       {
-        pain_area_id: back.pain_area_id,
+        pain_area_id: createdPainAreas['허리'].pain_area_id,
         guide_type: '스트레칭/찜질',
         title: '허리 온찜질',
         content: '온열 패드를 사용하여 허리 근육의 긴장을 풀어보세요.',
         image_url: 'https://example.com/guides/back-02.jpg'
       },
       {
-        pain_area_id: back.pain_area_id,
+        pain_area_id: createdPainAreas['허리'].pain_area_id,
         guide_type: '생활 습관',
         title: '코어 강화 운동',
         content: '복부와 등 근육을 강화하는 가벼운 운동을 꾸준히 하세요.',
@@ -610,21 +543,21 @@ async function main() {
       },
       // 목
       {
-        pain_area_id: neck.pain_area_id,
+        pain_area_id: createdPainAreas['목'].pain_area_id,
         guide_type: '스트레칭/찜질',
         title: '목 스트레칭',
         content: '목을 천천히 돌리고 옆으로 숙여 목 근육을 이완하세요.',
         image_url: 'https://example.com/guides/neck-01.jpg'
       },
       {
-        pain_area_id: neck.pain_area_id,
+        pain_area_id: createdPainAreas['목'].pain_area_id,
         guide_type: '스트레칭/찜질',
         title: '목 온찜질',
         content: '온타올을 목에 대어 근육의 긴장을 완화하세요.',
         image_url: 'https://example.com/guides/neck-02.jpg'
       },
       {
-        pain_area_id: neck.pain_area_id,
+        pain_area_id: createdPainAreas['목'].pain_area_id,
         guide_type: '생활 습관',
         title: '거북목 자세 교정',
         content: '모니터 높이를 눈높이에 맞추고 정기적으로 휴식을 취하세요.',
@@ -632,21 +565,21 @@ async function main() {
       },
       // 무릎
       {
-        pain_area_id: knee.pain_area_id,
+        pain_area_id: createdPainAreas['무릎'].pain_area_id,
         guide_type: '스트레칭/찜질',
         title: '무릎 스트레칭',
         content: '다리를 쭉 펴고 종아리를 마사지하며 무릎 주변 근육을 풀어주세요.',
         image_url: 'https://example.com/guides/knee-01.jpg'
       },
       {
-        pain_area_id: knee.pain_area_id,
+        pain_area_id: createdPainAreas['무릎'].pain_area_id,
         guide_type: '스트레칭/찜질',
         title: '무릎 냉찜질',
         content: '급성 부종이 있을 때는 냉찜질을 15-20분 정도 시행하세요.',
         image_url: 'https://example.com/guides/knee-02.jpg'
       },
       {
-        pain_area_id: knee.pain_area_id,
+        pain_area_id: createdPainAreas['무릎'].pain_area_id,
         guide_type: '생활 습관',
         title: '무릎 부하 줄이기',
         content: '계단보다는 엘리베이터를 이용하고, 무리한 운동을 피하세요.',
@@ -654,21 +587,21 @@ async function main() {
       },
       // 두통
       {
-        pain_area_id: headache.pain_area_id,
+        pain_area_id: createdPainAreas['두통'].pain_area_id,
         guide_type: '스트레칭/찜질',
         title: '두피 마사지',
         content: '머리와 목 부분을 부드럽게 마사지하여 혈액 순환을 개선하세요.',
         image_url: 'https://example.com/guides/headache-01.jpg'
       },
       {
-        pain_area_id: headache.pain_area_id,
+        pain_area_id: createdPainAreas['두통'].pain_area_id,
         guide_type: '스트레칭/찜질',
         title: '목 근육 이완',
         content: '목과 어깨 근육이 경직되면 두통이 악화될 수 있습니다. 스트레칭을 시도하세요.',
         image_url: 'https://example.com/guides/headache-02.jpg'
       },
       {
-        pain_area_id: headache.pain_area_id,
+        pain_area_id: createdPainAreas['두통'].pain_area_id,
         guide_type: '생활 습관',
         title: '스트레스 관리',
         content: '충분한 수분을 섭취하고 명상으로 스트레스를 관리하세요.',
@@ -676,21 +609,21 @@ async function main() {
       },
       // 복통
       {
-        pain_area_id: abdomen.pain_area_id,
+        pain_area_id: createdPainAreas['복통'].pain_area_id,
         guide_type: '스트레칭/찜질',
         title: '복부 온찜질',
         content: '온찜질 팩을 복부에 대어 장의 운동을 촉진하세요.',
         image_url: 'https://example.com/guides/abdomen-01.jpg'
       },
       {
-        pain_area_id: abdomen.pain_area_id,
+        pain_area_id: createdPainAreas['복통'].pain_area_id,
         guide_type: '스트레칭/찜질',
         title: '복부 마사지',
         content: '시계 방향으로 복부를 부드럽게 원형 마사지하세요.',
         image_url: 'https://example.com/guides/abdomen-02.jpg'
       },
       {
-        pain_area_id: abdomen.pain_area_id,
+        pain_area_id: createdPainAreas['복통'].pain_area_id,
         guide_type: '생활 습관',
         title: '식이 조절',
         content: '소화가 잘 되는 음식을 섭취하고 규칙적으로 운동하세요.',
@@ -721,21 +654,30 @@ async function main() {
   });
 
   // Doctor answers (expert_answers) - 모든 증상을 위한 답변
-  const allSymptoms = [
-    ...shoulderSymptoms,
-    ...backSymptoms,
-    ...neckSymptoms,
-    ...kneeSymptoms,
-    ...headacheSymptoms,
-    ...abdomenSymptoms
-  ];
+  const shoulderSymptoms = allSymptomsList2.filter((s) => s.pain_area_id === createdPainAreas['어깨'].pain_area_id);
+  const backSymptoms = allSymptomsList2.filter((s) => s.pain_area_id === createdPainAreas['허리'].pain_area_id);
+  const neckSymptoms = allSymptomsList2.filter((s) => s.pain_area_id === createdPainAreas['목'].pain_area_id);
+  const kneeSymptoms = allSymptomsList2.filter((s) => s.pain_area_id === createdPainAreas['무릎'].pain_area_id);
+  const headacheSymptoms = allSymptomsList2.filter((s) => s.pain_area_id === createdPainAreas['두통'].pain_area_id);
+  const abdomenSymptoms = allSymptomsList2.filter((s) => s.pain_area_id === createdPainAreas['복통'].pain_area_id);
 
-  const answerData = allSymptoms.map((symptom, index) => ({
-    symptom_id: symptom.symptom_id,
-    summary: `${symptom.name} 증상은 다양한 원인으로 인해 발생할 수 있습니다. 적절한 휴식과 스트레칭으로 개선할 수 있습니다.`,
-    full_content: `${symptom.name} 증상에 대한 전문의 진료 기록입니다.\n\n원인:\n- 잘못된 자세 유지\n- 근육 피로\n- 염증성 질환\n\n치료 방법:\n1. 물리 치료\n2. 스트레칭 운동\n3. 약물 치료\n4. 생활 습관 개선\n\n예방:\n- 정기적인 운동\n- 올바른 자세 유지\n- 스트레스 관리\n- 충분한 휴식`,
-    source_url: `https://example.com/treatments/${index + 1}`
-  }));
+
+  // 각 pain_area별로 3개씩만 expert_answers 생성
+  const painAreaNames = ['어깨', '허리', '목', '무릎', '두통', '복통'];
+  let answerData = [];
+  let idx = 1;
+  for (const areaName of painAreaNames) {
+    const symptoms = allSymptomsList2.filter((s) => s.pain_area_id === createdPainAreas[areaName].pain_area_id);
+    for (let i = 0; i < Math.min(3, symptoms.length); i++) {
+      const symptom = symptoms[i];
+      answerData.push({
+        symptom_id: symptom.symptom_id,
+        summary: `${symptom.name} 증상은 다양한 원인으로 인해 발생할 수 있습니다. 적절한 휴식과 스트레칭으로 개선할 수 있습니다.`,
+        full_content: `${symptom.name} 증상에 대한 전문의 진료 기록입니다.\n\n원인:\n- 잘못된 자세 유지\n- 근육 피로\n- 염증성 질환\n\n치료 방법:\n1. 물리 치료\n2. 스트레칭 운동\n3. 약물 치료\n4. 생활 습관 개선\n\n예방:\n- 정기적인 운동\n- 올바른 자세 유지\n- 스트레스 관리\n- 충분한 휴식`,
+        source_url: `https://example.com/treatments/${idx++}`
+      });
+    }
+  }
 
   await prisma.expert_answers.createMany({
     data: answerData
@@ -837,7 +779,9 @@ async function main() {
   console.log('Seed data created.');
 
   // ...existing code...
-  
+    // 마지막에 전체 증상/전문의 답변 개수 출력
+  const totalSymptoms = await prisma.symptoms.count();
+  const totalExpertAnswers = await prisma.expert_answers.count();
   const totalUsers = await prisma.users.count();
   const totalUPA = await prisma.user_pain_areas.count();
   const totalUS = await prisma.user_symptoms.count();
@@ -851,6 +795,8 @@ async function main() {
   console.log(`user_agreements: ${totalUA}`);
   console.log(`lifestyle_videos: ${totalVideos}`);
   console.log(`symptom_steps: ${totalSteps}`);
+  console.log(`symptoms: ${totalSymptoms}`);
+  console.log(`expert_answers: ${totalExpertAnswers}`);
   console.log('\n=== 테스트 계정 로그인 정보 ===');
   console.log('비밀번호: Password1! (모든 테스트 계정 동일)');
   console.log('- seed.user@example.com (어깨)');
