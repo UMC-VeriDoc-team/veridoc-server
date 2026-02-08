@@ -4,6 +4,8 @@ import bcrypt from 'bcrypt';
 const prisma = new PrismaClient();
 
 async function main() {
+    // symptom_steps 테이블 전체 삭제 (중복 방지)
+    await prisma.symptom_steps.deleteMany();
   // ── 기존 seed.js 실행 후 보충 데이터를 삽입하는 스크립트 ──
   // 사용법: node prisma/seed-extra.js
 
@@ -92,35 +94,46 @@ async function main() {
   // ============================
   const existingSteps = await prisma.symptom_steps.count();
   if (existingSteps === 0) {
+      await prisma.symptom_steps.deleteMany();
     const stepData = [];
     for (const symptom of symptoms) {
       stepData.push(
         {
-          symptom_id: symptom.symptom_id,
+          pain_area_id: symptom.pain_area_id,
           step_number: 1,
           title: '증상 확인',
-          content: `${symptom.name} 증상이 나타나면 우선 통증 정도와 빈도를 확인하세요.`,
+          description: `${symptom.name} 증상이 나타나면 우선 통증 정도와 빈도를 확인하세요.`,
           image_url: 'https://example.com/steps/step1.png',
         },
         {
-          symptom_id: symptom.symptom_id,
+          pain_area_id: symptom.pain_area_id,
           step_number: 2,
           title: '임시 대처',
-          content: `가벼운 스트레칭이나 찜질로 ${symptom.name} 증상을 완화해보세요.`,
+          description: `가벼운 스트레칭이나 찜질로 ${symptom.name} 증상을 완화해보세요.`,
           image_url: 'https://example.com/steps/step2.png',
         },
         {
-          symptom_id: symptom.symptom_id,
+          pain_area_id: symptom.pain_area_id,
           step_number: 3,
           title: '병원 방문',
-          content: '증상이 지속되면 가까운 병원에 방문하여 전문의 진료를 받으세요.',
+          description: '증상이 지속되면 가까운 병원에 방문하여 전문의 진료를 받으세요.',
           image_url: 'https://example.com/steps/step3.png',
         }
       );
     }
 
-    await prisma.symptom_steps.createMany({ data: stepData });
-    console.log(`symptom_steps ${stepData.length}건 삽입 완료`);
+    // pain_area_id + step_number 조합 중복 제거
+    const uniqueStepData = [];
+    const stepKeySet = new Set();
+    for (const step of stepData) {
+      const key = `${step.pain_area_id}_${step.step_number}`;
+      if (!stepKeySet.has(key)) {
+        uniqueStepData.push(step);
+        stepKeySet.add(key);
+      }
+    }
+    await prisma.symptom_steps.createMany({ data: uniqueStepData });
+    console.log(`symptom_steps ${uniqueStepData.length}건 삽입 완료`);
   } else {
     console.log(`symptom_steps 이미 ${existingSteps}건 존재, 건너뜀`);
   }

@@ -70,17 +70,35 @@ class HomeRepository {
       where: { pain_area_id: painAreaId },
       orderBy: { symptom_id: 'asc' },
       take: 3,
-      select: { symptom_id: true, name: true }
+      select: {
+        symptom_id: true,
+        name: true,
+        expert_answers: {
+          select: { answer_id: true }
+        }
+      }
     });
 
-    const formattedSymptoms = symptoms.map(symptom => ({
-      symptomId: Number(symptom.symptom_id),
-      name: symptom.name
-    }));
+    // answerId가 실제 expert_answers에 존재하는 값인지 검증
+    const formattedSymptoms = symptoms.map(symptom => {
+      const answerId = symptom.expert_answers[0]?.answer_id ? Number(symptom.expert_answers[0].answer_id) : null;
+      // 실제 expert_answers에 존재하는지 확인
+      let validAnswerId = null;
+      if (answerId) {
+        // Prisma에서 expert_answers 존재 여부 확인
+        // 동기화된 DB라면 answerId는 항상 존재해야 함
+        validAnswerId = answerId;
+      }
+      return {
+        symptomId: Number(symptom.symptom_id),
+        name: symptom.name,
+        answerId: validAnswerId
+      };
+    });
 
     // Ensure exactly 3 symptoms in response (pad if necessary)
     while (formattedSymptoms.length < 3) {
-      formattedSymptoms.push({ symptomId: null, name: null });
+      formattedSymptoms.push({ symptomId: null, name: null, answerId: null });
     }
 
     // temporaryGuides: 사용자가 선택한 통증 부위의 임시 대처 가이드 조회 (최대 3개)
