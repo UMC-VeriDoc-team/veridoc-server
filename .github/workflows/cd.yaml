@@ -64,8 +64,7 @@ jobs:
             ENV_EOF
             npm install
             npx prisma migrate deploy
-            npx prisma db seed
-            node prisma/seed-extra.js
+            node prisma/seed.js
             pm2 reload all || pm2 start src/server.js --name "veridoc_server"
             pm2 save
           EOF
