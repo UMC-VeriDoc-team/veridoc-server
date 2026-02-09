@@ -54,6 +54,26 @@ const createEvent = async (userId, painAreaId, event) => {
   });
 };
 
+const updateProgress = async (userId, painAreaId, step) => {
+  return prisma.symptom_guide_progress.upsert({
+    where: {
+      user_id_pain_area_id: {
+        user_id: userId,
+        pain_area_id: painAreaId,
+      },
+    },
+    update: {
+      current_step: step,
+      last_visited_at: new Date(),
+    },
+    create: {
+      user_id: userId,
+      pain_area_id: painAreaId,
+      current_step: step,
+    },
+  });
+};
+
 const resetProgress = async (userId, painAreaId) => {
   // 진행 상태 upsert (없으면 생성, 있으면 초기화)
   return prisma.symptom_guide_progress.upsert({
@@ -89,6 +109,7 @@ export default {
   findUserProgress,
   hasEvent,
   createEvent,
+  updateProgress,
   resetProgress,
   clearEvents,
 };
