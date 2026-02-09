@@ -870,11 +870,11 @@ paths:
                       name: "무릎"
 
   # ========== Lifestyle Guide ==========
-  /lifestyle-videos/{painAreaId}:
+  /{painAreaId}/lifestyle-videos:
     get:
       tags:
         - LifestyleGuide
-      summary: 생활 관리 가이드 조회
+      summary: 생활 관리 영상 조회
       description: 특정 통증 부위의 생활 관리 스트레칭 영상 목록을 조회합니다.
       parameters:
         - name: painAreaId
@@ -902,23 +902,9 @@ paths:
                       videos:
                         - videoId: 1
                           youtubeUrl: "https://youtube.com/watch?v=..."
-                          youtubeTitle: "어깨 스트레칭 영상"
-                          description: "간단한 어깨 스트레칭"
-                        - videoId: 2
-                          youtubeUrl: "https://youtube.com/watch?v=..."
-                          youtubeTitle: "어깨 운동 영상"
-                          description: "어깨 강화 운동"
-                noPainArea:
-                  summary: 부위 미선택 시
-                  value:
-                    code: 200
-                    message: "증상 미선택"
-                    data:
-                      painAreaId: null
-                      painAreaName: null
-                      title: null
-                      subtitle: null
-                      videos: []
+                          youtubeTitle: "어깨가 뻐근할 때 따라 해볼 수 있는 스트레칭 영상"
+                          sourceName: "새움병원"
+                          description: "이 스트레칭은 근육의 길이와 탄성을 회복시키고..."
 
   # ========== Temporary Guides ==========
   /temporary-guides/ids:
@@ -1063,29 +1049,29 @@ paths:
                   painAreaId: 1
                   steps:
                     - step: 1
-                      title: "증상 확인"
-                      subtitle: "현재 느끼는 증상을 확인해보세요."
-                      caption: "첫 번째 단계"
-                      description: "어떤 증상이 있는지 파악합니다."
-                      imageUrl: "https://example.com/step1.png"
+                      title: "불편함을 느낌"
+                      subtitle: "어깨 통증을 인식함"
+                      caption: "이 단계는 어깨에 불편함이나 통증이 있다는 것을 스스로 인식하는 단계예요."
+                      description: "이 단계는 어깨에 불편함이나 통증이 있다는 것을 스스로 인식하는 단계예요. 많은 사람들이 이 시점에서 왜 이런 증상이 생겼는지 궁금해해요."
+                      imageUrl: "https://example.com/steps/step1.png"
                     - step: 2
-                      title: "전문의 소견"
-                      subtitle: "전문의의 의견을 확인하세요."
-                      caption: "두 번째 단계"
-                      description: "전문의 답변을 확인합니다."
-                      imageUrl: "https://example.com/step2.png"
+                      title: "정보를 찾는 단계"
+                      subtitle: "증상 원인을 이해함"
+                      caption: "증상을 이해하는 것이 불안을 줄이는 데 도움이 될 수 있어요."
+                      description: "이 단계에서는 어깨 통증이 어떤 이유로 생길 수 있는지 전문의 설명을 통해 알아볼 수 있어요."
+                      imageUrl: "https://example.com/steps/step2.png"
                     - step: 3
-                      title: "임시 대처"
-                      subtitle: "지금 할 수 있는 대처법을 알아보세요."
-                      caption: "세 번째 단계"
-                      description: "임시 대처 가이드를 확인합니다."
-                      imageUrl: "https://example.com/step3.png"
+                      title: "대처 방법을 참고하는 단계"
+                      subtitle: "생활 관리/병원 고려"
+                      caption: "일상에서 참고할 수 있는 관리 방법이나, 병원 방문을 고려해볼 수 있어요."
+                      description: "이 단계에서는 생활 관리 방법이나 병원 방문을 고려해볼 수 있어요."
+                      imageUrl: "https://example.com/steps/step3.png"
                     - step: 4
-                      title: "병원 방문"
-                      subtitle: "가까운 병원을 찾아보세요."
-                      caption: "네 번째 단계"
-                      description: "주변 병원 정보를 확인합니다."
-                      imageUrl: "https://example.com/step4.png"
+                      title: "상태를 안정적으로 인지"
+                      subtitle: "증상 변화를 스스로 느끼고 판단"
+                      caption: "증상에 대해 알고 있어 이전보다 덜 불안하게 느껴질 수 있어요."
+                      description: "증상에 대해 알고 있어 이전보다 덜 불안하게 느껴질 수 있어요. 현재 상태를 지켜보면서 필요한 경우 병원을 고려할 수 있어요."
+                      imageUrl: "https://example.com/steps/step4.png"
                   userProgress:
                     currentStep: 2
                     lastVisitedAt: "2025-01-15T09:00:00.000Z"
