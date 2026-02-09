@@ -3,6 +3,7 @@ const { PrismaClient } = pkg;
 import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
+const S3_BASE = "https://veridoc-storage.s3.ap-northeast-2.amazonaws.com/Veridoc_pic";
 
 async function main() {
   // ============================
@@ -163,9 +164,21 @@ async function main() {
   const stepData = [];
   const stepKeySet = new Set();
 
+  const painAreaFolderMap = {
+    '어깨': 'shoulder',
+    '허리': 'back',
+    '무릎': 'knee',
+    '목': 'neck',
+    '두통': 'headache',
+    '복통': 'stomachache',
+  };
+
   // pain_areas 기준으로 loop (기존 symptom loop 제거)
   for (const painArea of painAreasDb) {
     if (!painArea.pain_area_id) continue;
+
+    const folder = painAreaFolderMap[painArea.name];
+    const stepImg = (n) => `${S3_BASE}/symptom-guide/${folder}/${n}.png`;
 
     const steps = [
       {
@@ -174,9 +187,9 @@ async function main() {
         title: '불편함을 느낌',
         subtitle: `${painArea.name} 통증을 인식함`,
         caption: `이 단계는 ${painArea.name}에 불편함이나 통증이 있다는 것을 스스로 인식하는 단계예요.`,
-        description: `이 단계는 ${painArea.name}에 불편함이나 통증이 있다는 것을 스스로 인식하는 단계예요. 
+        description: `이 단계는 ${painArea.name}에 불편함이나 통증이 있다는 것을 스스로 인식하는 단계예요.
         많은 사람들이 이 시점에서 왜 이런 증상이 생겼는지 궁금해해요.`,
-        image_url: 'https://example.com/steps/step1.png',
+        image_url: stepImg(1),
       },
       {
         pain_area_id: painArea.pain_area_id,
@@ -185,7 +198,7 @@ async function main() {
         subtitle: '증상 원인을 이해함',
         caption: '증상을 이해하는 것이 불안을 줄이는 데 도움이 될 수 있어요.',
         description: `이 단계에서는 ${painArea.name} 통증이 어떤 이유로 생길 수 있는지 전문의 설명을 통해 알아볼 수 있어요. 증상을 이해하는 것이 불안을 줄이는 데 도움이 될 수 있어요.`,
-        image_url: 'https://example.com/steps/step2.png',
+        image_url: stepImg(2),
       },
       {
         pain_area_id: painArea.pain_area_id,
@@ -194,7 +207,7 @@ async function main() {
         subtitle: '생활 관리/병원 고려',
         caption: '일상에서 참고할 수 있는 관리 방법이나, 병원 방문을 고려해볼 수 있어요.',
         description: `이 단계에서는 일상에서 참고할 수 있는 관리 방법이나, 병원 방문을 고려해볼 수 있어요.`,
-        image_url: 'https://example.com/steps/step3.png',
+        image_url: stepImg(3),
       },
       {
         pain_area_id: painArea.pain_area_id,
@@ -203,7 +216,7 @@ async function main() {
         subtitle: '증상 변화를 스스로 느끼고 판단',
         caption: '증상에 대해 알고 있어 이전보다 덜 불안하게 느껴질 수 있어요.',
         description: `증상에 대해 알고 있어 이전보다 덜 불안하게 느껴질 수 있어요. 현재 상태를 지켜보면서, 필요한 경우 병원을 고려할 수 있어요.`,
-        image_url: 'https://example.com/steps/step4.png',
+        image_url: stepImg(4),
       },
     ];
 
@@ -312,7 +325,7 @@ async function main() {
         guide_type: '스트레칭/찜질',
         title: '어깨 스트레칭 방법',
         content: '목과 어깨를 부드럽게 스트레칭하여 근육의 긴장을 완화하세요.',
-        image_url: 'https://example.com/guides/shoulder-01.jpg',
+        image_url: `${S3_BASE}/main-home/shoulder/temporary-care/stretching.png`,
         display_order: 1,
       },
       {
@@ -320,7 +333,7 @@ async function main() {
         guide_type: '스트레칭/찜질',
         title: '어깨 온찜질/냉찜질',
         content: '급성 통증에는 냉찜질을, 만성 통증에는 온찜질을 시도해보세요.',
-        image_url: 'https://example.com/guides/shoulder-02.jpg',
+        image_url: `${S3_BASE}/main-home/shoulder/temporary-care/hot-cold-compress.png`,
         display_order: 2,
       },
       {
@@ -328,7 +341,7 @@ async function main() {
         guide_type: '생활 습관',
         title: '올바른 자세 유지',
         content: '책상에 앉을 때 어깨를 펴고 목을 세워 자세를 유지하세요.',
-        image_url: 'https://example.com/guides/shoulder-03.jpg',
+        image_url: `${S3_BASE}/main-home/shoulder/temporary-care/light-daily-activity.png`,
         display_order: 3,
       },
       // 허리
@@ -337,7 +350,7 @@ async function main() {
         guide_type: '스트레칭/찜질',
         title: '허리 스트레칭 방법',
         content: '누워서 무릎을 가슴으로 당겨 허리 근육을 스트레칭하세요.',
-        image_url: 'https://example.com/guides/back-01.jpg',
+        image_url: `${S3_BASE}/main-home/back/temporary-care/stretching.png`,
         display_order: 1,
       },
       {
@@ -345,7 +358,7 @@ async function main() {
         guide_type: '스트레칭/찜질',
         title: '허리 온찜질',
         content: '온열 패드를 사용하여 허리 근육의 긴장을 풀어보세요.',
-        image_url: 'https://example.com/guides/back-02.jpg',
+        image_url: `${S3_BASE}/main-home/back/temporary-care/hot-cold-compress.png`,
         display_order: 2,
       },
       {
@@ -353,7 +366,7 @@ async function main() {
         guide_type: '생활 습관',
         title: '코어 강화 운동',
         content: '복부와 등 근육을 강화하는 가벼운 운동을 꾸준히 하세요.',
-        image_url: 'https://example.com/guides/back-03.jpg',
+        image_url: `${S3_BASE}/main-home/back/temporary-care/light-daily-activity.png`,
         display_order: 3,
       },
       // 무릎
@@ -362,7 +375,7 @@ async function main() {
         guide_type: '스트레칭/찜질',
         title: '무릎 스트레칭',
         content: '다리를 쭉 펴고 종아리를 마사지하며 무릎 주변 근육을 풀어주세요.',
-        image_url: 'https://example.com/guides/knee-01.jpg',
+        image_url: `${S3_BASE}/main-home/knee/temporary-care/stretching.png`,
         display_order: 1,
       },
       {
@@ -370,7 +383,7 @@ async function main() {
         guide_type: '스트레칭/찜질',
         title: '무릎 냉찜질',
         content: '급성 부종이 있을 때는 냉찜질을 15-20분 정도 시행하세요.',
-        image_url: 'https://example.com/guides/knee-02.jpg',
+        image_url: `${S3_BASE}/main-home/knee/temporary-care/hot-cold-compress.png`,
         display_order: 2,
       },
       {
@@ -378,7 +391,7 @@ async function main() {
         guide_type: '생활 습관',
         title: '무릎 부하 줄이기',
         content: '계단보다는 엘리베이터를 이용하고, 무리한 운동을 피하세요.',
-        image_url: 'https://example.com/guides/knee-03.jpg',
+        image_url: `${S3_BASE}/main-home/knee/temporary-care/light-daily-activity.png`,
         display_order: 3,
       },
       // 목
@@ -387,7 +400,7 @@ async function main() {
         guide_type: '스트레칭/찜질',
         title: '목 스트레칭',
         content: '목을 천천히 돌리고 옆으로 숙여 목 근육을 이완하세요.',
-        image_url: 'https://example.com/guides/neck-01.jpg',
+        image_url: `${S3_BASE}/main-home/neck/temporary-care/stretching.png`,
         display_order: 1,
       },
       {
@@ -395,7 +408,7 @@ async function main() {
         guide_type: '스트레칭/찜질',
         title: '목 온찜질',
         content: '온타올을 목에 대어 근육의 긴장을 완화하세요.',
-        image_url: 'https://example.com/guides/neck-02.jpg',
+        image_url: `${S3_BASE}/main-home/neck/temporary-care/hot-cold-compress.png`,
         display_order: 2,
       },
       {
@@ -403,7 +416,7 @@ async function main() {
         guide_type: '생활 습관',
         title: '거북목 자세 교정',
         content: '모니터 높이를 눈높이에 맞추고 정기적으로 휴식을 취하세요.',
-        image_url: 'https://example.com/guides/neck-03.jpg',
+        image_url: `${S3_BASE}/main-home/neck/temporary-care/light-daily-activity.png`,
         display_order: 3,
       },
       // 두통
@@ -412,7 +425,7 @@ async function main() {
         guide_type: '스트레칭/찜질',
         title: '두피 마사지',
         content: '머리와 목 부분을 부드럽게 마사지하여 혈액 순환을 개선하세요.',
-        image_url: 'https://example.com/guides/headache-01.jpg',
+        image_url: `${S3_BASE}/main-home/headache/temporary-care/stretching.png`,
         display_order: 1,
       },
       {
@@ -420,7 +433,7 @@ async function main() {
         guide_type: '스트레칭/찜질',
         title: '목 근육 이완',
         content: '목과 어깨 근육이 경직되면 두통이 악화될 수 있습니다. 스트레칭을 시도하세요.',
-        image_url: 'https://example.com/guides/headache-02.jpg',
+        image_url: `${S3_BASE}/main-home/headache/temporary-care/hot-cold-compress.png`,
         display_order: 2,
       },
       {
@@ -428,7 +441,7 @@ async function main() {
         guide_type: '생활 습관',
         title: '스트레스 관리',
         content: '충분한 수분을 섭취하고 명상으로 스트레스를 관리하세요.',
-        image_url: 'https://example.com/guides/headache-03.jpg',
+        image_url: `${S3_BASE}/main-home/headache/temporary-care/light-daily-activity.png`,
         display_order: 3,
       },
       // 복통
@@ -437,7 +450,7 @@ async function main() {
         guide_type: '스트레칭/찜질',
         title: '복부 온찜질',
         content: '온찜질 팩을 복부에 대어 장의 운동을 촉진하세요.',
-        image_url: 'https://example.com/guides/abdomen-01.jpg',
+        image_url: `${S3_BASE}/main-home/stomachache/temporary-care/stretching.png`,
         display_order: 1,
       },
       {
@@ -445,7 +458,7 @@ async function main() {
         guide_type: '스트레칭/찜질',
         title: '복부 마사지',
         content: '시계 방향으로 복부를 부드럽게 원형 마사지하세요.',
-        image_url: 'https://example.com/guides/abdomen-02.jpg',
+        image_url: `${S3_BASE}/main-home/stomachache/temporary-care/hot-cold-compress.png`,
         display_order: 2,
       },
       {
@@ -453,7 +466,7 @@ async function main() {
         guide_type: '생활 습관',
         title: '식이 조절',
         content: '소화가 잘 되는 음식을 섭취하고 규칙적으로 운동하세요.',
-        image_url: 'https://example.com/guides/abdomen-03.jpg',
+        image_url: `${S3_BASE}/main-home/stomachache/temporary-care/light-daily-activity.png`,
         display_order: 3,
       },
     ],
@@ -464,11 +477,18 @@ async function main() {
   // 9. 각 가이드별 badges / notes / cautions / helps
   // ============================
   const allGuides = await prisma.temporary_care_guides.findMany({
-    select: { guide_id: true, pain_area_id: true, title: true },
+    select: { guide_id: true, pain_area_id: true, title: true, display_order: true },
+    orderBy: [{ pain_area_id: 'asc' }, { display_order: 'asc' }],
   });
+
+  // display_order → 가이드 유형 폴더 매핑
+  const guideTypeFolders = { 1: 'stretching', 2: 'hot-cold-compress', 3: 'light-daily-activity' };
 
   for (const guide of allGuides) {
     const painAreaName = painAreaMap[Number(guide.pain_area_id)] || '통증 부위';
+    const folder = painAreaFolderMap[painAreaName];
+    const guideTypeFolder = guideTypeFolders[guide.display_order] || 'stretching';
+    const tcBase = `${S3_BASE}/main-home/${folder}/temporary-care`;
 
     // duration, subtitle, source 등 업데이트
     let duration = null;
@@ -498,19 +518,21 @@ async function main() {
       ],
     });
 
-    await prisma.notes.createMany({
-      data: [
-        { guide_id: guide.guide_id, image_url: 'http://image1.png', bold: `${painAreaName}를 천천히`, text: `${painAreaName} 부위를 천천히 움직이며 작은 범위로 시작해 점차 넓혀보세요.` },
-        { guide_id: guide.guide_id, image_url: 'http://image2.png', bold: '무리하지 않기', text: '통증이 심해지면 즉시 중단하세요.' },
-        { guide_id: guide.guide_id, image_url: 'http://image3.png', bold: '호흡 유지', text: '스트레칭 중에는 천천히 호흡을 유지하세요.' },
-      ],
-    });
+    const notesData = [
+      { guide_id: guide.guide_id, image_url: `${tcBase}/icons/${guideTypeFolder}/1.svg`, bold: `${painAreaName}를 천천히`, text: `${painAreaName} 부위를 천천히 움직이며 작은 범위로 시작해 점차 넓혀보세요.` },
+      { guide_id: guide.guide_id, image_url: `${tcBase}/icons/${guideTypeFolder}/2.svg`, bold: '무리하지 않기', text: '통증이 심해지면 즉시 중단하세요.' },
+    ];
+    // 복통의 stretching/hot-cold-compress는 아이콘 2개만 존재
+    if (!(folder === 'stomachache' && (guideTypeFolder === 'stretching' || guideTypeFolder === 'hot-cold-compress'))) {
+      notesData.push({ guide_id: guide.guide_id, image_url: `${tcBase}/icons/${guideTypeFolder}/3.svg`, bold: '호흡 유지', text: '스트레칭 중에는 천천히 호흡을 유지하세요.' });
+    }
+    await prisma.notes.createMany({ data: notesData });
 
     await prisma.cautions.createMany({
       data: [
-        { guide_id: guide.guide_id, icon_url: 'http://icon1.png', bold: '통증이 지속되거나 심해질 때', text: '단순 근육 피로가 아닌 원인이 있을 수 있으니 전문가 상담을 권장합니다.' },
-        { guide_id: guide.guide_id, icon_url: 'http://icon2.png', bold: '관절 움직임 제한', text: '팔을 들기 어렵거나 움직임이 제한된다면 병원 진료가 필요합니다.' },
-        { guide_id: guide.guide_id, icon_url: 'http://icon3.png', bold: '야간 통증', text: '수면 중 통증이 심하다면 염증이나 구조적 문제일 수 있습니다.' },
+        { guide_id: guide.guide_id, icon_url: `${tcBase}/icons/warning.svg`, bold: '통증이 지속되거나 심해질 때', text: '단순 근육 피로가 아닌 원인이 있을 수 있으니 전문가 상담을 권장합니다.' },
+        { guide_id: guide.guide_id, icon_url: `${tcBase}/icons/warning.svg`, bold: '관절 움직임 제한', text: '팔을 들기 어렵거나 움직임이 제한된다면 병원 진료가 필요합니다.' },
+        { guide_id: guide.guide_id, icon_url: `${tcBase}/icons/warning.svg`, bold: '야간 통증', text: '수면 중 통증이 심하다면 염증이나 구조적 문제일 수 있습니다.' },
       ],
     });
 
@@ -543,9 +565,9 @@ async function main() {
   // ============================
   await prisma.usage_guides.createMany({
     data: [
-      { card_number: 1, title: '통증 부위 선택', modal_content: '먼저 통증이 있는 부위를 선택하세요. 어깨, 허리, 목, 무릎, 두통, 복통 중에서 선택할 수 있습니다.', image_url: 'https://example.com/banners/01.webp' },
-      { card_number: 2, title: '증상 확인', modal_content: '선택한 부위의 세부 증상을 확인할 수 있습니다. 자신의 증상과 가장 유사한 것을 선택해보세요.', image_url: 'https://example.com/banners/02.webp' },
-      { card_number: 3, title: '임시 대처법 확인', modal_content: '증상에 맞는 스트레칭, 찜질, 생활 습관 개선법 등의 임시 대처 방법을 확인할 수 있습니다.', image_url: 'https://example.com/banners/03.webp' },
+      { card_number: 1, title: '통증 부위 선택', modal_content: '먼저 통증이 있는 부위를 선택하세요. 어깨, 허리, 목, 무릎, 두통, 복통 중에서 선택할 수 있습니다.', image_url: `${S3_BASE}/main-home/shoulder/main-photo/stiffness.png` },
+      { card_number: 2, title: '증상 확인', modal_content: '선택한 부위의 세부 증상을 확인할 수 있습니다. 자신의 증상과 가장 유사한 것을 선택해보세요.', image_url: `${S3_BASE}/main-home/back/main-photo/movement-pain.png` },
+      { card_number: 3, title: '임시 대처법 확인', modal_content: '증상에 맞는 스트레칭, 찜질, 생활 습관 개선법 등의 임시 대처 방법을 확인할 수 있습니다.', image_url: `${S3_BASE}/main-home/knee/main-photo/tingling.png` },
     ],
   });
   console.log('content_sections, usage_guides 삽입 완료');
