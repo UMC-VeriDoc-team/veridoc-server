@@ -123,7 +123,7 @@ async function main() {
       subtitle: '아래 영상은 무릎 불편 시 가볍게 참고할 수 있는 스트레칭 예시예요.',
       youtube_url: 'https://youtube.com/lifestyle/knee',
       youtube_title: '무릎이 뻐근할 때 따라 해볼 수 있는 스트레칭 영상',
-      source_name: '서울예병원',
+      source_name: '서울예스병원',
       description: `이 스트레칭은 무릎 주변 근육(허벅지 앞·뒤, 종아리)의 긴장을 풀고 관절을 지지하는 조직의 유연성과 탄성을 회복시켜 무릎에 가해지는 부담을 줄이는 데 도움이 될 수 있습니다. 특히 오래 서 있거나 많이 걷는 경우, 계단을 자주 오르내리는 생활을 하는 사람에게는 뻣뻣해진 근육과 힘줄을 이완시키고 반복적으로 나타나는 무릎 통증을 완화·예방하는 데 의미가 있습니다. 다만 이 스트레칭은 연골 손상, 인대 파열, 관절염 같은 구조적 문제를 직접 치료하는 것은 아니며, 부기나 열감, 무릎이 꺾이는 느낌, 체중을 실을 수 없을 정도의 통증이 있다면 전문적인 진료가 필요합니다. 근육 긴장이나 사용 과부하로 인한 일반적인 무릎 불편감이라면, 이 루틴은 일상 속에서 관절 부담을 줄이고 무릎의 움직임을 보다 안정적으로 유지하는 데 도움이 되는 보조 수단이 될 수 있습니다.`,
     },
     {
@@ -158,35 +158,55 @@ async function main() {
   console.log(`lifestyle_videos ${lifestyleVideoSeed.length}건 삽입 완료`);
 
   // ============================
-  // 6. Symptom Steps (부위별 3단계)
+  // 6. Symptom Guide Steps (부위별 4단계)
   // ============================
   const stepData = [];
   const stepKeySet = new Set();
-  for (const symptom of allSymptomsList2) {
-    if (!symptom.symptom_id || !symptom.pain_area_id) continue;
+
+  // pain_areas 기준으로 loop (기존 symptom loop 제거)
+  for (const painArea of painAreasDb) {
+    if (!painArea.pain_area_id) continue;
+
     const steps = [
       {
-        pain_area_id: symptom.pain_area_id,
+        pain_area_id: painArea.pain_area_id,
         step_number: 1,
-        title: '증상 확인',
-        description: `${symptom.name} 증상이 나타나면 우선 통증 정도와 빈도를 확인하세요.`,
+        title: '불편함을 느낌',
+        subtitle: `${painArea.name} 통증을 인식함`,
+        caption: `이 단계는 ${painArea.name}에 불편함이나 통증이 있다는 것을 스스로 인식하는 단계예요.`,
+        description: `이 단계는 ${painArea.name}에 불편함이나 통증이 있다는 것을 스스로 인식하는 단계예요. 
+        많은 사람들이 이 시점에서 왜 이런 증상이 생겼는지 궁금해해요.`,
         image_url: 'https://example.com/steps/step1.png',
       },
       {
-        pain_area_id: symptom.pain_area_id,
+        pain_area_id: painArea.pain_area_id,
         step_number: 2,
-        title: '임시 대처',
-        description: `가벼운 스트레칭이나 찜질로 ${symptom.name} 증상을 완화해보세요.`,
+        title: '정보를 찾는 단계',
+        subtitle: '증상 원인을 이해함',
+        caption: '증상을 이해하는 것이 불안을 줄이는 데 도움이 될 수 있어요.',
+        description: `이 단계에서는 ${painArea.name} 통증이 어떤 이유로 생길 수 있는지 전문의 설명을 통해 알아볼 수 있어요. 증상을 이해하는 것이 불안을 줄이는 데 도움이 될 수 있어요.`,
         image_url: 'https://example.com/steps/step2.png',
       },
       {
-        pain_area_id: symptom.pain_area_id,
+        pain_area_id: painArea.pain_area_id,
         step_number: 3,
-        title: '병원 방문',
-        description: '증상이 지속되면 가까운 병원에 방문하여 전문의 진료를 받으세요.',
+        title: '대처 방법을 참고하는 단계',
+        subtitle: '생활 관리/병원 고려',
+        caption: '일상에서 참고할 수 있는 관리 방법이나, 병원 방문을 고려해볼 수 있어요.',
+        description: `이 단계에서는 일상에서 참고할 수 있는 관리 방법이나, 병원 방문을 고려해볼 수 있어요.`,
         image_url: 'https://example.com/steps/step3.png',
       },
+      {
+        pain_area_id: painArea.pain_area_id,
+        step_number: 4,
+        title: '상태를 안정적으로 인지',
+        subtitle: '증상 변화를 스스로 느끼고 판단',
+        caption: '증상에 대해 알고 있어 이전보다 덜 불안하게 느껴질 수 있어요.',
+        description: `증상에 대해 알고 있어 이전보다 덜 불안하게 느껴질 수 있어요. 현재 상태를 지켜보면서, 필요한 경우 병원을 고려할 수 있어요.`,
+        image_url: 'https://example.com/steps/step4.png',
+      },
     ];
+
     for (const step of steps) {
       const key = `${step.pain_area_id}_${step.step_number}`;
       if (!stepKeySet.has(key)) {
@@ -195,6 +215,7 @@ async function main() {
       }
     }
   }
+  
   if (stepData.length > 0) {
     await prisma.symptom_steps.createMany({ data: stepData });
     console.log(`symptom_steps ${stepData.length}건 삽입 완료`);
