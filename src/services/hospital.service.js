@@ -123,7 +123,7 @@ class HospitalService {
             lat: parseFloat(item.wgs84Lat || item.latitude || item.lat) || null,
             lng: parseFloat(item.wgs84Lon || item.longitude || item.lon) || null
           },
-          imageUrl: null,
+          imageUrl: `https://veridoc-storage.s3.ap-northeast-2.amazonaws.com/hospital/hospital.png`, // 임시사진
           homepageUrl: item.dutyUrl || null
         };
       });
