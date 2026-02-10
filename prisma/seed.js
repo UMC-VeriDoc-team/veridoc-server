@@ -104,7 +104,7 @@ async function main() {
       pain_area_id: createdPainAreas['어깨'].pain_area_id,
       title: '어깨 스트레칭',
       subtitle: '아래 영상은 어깨 불편 시 가볍게 참고할 수 있는 스트레칭 예시예요.',
-      youtube_url: 'https://youtube.com/lifestyle/shoulder',
+      youtube_url: 'https://youtu.be/I81IixZqFKY?si=PIDexzuFWH-RPpBJ',
       youtube_title: '어깨가 뻐근할 때 따라 해볼 수 있는 스트레칭 영상',
       source_name: '새움병원',
       description: `이 스트레칭은 근육의 길이와 탄성을 회복시키고, 관절 주변의 움직임을 부드럽게 만들어 목과 어깨에 걸리는 부담을 줄이는 데 도움이 될 수 있습니다. 특히 오랜 시간 고정된 자세로 일하거나 스마트기기를 자주 사용하는 사람에게는, 근육에 쌓인 미세한 긴장을 풀고 재발성 통증을 예방하는 데 의미가 있습니다. 다만 이 스트레칭은 염증이나 신경 손상, 디스크 질환을 직접 치료하는 것은 아니며, 통증이 심하거나 팔 저림, 감각 이상이 동반된다면 전문적인 진료가 필요합니다. 정상적인 근육 긴장과 자세 문제로 인한 목·어깨 불편감이라면, 이 루틴은 일상 속에서 통증을 관리하고 몸의 균형을 되찾는 데 유용한 보조 수단이 될 수 있습니다.`,
@@ -113,7 +113,7 @@ async function main() {
       pain_area_id: createdPainAreas['허리'].pain_area_id,
       title: '허리 스트레칭',
       subtitle: '아래 영상은 허리 불편 시 가볍게 참고할 수 있는 스트레칭 예시예요.',
-      youtube_url: 'https://youtube.com/lifestyle/back',
+      youtube_url: 'https://youtu.be/jJJiR7nNeqQ?si=XipQUybKhDrv-Bnl',
       youtube_title: '허리가 뻐근할 때 따라 해볼 수 있는 스트레칭 영상',
       source_name: '대찬병원',
       description: `이 스트레칭은 허리 주변 근육과 근막의 긴장을 풀고, 척추와 골반 주위 관절의 움직임을 부드럽게 만들어 허리에 가해지는 부담을 줄이는 데 도움이 될 수 있습니다. 특히 오래 앉아 있거나, 서서 일하는 시간이 길거나, 구부정한 자세로 스마트기기를 자주 사용하는 사람에게는 굽어 있는 요추와 엉덩이 근육을 이완시키고 반복적으로 나타나는 허리 통증을 예방하는 데 의미가 있습니다. 다만 이 스트레칭은 허리 디스크, 신경 압박, 염증성 질환을 직접 치료하는 방법은 아니며, 다리로 뻗치는 통증, 저림, 힘 빠짐 같은 신경 증상이 동반된다면 전문적인 진료가 필요합니다. 자세 불균형이나 근육 긴장으로 인한 일반적인 허리 불편감이라면, 이 루틴은 일상 속에서 통증을 관리하고 허리와 골반의 균형을 회복하는 데 도움이 되는 보조 수단이 될 수 있습니다.`,
@@ -122,7 +122,7 @@ async function main() {
       pain_area_id: createdPainAreas['무릎'].pain_area_id,
       title: '무릎 스트레칭',
       subtitle: '아래 영상은 무릎 불편 시 가볍게 참고할 수 있는 스트레칭 예시예요.',
-      youtube_url: 'https://youtube.com/lifestyle/knee',
+      youtube_url: 'https://youtu.be/C7v5wvKd6Dk?si=TCSORIxacRUSYeMA',
       youtube_title: '무릎이 뻐근할 때 따라 해볼 수 있는 스트레칭 영상',
       source_name: '서울예스병원',
       description: `이 스트레칭은 무릎 주변 근육(허벅지 앞·뒤, 종아리)의 긴장을 풀고 관절을 지지하는 조직의 유연성과 탄성을 회복시켜 무릎에 가해지는 부담을 줄이는 데 도움이 될 수 있습니다. 특히 오래 서 있거나 많이 걷는 경우, 계단을 자주 오르내리는 생활을 하는 사람에게는 뻣뻣해진 근육과 힘줄을 이완시키고 반복적으로 나타나는 무릎 통증을 완화·예방하는 데 의미가 있습니다. 다만 이 스트레칭은 연골 손상, 인대 파열, 관절염 같은 구조적 문제를 직접 치료하는 것은 아니며, 부기나 열감, 무릎이 꺾이는 느낌, 체중을 실을 수 없을 정도의 통증이 있다면 전문적인 진료가 필요합니다. 근육 긴장이나 사용 과부하로 인한 일반적인 무릎 불편감이라면, 이 루틴은 일상 속에서 관절 부담을 줄이고 무릎의 움직임을 보다 안정적으로 유지하는 데 도움이 되는 보조 수단이 될 수 있습니다.`,
@@ -131,7 +131,7 @@ async function main() {
       pain_area_id: createdPainAreas['목'].pain_area_id,
       title: '목 스트레칭',
       subtitle: '아래 영상은 목 불편 시 가볍게 참고할 수 있는 스트레칭 예시예요.',
-      youtube_url: 'https://youtube.com/lifestyle/neck',
+      youtube_url: 'https://youtu.be/oxTwWYv5Iws?si=7iN5A8Nfiqoe9z8r',
       youtube_title: '목이 뻐근할 때 따라 해볼 수 있는 스트레칭 영상',
       source_name: 'CM병원',
       description: `이 스트레칭은 목 주변 근육과 근막의 긴장을 완화하고 경추 관절의 움직임을 부드럽게 만들어 머리와 목에 가해지는 부담을 줄이는 데 도움이 될 수 있습니다. 특히 장시간 컴퓨터나 스마트기기를 사용하는 경우, 고개를 앞으로 내민 자세가 반복되는 사람에게는 짧아지고 굳어진 근육을 이완시키고 반복적으로 나타나는 목 통증과 불편감을 줄이는 데 의미가 있습니다. 다만 이 스트레칭은 디스크나 신경 압박, 염증성 질환을 직접 치료하는 것은 아니며 팔 저림, 감각 이상, 힘 빠짐 같은 신경 증상이 동반된다면 전문적인 진료가 필요합니다. 자세 불균형과 근육 긴장으로 인한 일반적인 목 불편감이라면, 이 루틴은 일상 속에서 통증을 관리하고 목과 어깨의 균형을 회복하는 데 도움이 되는 보조 수단이 될 수 있습니다.`,
@@ -140,7 +140,7 @@ async function main() {
       pain_area_id: createdPainAreas['두통'].pain_area_id,
       title: '두통 스트레칭',
       subtitle: '아래 영상은 두통 시 가볍게 참고할 수 있는 스트레칭 예시예요.',
-      youtube_url: 'https://youtube.com/lifestyle/headache',
+      youtube_url: 'https://youtu.be/i4ReOKZJ6qI?si=NhrcQtUFSPmDmdWs',
       youtube_title: '두통으로 불편할 때 가볍게 따라 해볼 수 있는 스트레칭 영상',
       source_name: '국제성모TV',
       description: `이 스트레칭은 머리와 목, 어깨 주변 근육의 긴장을 완화하고 혈류 흐름을 부드럽게 만들어 두통에 기여하는 압박과 당김을 줄이는 데 도움이 될 수 있습니다. 특히 긴 시간 화면을 보거나 스트레스와 수면 부족으로 머리와 목이 굳어 있는 경우, 뭉친 근육을 이완시키고 긴장성 두통이 반복되는 것을 완화·예방하는 데 의미가 있습니다. 다만 이 스트레칭은 편두통이나 신경계 질환, 감각소실은 극심한 두통의 원인을 직접 치료하는 방법은 아니며 시야 이상, 마비, 구토를 동반한 두통이나 이전과 다른 양상의 심한 통증이 있다면 전문적인 진료가 필요합니다. 근육 긴장과 자세 문제로 인한 일반적인 두통이라면, 이 루틴은 일상 속에서 통증을 관리하고 머리와 목의 부담을 줄이는 데 도움이 되는 보조 수단이 될 수 있습니다.`,
@@ -149,7 +149,7 @@ async function main() {
       pain_area_id: createdPainAreas['복통'].pain_area_id,
       title: '복통 스트레칭',
       subtitle: '아래 영상은 복통 시 가볍게 참고할 수 있는 스트레칭 예시예요.',
-      youtube_url: 'https://youtube.com/lifestyle/abdomen',
+      youtube_url: 'https://youtu.be/Wa_tj6OPB0I?si=KN04vKf8cLqLwOFt',
       youtube_title: '복통으로 불편할 때 참고할 수 있는 원인 영상',
       source_name: '건강채널 민트TV',
       description: `이 스트레칭은 복부와 허리, 골반 주변 근육의 긴장을 완화하고 장과 복부 장기의 움직임을 방해하는 압박을 줄여 복부 불편감과 복통을 완화하는 데 도움이 될 수 있습니다. 특히 오래 앉아 있거나 자세가 굽어 있는 상태에서 소화가 더디고 더부룩함이 동반되는 경우, 굳은 복부와 골반 근육을 이완시키고 긴장성 복통이나 가스 정체로 인한 통증들을 줄이는 데 의미가 있습니다. 다만 이 스트레칭은 위장관 질환, 염증, 장폐색, 충수염과 같은 급성 복통의 원인을 직접 치료하는 방법은 아니며 심한 통증, 발열, 구토, 피 섞인 변, 통증이 점점 악화되는 경우에는 전문적인 진료가 필요합니다. 근육 긴장이나 일시적인 소화 불균형으로 인한 일반적인 복부 불편감이라면, 이 루틴은 일상 속에서 복부 긴장을 낮추고 통증을 관리하는 데 도움이 되는 보조 수단이 될 수 있습니다.`,
@@ -324,7 +324,7 @@ async function main() {
         pain_area_id: createdPainAreas['어깨'].pain_area_id,
         guide_type: '스트레칭/찜질',
         title: '어깨 스트레칭 방법',
-        content: '간단한 스트레칭으로 통증을 완화해보세요.\n뻐근해진 어깨 근육을 풀어주고 움직임을 부드럽게 만드는 데 도움이 됩니다.',
+        content: '어깨 통증은 장시간 같은 자세를 유지하거나 근육이 긴장되면서 발생하는 경우가 많습니다. 통증이 심하지 않다면 무리하지 않는 범위에서 가벼운 스트레칭은 근육 긴장을 완화하는 데 도움이 될 수 있습니다.',
         image_url: `${S3_BASE}/main-home/shoulder/temporary-care/stretching.png`,
         display_order: 1,
       },
@@ -332,7 +332,7 @@ async function main() {
         pain_area_id: createdPainAreas['어깨'].pain_area_id,
         guide_type: '스트레칭/찜질',
         title: '통증 부위 온찜질/냉찜질',
-        content: '갑작스러운 통증에는 냉찜질, 뭉침에는 온찜질이 효과적이에요',
+        content: '어깨 통증의 상태에 따라 온찜질과 냉찜질을 구분해 사용하는 것이 도움이 될 수 있습니다.',
         image_url: `${S3_BASE}/main-home/shoulder/temporary-care/hot-cold-compress.png`,
         display_order: 2,
       },
@@ -340,7 +340,7 @@ async function main() {
         pain_area_id: createdPainAreas['어깨'].pain_area_id,
         guide_type: '생활 습관',
         title: '가벼운 일상 동작',
-        content: '팔을 머리 위로 드는 동작은 제한하고, 누울 때 베개로 어깨를 지지하세요',
+        content: '일상생활에서 어깨에 부담을 주는 행동을 줄이는 것만으로도 통증 완화에 도움이 될 수 있습니다. 작은 자세 변화가 어깨 통증 예방에 도움이 될 수 있습니다.',
         image_url: `${S3_BASE}/main-home/shoulder/temporary-care/light-daily-activity.png`,
         display_order: 3,
       },
@@ -349,7 +349,7 @@ async function main() {
         pain_area_id: createdPainAreas['허리'].pain_area_id,
         guide_type: '스트레칭/찜질',
         title: '허리 스트레칭 방법',
-        content: '간단한 스트레칭으로 통증을 완화해보세요.\n뻐근해진 허리 근육을 풀어주고 움직임을 부드럽게 만드는 데 도움이 됩니다.',
+        content: '허리 통증은 장시간 같은 자세를 유지하거나 근육이 긴장되면서 발생하는 경우가 많습니다. 통증이 심하지 않다면 무리하지 않는 범위에서 가벼운 스트레칭은 허리 주변 근육의 긴장을 완화하는 데 도움이 될 수 있습니다.',
         image_url: `${S3_BASE}/main-home/back/temporary-care/stretching.png`,
         display_order: 1,
       },
@@ -357,7 +357,7 @@ async function main() {
         pain_area_id: createdPainAreas['허리'].pain_area_id,
         guide_type: '스트레칭/찜질',
         title: '통증 부위 온찜질/냉찜질',
-        content: '갑작스러운 통증에는 냉찜질, 뭉침에는 온찜질이 효과적이에요',
+        content: '허리 통증의 상태에 따라 온찜질과 냉찜질을 구분해 사용하는 것이 도움이 될 수 있습니다.',
         image_url: `${S3_BASE}/main-home/back/temporary-care/hot-cold-compress.png`,
         display_order: 2,
       },
@@ -365,7 +365,7 @@ async function main() {
         pain_area_id: createdPainAreas['허리'].pain_area_id,
         guide_type: '생활 습관',
         title: '가벼운 일상 동작',
-        content: '허리를 많이 굽히거나 비트는 동작은 피하고, 누울 때 허리를 편안하게 받쳐주세요',
+        content: '일상생활에서 허리에 부담을 주는 행동을 줄이는 것만으로도 통증 완화에 도움이 될 수 있습니다. 작은 자세 변화가 허리 통증 예방에 도움이 될 수 있습니다.',
         image_url: `${S3_BASE}/main-home/back/temporary-care/light-daily-activity.png`,
         display_order: 3,
       },
@@ -374,7 +374,7 @@ async function main() {
         pain_area_id: createdPainAreas['무릎'].pain_area_id,
         guide_type: '스트레칭/찜질',
         title: '무릎 스트레칭 방법',
-        content: '간단한 스트레칭으로 통증을 완화해보세요.\n뻐근해진 무릎 근육을 풀어주고 움직임을 부드럽게 만드는 데 도움이 됩니다.',
+        content: '무릎 통증은 장시간 같은 자세를 유지하거나 근육이 긴장되면서 발생하는 경우가 많습니다. 통증이 심하지 않다면 무리하지 않는 범위에서 가벼운 스트레칭은 무릎 주변 근육의 긴장을 완화하는 데 도움이 될 수 있습니다.',
         image_url: `${S3_BASE}/main-home/knee/temporary-care/stretching.png`,
         display_order: 1,
       },
@@ -382,7 +382,7 @@ async function main() {
         pain_area_id: createdPainAreas['무릎'].pain_area_id,
         guide_type: '스트레칭/찜질',
         title: '통증 부위 온찜질/냉찜질',
-        content: '갑작스러운 통증에는 냉찜질, 뭉침에는 온찜질이 효과적이에요',
+        content: '무릎 통증의 상태에 따라 온찜질과 냉찜질을 구분해 사용하는 것이 도움이 될 수 있습니다.',
         image_url: `${S3_BASE}/main-home/knee/temporary-care/hot-cold-compress.png`,
         display_order: 2,
       },
@@ -390,7 +390,7 @@ async function main() {
         pain_area_id: createdPainAreas['무릎'].pain_area_id,
         guide_type: '생활 습관',
         title: '가벼운 일상 동작',
-        content: '무릎을 반복적으로 굽히는 동작은 피하고, 앉고 일어날 때는 천천히 움직이세요',
+        content: '일상생활에서 무릎에 부담을 주는 행동을 줄이는 것만으로도 통증 완화에 도움이 될 수 있습니다. 작은 자세 변화가 무릎 통증 예방에 도움이 될 수 있습니다.',
         image_url: `${S3_BASE}/main-home/knee/temporary-care/light-daily-activity.png`,
         display_order: 3,
       },
@@ -399,7 +399,7 @@ async function main() {
         pain_area_id: createdPainAreas['목'].pain_area_id,
         guide_type: '스트레칭/찜질',
         title: '목 스트레칭 방법',
-        content: '간단한 스트레칭으로 통증을 완화해보세요.\n뻐근해진 목 근육을 풀어주고 움직임을 부드럽게 만드는 데 도움이 됩니다.',
+        content: '목 통증은 장시간 스마트폰·컴퓨터 사용, 고개를 숙이는 자세, 긴장된 근육으로 인해 발생하는 경우가 많습니다. 통증이 심하지 않다면 무리하지 않는 범위에서 가벼운 스트레칭은 목과 어깨 주변 근육의 긴장을 완화하는 데 도움이 될 수 있습니다.',
         image_url: `${S3_BASE}/main-home/neck/temporary-care/stretching.png`,
         display_order: 1,
       },
@@ -407,7 +407,7 @@ async function main() {
         pain_area_id: createdPainAreas['목'].pain_area_id,
         guide_type: '스트레칭/찜질',
         title: '통증 부위 온찜질/냉찜질',
-        content: '갑작스러운 통증에는 냉찜질, 뭉침에는 온찜질이 효과적이에요',
+        content: '목 통증의 상태에 따라 온찜질과 냉찜질을 구분해 사용하는 것이 도움이 될 수 있습니다.',
         image_url: `${S3_BASE}/main-home/neck/temporary-care/hot-cold-compress.png`,
         display_order: 2,
       },
@@ -415,7 +415,7 @@ async function main() {
         pain_area_id: createdPainAreas['목'].pain_area_id,
         guide_type: '생활 습관',
         title: '가벼운 일상 동작',
-        content: '고개를 과하게 숙이거나 젖히는 동작은 피하고, 앉거나 누울 때 목이 꺾이지 않도록 높이를 맞춰주세요',
+        content: '일상생활에서 목에 가해지는 부담을 줄이는 것만으로도 통증 완화와 예방에 도움이 될 수 있습니다. 작은 자세 변화가 목 통증 예방에 도움이 될 수 있습니다.',
         image_url: `${S3_BASE}/main-home/neck/temporary-care/light-daily-activity.png`,
         display_order: 3,
       },
@@ -424,7 +424,7 @@ async function main() {
         pain_area_id: createdPainAreas['두통'].pain_area_id,
         guide_type: '스트레칭/찜질',
         title: '두통 스트레칭 방법',
-        content: '간단한 스트레칭으로 두통 완화에 도움을 줄 수 있습니다. 뻐근해진 목과 어깨 근육을 풀어주고 머리 주변 긴장을 줄이는 데 도움이 됩니다.',
+        content: '두통은 장시간 긴장된 자세나 스트레스로 인해 발생하는 경우가 많습니다. 통증이 심하지 않다면 무리하지 않는 범위에서 가벼운 스트레칭은 목과 어깨 주변 근육의 긴장을 완화해 두통 완화에 도움이 될 수 있습니다.',
         image_url: `${S3_BASE}/main-home/headache/temporary-care/stretching.png`,
         display_order: 1,
       },
@@ -432,7 +432,7 @@ async function main() {
         pain_area_id: createdPainAreas['두통'].pain_area_id,
         guide_type: '스트레칭/찜질',
         title: '통증 부위 온찜질/냉찜질',
-        content: '머리 주변에 열감이 느껴질 때는 냉찜질이, 목이나 어깨가 뻐근할 때는 온찜질이 두통으로 인한 불편 완화에 도움이 될 수 있어요.',
+        content: '두통의 상태에 따라 온찜질과 냉찜질을 구분해 사용하는 것이 도움이 될 수 있습니다.',
         image_url: `${S3_BASE}/main-home/headache/temporary-care/hot-cold-compress.png`,
         display_order: 2,
       },
@@ -440,7 +440,7 @@ async function main() {
         pain_area_id: createdPainAreas['두통'].pain_area_id,
         guide_type: '생활 습관',
         title: '가벼운 일상 동작',
-        content: '두통이 있을 때는 고개에 힘이 들어가는 동작을 줄이고, 편안한 자세로 머리 긴장을 낮춰주세요',
+        content: '일상생활에서 머리에 가해지는 긴장을 줄이는 것만으로도 두통 완화와 예방에 도움이 될 수 있습니다. 작은 자세 변화가 두통 예방에 도움이 될 수 있습니다.',
         image_url: `${S3_BASE}/main-home/headache/temporary-care/light-daily-activity.png`,
         display_order: 3,
       },
@@ -449,7 +449,7 @@ async function main() {
         pain_area_id: createdPainAreas['복통'].pain_area_id,
         guide_type: '스트레칭/찜질',
         title: '복통 스트레칭 방법',
-        content: '간단한 스트레칭으로 복통 완화에 도움을 줄 수 있습니다. 긴장된 복부 주변 근육을 부드럽게 풀어주고, 복부의 불편함을 줄이는 데 도움이 됩니다.',
+        content: '복통은 긴장된 복부 근육이나 소화기 불편으로 인해 발생하는 경우가 많습니다. 통증이 심하지 않다면 무리하지 않는 범위에서 가벼운 스트레칭은 복부 주변 근육의 긴장을 완화하는 데 도움이 될 수 있습니다.',
         image_url: `${S3_BASE}/main-home/stomachache/temporary-care/stretching.png`,
         display_order: 1,
       },
@@ -457,7 +457,7 @@ async function main() {
         pain_area_id: createdPainAreas['복통'].pain_area_id,
         guide_type: '스트레칭/찜질',
         title: '통증 부위 온찜질/냉찜질',
-        content: '복부가 긴장되거나 더부룩한 느낌이 들 때는 온찜질이, 열감이나 불편함이 느껴질 때는 냉찜질이 복통으로 인한 불편 완화에 도움이 될 수 있어요.',
+        content: '복통의 상태에 따라 온찜질과 냉찜질을 구분해 사용하는 것이 도움이 될 수 있습니다.',
         image_url: `${S3_BASE}/main-home/stomachache/temporary-care/hot-cold-compress.png`,
         display_order: 2,
       },
@@ -465,7 +465,7 @@ async function main() {
         pain_area_id: createdPainAreas['복통'].pain_area_id,
         guide_type: '생활 습관',
         title: '가벼운 일상 동작',
-        content: '복통이 있을 때는 복부에 부담이 가는 동작을 줄이고, 편안한 자세로 몸의 긴장을 낮춰주세요',
+        content: '일상생활에서 복부에 가해지는 부담을 줄이는 것만으로도 복통 완화와 예방에 도움이 될 수 있습니다. 작은 자세 변화가 복통 예방에 도움이 될 수 있습니다.',
         image_url: `${S3_BASE}/main-home/stomachache/temporary-care/light-daily-activity.png`,
         display_order: 3,
       },
@@ -490,31 +490,89 @@ async function main() {
     const guideTypeFolder = guideTypeFolders[guide.display_order] || 'stretching';
     const tcBase = `${S3_BASE}/main-home/${folder}/temporary-care`;
 
-    // duration, subtitle, source 등 업데이트
-    let duration = null;
-    if (guide.title.includes('스트레칭') || guide.title.includes('찜질') || guide.title.includes('마사지')) {
-      duration = '평균 소요 시간 10분';
-    } else if (guide.title.includes('생활') || guide.title.includes('자세') || guide.title.includes('코어') || guide.title.includes('스트레스') || guide.title.includes('식이') || guide.title.includes('부하') || guide.title.includes('일상')) {
-      duration = '상시';
-    } else {
-      duration = '약 10분 소요';
-    }
+    // display_order별 duration, subtitle, source, highlighter, keyword (피그마 기준)
+    const guideMetaByOrder = {
+      1: { // 스트레칭
+        source_name: '서울아산병원 건강정보',
+        duration: '평균 소요 시간 10분',
+        keyword: `${painAreaName} · 스트레칭`,
+        subtitle: {
+          '어깨': '긴장된 어깨 근육을 풀어주는 가벼운 스트레칭',
+          '허리': '허리 근육 긴장을 풀어주는 가벼운 스트레칭',
+          '무릎': '긴장된 무릎 근육을 풀어주는 가벼운 스트레칭',
+          '목': '긴장된 목 주변 근육을 완화하는 가벼운 스트레칭',
+          '두통': '머리와 목 주변 긴장을 풀어주는 가벼운 스트레칭',
+          '복통': '복부 주변 긴장을 풀어주는 가벼운 스트레칭',
+        },
+        highlighter: {
+          '어깨': '무리하지 않는 선에서, 어깨를 부드럽게 풀어주세요',
+          '허리': '무리하지 않는 선에서, 허리를 부드럽게 풀어주세요',
+          '무릎': '무리하지 않는 선에서, 무릎을 부드럽게 풀어주세요',
+          '목': '무리하지 않는 선에서, 목을 부드럽게 풀어주세요',
+          '두통': '무리하지 않는 선에서, 머리와 목을 부드럽게 풀어주세요',
+          '복통': '무리하지 않는 선에서, 복부를 부드럽게 풀어주세요',
+        },
+      },
+      2: { // 온찜질/냉찜질
+        source_name: '서울대학교병원 N의학정보',
+        duration: '평균 소요 시간 15분',
+        keyword: `${painAreaName} · 찜질`,
+        subtitle: {
+          '어깨': '어깨 통증에 맞는 찜질 방법 선택하기',
+          '허리': '허리 통증 상태에 따른 찜질 선택',
+          '무릎': '무릎 통증에 맞는 찜질 방법 선택하기',
+          '목': '목 통증 상태에 따른 찜질 방법 선택하기',
+          '두통': '두통 증상에 맞는 찜질 방법 선택하기',
+          '복통': '복통 증상에 맞는 찜질 방법 선택하기',
+        },
+        highlighter: {
+          '어깨': '어깨 통증에 맞게 온찜질과 냉찜질을 구분해 사용하세요',
+          '허리': '허리 통증에 맞게 온찜질과 냉찜질을 구분해 사용하세요',
+          '무릎': '무릎 통증에 맞게 온찜질과 냉찜질을 구분해 사용하세요',
+          '목': '목 통증에 맞게 온찜질과 냉찜질을 구분해 사용하세요',
+          '두통': '두통 증상에 맞게 온찜질과 냉찜질을 구분해 사용하세요',
+          '복통': '복통 증상에 맞게 온찜질과 냉찜질을 구분해 사용하세요',
+        },
+      },
+      3: { // 가벼운 일상 동작
+        source_name: '국민건강보험공단 건강정보',
+        duration: '평균 소요 시간 1분',
+        keyword: '생활 습관',
+        subtitle: {
+          '어깨': '어깨 부담을 줄이는 일상 속 습관',
+          '허리': '허리에 부담을 줄이는 일상 속 습관',
+          '무릎': '무릎 부담을 줄이는 일상 속 습관',
+          '목': '목에 부담을 줄이는 생활 속 습관',
+          '두통': '두통 빈도를 줄이는 일상 속 습관',
+          '복통': '복통 빈도를 줄이는 일상 속 습관',
+        },
+        highlighter: {
+          '어깨': '작은 자세 변화로 어깨 부담을 덜어보세요',
+          '허리': '작은 자세 변화로 허리 부담을 덜어보세요',
+          '무릎': '작은 자세 변화로 무릎 부담을 덜어보세요',
+          '목': '작은 자세 변화로 목 부담을 덜어보세요',
+          '두통': '작은 생활 습관 변화로 두통을 줄여보세요',
+          '복통': '작은 생활 습관 변화로 복통을 줄여보세요',
+        },
+      },
+    };
 
+    const meta = guideMetaByOrder[guide.display_order] || guideMetaByOrder[1];
     await prisma.temporary_care_guides.update({
       where: { guide_id: guide.guide_id },
       data: {
-        subtitle: `${painAreaName} 근육을 풀어주는 방법`,
-        source_name: `${painAreaName} 건강정보`,
+        subtitle: meta.subtitle[painAreaName] || `${painAreaName} 관련 가이드`,
+        source_name: meta.source_name,
         source_url: `https://example.com/${encodeURIComponent(painAreaName)}`,
-        highlighter: `${painAreaName}는 무리하지 않는 선에서!`,
-        duration,
+        highlighter: meta.highlighter[painAreaName] || `${painAreaName} 관련 가이드`,
+        duration: meta.duration,
       },
     });
 
     // display_order별 배지 텍스트 (피그마 기준)
     const badgeMap = {
-      1: ['#집,사무실', '#하루1~2회'],
-      2: ['#통증직후', '#하루1~2회'],
+      1: ['#집·사무실', '#하루 1~2회'],
+      2: ['#통증 직후', '#하루 1~2회'],
       3: (() => {
         const areaKeyword = {
           '어깨': '#어깨 압박 완화',
@@ -532,14 +590,122 @@ async function main() {
       data: badgeTexts.map((text) => ({ guide_id: guide.guide_id, text })),
     });
 
-    const notesData = [
-      { guide_id: guide.guide_id, image_url: `${tcBase}/icons/${guideTypeFolder}/1.svg`, bold: `${painAreaName}를 천천히`, text: `${painAreaName} 부위를 천천히 움직이며 작은 범위로 시작해 점차 넓혀보세요.` },
-      { guide_id: guide.guide_id, image_url: `${tcBase}/icons/${guideTypeFolder}/2.svg`, bold: '무리하지 않기', text: '통증이 심해지면 즉시 중단하세요.' },
-    ];
-    // 복통의 stretching/hot-cold-compress는 아이콘 2개만 존재
-    if (!(folder === 'stomachache' && (guideTypeFolder === 'stretching' || guideTypeFolder === 'hot-cold-compress'))) {
-      notesData.push({ guide_id: guide.guide_id, image_url: `${tcBase}/icons/${guideTypeFolder}/3.svg`, bold: '호흡 유지', text: '스트레칭 중에는 천천히 호흡을 유지하세요.' });
-    }
+    // 부위별 + 가이드유형별 notes 데이터 (피그마 기준)
+    const notesByAreaAndType = {
+      '어깨': {
+        1: [ // 스트레칭 3개
+          { bold: '어깨를 천천히 앞뒤로 돌려줍니다.', text: '처음에는 작은 범위로 시작해 점차 늘려보세요.' },
+          { bold: '통증이 느껴지는 방향으로는 과도하게 당기지 않습니다.', text: '통증이 생기면 동작을 멈추고 휴식을 취하세요.' },
+          { bold: '목과 어깨를 부드럽게 늘려주는 동작을 짧은 시간 반복합니다.', text: '반동을 주지 말고 천천히 유지하는 것이 중요합니다.' },
+        ],
+        2: [ // 온찜질/냉찜질 3개
+          { bold: '냉찜질은 통증이 갑자기 발생했거나, 열감·부기가 느껴질 때 도움이 될 수 있습니다.', text: '차가운 자극이 혈관을 수축시켜 통증과 부기를 줄이는 데 도움이 됩니다.' },
+          { bold: '온찜질은 어깨가 뻣뻣하고 뻐근할 때, 혈액 순환을 도와 근육 이완에 도움이 될 수 있습니다.', text: '혈액 순환을 촉진해 뻐근한 느낌을 완화하는 데 도움이 될 수 있습니다.' },
+          { bold: '찜질은 한 번에 약 15~20분 이내로 하며, 피부에 직접 닿지 않도록 주의합니다.', text: '피부 자극이나 화상을 예방하기 위해 반드시 간접적으로 적용하세요.' },
+        ],
+        3: [ // 가벼운 일상 동작 4개
+          { bold: '장시간 같은 자세를 피하고, 중간중간 자세를 바꿉니다.', text: '짧은 시간이라도 몸을 움직여 주는 것이 도움이 됩니다.' },
+          { bold: '무거운 물건을 한쪽 어깨로만 들지 않습니다.', text: '양쪽으로 나누어 들거나 무게를 분산시키는 것이 좋습니다.' },
+          { bold: '팔을 머리 위로 오래 올리는 동작은 피합니다.', text: '반복되면 통증이나 불편감이 심해질 수 있습니다.' },
+          { bold: '디지털 기기 사용 시 어깨가 올라가지 않도록 주의합니다.', text: '어깨가 올라간 자세가 지속되면 어깨 근육에 긴장이 쌓일 수 있습니다.' },
+        ],
+      },
+      '목': {
+        1: [ // 스트레칭 3개
+          { bold: '고개를 천천히 좌우로 돌리거나, 앞뒤로 부드럽게 움직입니다.', text: '반동 없이 고개를 좌우로 돌리고, 앞뒤로 부드럽게 움직입니다.' },
+          { bold: '목을 으쓱했다가 내리는 동작을 반복합니다.', text: '목에 힘을 주지 않은 채 어깨를 으쓱 올렸다가 부드럽게 내려주세요.' },
+          { bold: '통증이 느껴지는 방향으로 과도하게 꺾지 않습니다.', text: '스트레칭 중 통증이 증가하면 즉시 중단합니다.' },
+        ],
+        2: [ // 온찜질/냉찜질 3개
+          { bold: '냉찜질은 통증이 갑자기 발생했거나, 열감·부기가 느껴질 때 도움이 될 수 있습니다.', text: '차가운 자극이 혈관을 수축시켜 통증과 부기를 줄이는 데 도움이 됩니다.' },
+          { bold: '온찜질은 목이 뻣뻣하고 뻐근할 때, 혈액 순환을 도와 근육 이완에 도움이 될 수 있습니다.', text: '혈액 순환을 촉진해 뻐근한 느낌을 완화하는 데 도움이 될 수 있습니다.' },
+          { bold: '찜질은 한 번에 약 15~20분 이내로 하며, 피부에 직접 닿지 않도록 주의합니다.', text: '피부 자극이나 화상을 예방하기 위해 반드시 간접적으로 적용하세요.' },
+        ],
+        3: [ // 가벼운 일상 동작 4개
+          { bold: '장시간 같은 자세를 피하고, 중간중간 고개를 풀어줍니다.', text: '짧은 시간이라도 목을 가볍게 움직이는 것이 도움이 됩니다.' },
+          { bold: '스마트폰·노트북 사용 시 화면을 눈높이에 맞춥니다.', text: '고개를 아래로 숙이는 자세를 줄이면 목에 부담을 줄일 수 있습니다.' },
+          { bold: '베개는 목을 과도하게 꺾지 않는 높이를 선택합니다.', text: '수면 중 목에 가해지는 부담을 줄이는 데 도움이 됩니다.' },
+          { bold: '통화 시 한쪽 어깨로 폰을 끼우는 자세를 피합니다.', text: '한쪽으로 기우는 자세가 지속되면 목 주변 근육에 긴장이 생길 수 있습니다.' },
+        ],
+      },
+      '허리': {
+        1: [ // 스트레칭 3개
+          { bold: '허리를 천천히 비고 굽히는 동작을 부드럽게 반복합니다.', text: '매번 기준 범위를 넘지 않는 정도로만 하세요.' },
+          { bold: '무릎을 가슴 쪽으로 당기는 스트레칭을 짧은 시간 유지합니다.', text: '허리 주변 근육을 이완해 긴장을 풀어주는 데 도움이 됩니다.' },
+          { bold: '통증이 심해지는 방향의 동작은 피합니다.', text: '스트레칭 중 통증이 증가하면 즉시 중단하고 휴식을 취하세요.' },
+        ],
+        2: [ // 온찜질/냉찜질 3개
+          { bold: '냉찜질은 통증이 갑자기 발생했거나, 열감·부기가 느껴질 때 도움이 될 수 있습니다.', text: '차가운 자극이 혈관을 수축시켜 통증과 부기를 줄이는 데 도움이 됩니다.' },
+          { bold: '온찜질은 허리가 뻣뻣하고 뻐근할 때, 혈액 순환을 도와 근육 이완에 도움이 될 수 있습니다.', text: '혈액 순환을 촉진해 뻐근한 느낌을 완화하는 데 도움이 될 수 있습니다.' },
+          { bold: '찜질은 한 번에 약 15~20분 이내로 하며, 피부에 직접 닿지 않도록 주의합니다.', text: '피부 자극이나 화상을 예방하기 위해 반드시 간접적으로 적용하세요.' },
+        ],
+        3: [ // 가벼운 일상 동작 4개
+          { bold: '오래 앉아 있을 경우, 중간중간 일어나 가볍게 움직입니다.', text: '가만히 앉아만 있으면 허리 주변 근육이 경직될 수 있습니다.' },
+          { bold: '물건을 들 때 허리만 굽히지 말고 무릎을 굽혀 사용합니다.', text: '무릎을 굽혀서 들면 허리에 가해지는 부담을 줄일 수 있습니다.' },
+          { bold: '한쪽으로만 힘을 주는 자세를 피합니다.', text: '한쪽으로 골반이 틀어지면 허리에 부담이 생길 수 있습니다.' },
+          { bold: '의자에 앉을 때 허리를 세우고 등받이에 기대어 앉습니다.', text: '오래 앉을 때도 허리 주변의 부담을 줄일 수 있습니다.' },
+        ],
+      },
+      '무릎': {
+        1: [ // 스트레칭 3개
+          { bold: '무릎을 천천히 구부렸다 펴는 동작을 부드럽게 반복합니다.', text: '처음에는 작은 범위로 시작해 점차 늘려보세요.' },
+          { bold: '다리를 곧게 편 상태에서 허벅지 앞쪽을 가볍게 당깁니다.', text: '허벅지 근육 이완이 무릎 부담 완화에 도움이 됩니다.' },
+          { bold: '통증이 심해지는 방향의 동작은 피합니다.', text: '스트레칭 중 통증이 증가하면 즉시 중단합니다.' },
+        ],
+        2: [ // 온찜질/냉찜질 3개
+          { bold: '냉찜질은 통증이 갑자기 발생했거나, 열감·부기가 느껴질 때 도움이 될 수 있습니다.', text: '차가운 자극이 혈관을 수축시켜 통증과 부기를 줄이는 데 도움이 됩니다.' },
+          { bold: '온찜질은 무릎이 뻣뻣하고 뻐근할 때, 혈액 순환을 도와 근육 이완에 도움이 될 수 있습니다.', text: '혈액 순환을 촉진해 뻐근한 느낌을 완화하는 데 도움이 될 수 있습니다.' },
+          { bold: '찜질은 한 번에 약 15~20분 이내로 하며, 피부에 직접 닿지 않도록 주의합니다.', text: '피부 자극이나 화상을 예방하기 위해 반드시 간접적으로 적용하세요.' },
+        ],
+        3: [ // 가벼운 일상 동작 4개
+          { bold: '오래 같은 자세로 앉아 있을 때 중간중간 다리를 펴줍니다.', text: '짧은 시간이라도 무릎을 움직여 주는 것이 도움이 됩니다.' },
+          { bold: '계단을 오를 때 난간을 잡고 천천히 올라갑니다.', text: '무릎에 가해지는 부담을 줄일 수 있습니다.' },
+          { bold: '쪼그려 앉는 자세를 오래 유지하지 않습니다.', text: '무릎 관절에 과도한 부담이 가해질 수 있습니다.' },
+          { bold: '무거운 물건을 들 때 무릎을 굽혀 들어 올립니다.', text: '무릎에 무리가 가지 않도록 올바른 자세를 유지하세요.' },
+        ],
+      },
+      '두통': {
+        1: [ // 스트레칭 3개
+          { bold: '목과 어깨를 천천히 돌려 긴장을 풀어줍니다.', text: '처음에는 작은 범위로 시작해 점차 늘려보세요.' },
+          { bold: '관자놀이와 눈 주변을 가볍게 눌러줍니다.', text: '지나치게 세게 누르지 않도록 주의하세요.' },
+          { bold: '통증이 심해지는 방향의 동작은 피합니다.', text: '스트레칭 중 통증이 증가하면 즉시 중단합니다.' },
+        ],
+        2: [ // 온찜질/냉찜질 2개
+          { bold: '냉찜질은 통증이 갑자기 발생했거나, 열감이 느껴질 때 도움이 될 수 있습니다.', text: '차가운 자극이 혈관을 수축시켜 통증을 줄이는 데 도움이 됩니다.' },
+          { bold: '온찜질은 목과 어깨가 뻣뻣하고 뻐근할 때, 혈액 순환을 도와 근육 이완에 도움이 될 수 있습니다.', text: '혈액 순환을 촉진해 뻐근한 느낌을 완화하는 데 도움이 될 수 있습니다.' },
+        ],
+        3: [ // 가벼운 일상 동작 4개
+          { bold: '장시간 같은 자세를 피하고, 중간중간 휴식을 취합니다.', text: '짧은 시간이라도 눈과 목을 쉬게 해주는 것이 도움이 됩니다.' },
+          { bold: '스마트폰·컴퓨터 사용 시 화면 밝기와 거리를 조절합니다.', text: '눈의 피로를 줄이면 두통 예방에 도움이 될 수 있습니다.' },
+          { bold: '수분을 충분히 섭취합니다.', text: '탈수는 두통의 원인이 될 수 있습니다.' },
+          { bold: '규칙적인 수면 습관을 유지합니다.', text: '불규칙한 수면은 두통을 악화시킬 수 있습니다.' },
+        ],
+      },
+      '복통': {
+        1: [ // 스트레칭 2개
+          { bold: '복부를 부드럽게 마사지하듯 원을 그려줍니다.', text: '시계 방향으로 부드럽게 문지르면 도움이 됩니다.' },
+          { bold: '무릎을 가슴 쪽으로 당겨 복부 긴장을 풀어줍니다.', text: '무리하지 않는 범위에서 천천히 당기세요.' },
+        ],
+        2: [ // 온찜질/냉찜질 2개
+          { bold: '온찜질은 복부가 긴장되거나 더부룩한 느낌이 들 때 도움이 될 수 있습니다.', text: '혈액 순환을 촉진해 복부 불편감을 완화하는 데 도움이 될 수 있습니다.' },
+          { bold: '찜질은 한 번에 약 15~20분 이내로 하며, 피부에 직접 닿지 않도록 주의합니다.', text: '피부 자극이나 화상을 예방하기 위해 반드시 간접적으로 적용하세요.' },
+        ],
+        3: [ // 가벼운 일상 동작 4개
+          { bold: '식후 바로 눕지 않고, 가볍게 걷습니다.', text: '소화를 돕고 복부 불편감을 줄이는 데 도움이 됩니다.' },
+          { bold: '과식을 피하고, 천천히 식사합니다.', text: '급하게 먹으면 복부에 부담이 가중될 수 있습니다.' },
+          { bold: '스트레스 관리를 위해 심호흡을 실천합니다.', text: '스트레스는 복통의 원인이 될 수 있습니다.' },
+          { bold: '복부를 압박하는 옷이나 자세를 피합니다.', text: '편안한 옷과 자세가 복부 불편감 완화에 도움이 됩니다.' },
+        ],
+      },
+    };
+
+    const areaNotes = (notesByAreaAndType[painAreaName] || notesByAreaAndType['어깨'])[guide.display_order] || [];
+    const notesData = areaNotes.map((note, idx) => ({
+      guide_id: guide.guide_id,
+      image_url: `${tcBase}/icons/${guideTypeFolder}/${idx + 1}.svg`,
+      bold: note.bold,
+      text: note.text,
+    }));
     await prisma.notes.createMany({ data: notesData });
 
     // 증상별 caution 데이터 (피그마 기준)
@@ -581,40 +747,113 @@ async function main() {
     }));
     await prisma.cautions.createMany({ data: cautions });
 
-    // 증상별 helps 데이터 (피그마 기준)
-    const helpsByArea = {
-      '어깨': [
-        '오래 같은 자세로 앉아 있어 어깨가 뻐근할 때',
-        '긴장으로 어깨와 목 주변이 뻣뻣하게 느껴질 때',
-        '통증은 심하지 않지만 어깨가 무겁고 답답할 때',
-      ],
-      '허리': [
-        '오랜 시간 앉아 있거나 서 있었을 때',
-        '허리 주변 근육에 긴장이 쌓였을 때',
-        '허리의 가동 범위가 줄어든 것처럼 느껴질 때',
-      ],
-      '무릎': [
-        '통증 완화를 위해 일시적인 대처가 필요할 때',
-        '무릎이 뻣뻣하고 뻐근할 때',
-        '근육이 긴장되어 불편함이 느껴질 때',
-      ],
-      '목': [
-        '장시간 스마트폰이나 컴퓨터를 사용한 뒤 뻐근함을 느낄 때',
-        '긴장으로 어깨와 목 주변이 뻣뻣하게 느껴질 때',
-        '잠에서 깬 뒤 목 주변이 뻣뻣하게 느껴질 때',
-      ],
-      '두통': [
-        '목과 어깨의 긴장으로 두통이 시작된 느낌이 들 때',
-        '고개를 오래 고정한 뒤 머리가 무겁게 느껴질 때',
-        '어깨가 올라가 있고 목에 힘이 들어간 상태가 지속될 때',
-      ],
-      '복통': [
-        '복부에 심한 통증 없이 뻐근함이나 불편감이 느껴질 때',
-        '가스가 차 있는 듯 더부룩한 느낌이 들 때',
-        '장시간 앉아 있거나 누워 있다가 복부가 긴장된 느낌이 들 때',
-      ],
+    // 부위별 + 가이드유형별 helps 데이터 (피그마 기준)
+    const helpsByAreaAndType = {
+      '어깨': {
+        1: [ // 스트레칭
+          '오래 같은 자세로 앉아 있어 어깨가 뻐근할 때',
+          '긴장으로 어깨와 목 주변이 뻣뻣하게 느껴질 때',
+          '통증은 심하지 않지만 어깨가 무겁고 답답할 때',
+        ],
+        2: [ // 온찜질/냉찜질
+          '통증 완화를 위해 일시적인 대처가 필요할 때',
+          '어깨가 뻣뻣하고 뻐근할 때',
+          '근육이 긴장되어 불편함이 느껴질 때',
+        ],
+        3: [ // 가벼운 일상 동작
+          '어깨와 목이 뻐근하게 느껴질 때',
+          '어깨 사용을 잠시 조절할 필요가 있을 때',
+          '작은 움직임으로 긴장을 풀어주고 싶을 때',
+        ],
+      },
+      '허리': {
+        1: [
+          '오랜 시간 앉아 있거나 서 있었을 때',
+          '허리 주변 근육에 긴장이 쌓였을 때',
+          '허리의 가동 범위가 줄어든 것처럼 느껴질 때',
+        ],
+        2: [
+          '통증 완화를 위해 일시적인 대처가 필요할 때',
+          '허리가 뻣뻣하고 뻐근할 때',
+          '근육이 긴장되어 불편함이 느껴질 때',
+        ],
+        3: [
+          '무거운 물건을 자주 들어 허리가 자주 뻐근할 때',
+          '한쪽으로만 힘을 사용하는 습관이 있을 때',
+          '작은 자세 변화로 허리 부담을 줄이고 싶을 때',
+        ],
+      },
+      '무릎': {
+        1: [
+          '오래 앉아 있다가 움직일 때 무릎이 뻣뻣할 때',
+          '무릎 주변 근육에 긴장이 쌓였을 때',
+          '가벼운 움직임으로 무릎 주변을 풀어주고 싶을 때',
+        ],
+        2: [
+          '통증 완화를 위해 일시적인 대처가 필요할 때',
+          '무릎이 뻣뻣하고 뻐근할 때',
+          '근육이 긴장되어 불편함이 느껴질 때',
+        ],
+        3: [
+          '무릎이 뻣뻣하고 뻐근하게 느껴질 때',
+          '무릎 사용을 잠시 조절할 필요가 있을 때',
+          '작은 움직임으로 무릎 주변 긴장을 풀어주고 싶을 때',
+        ],
+      },
+      '목': {
+        1: [
+          '장시간 스마트폰이나 컴퓨터를 사용한 뒤 뻐근함을 느낄 때',
+          '긴장으로 어깨와 목 주변이 뻣뻣하게 느껴질 때',
+          '잠에서 깬 뒤 목 주변이 뻣뻣하게 느껴질 때',
+        ],
+        2: [
+          '통증 완화를 위해 일시적인 대처가 필요할 때',
+          '목이 뻣뻣하고 뻐근할 때',
+          '근육이 긴장되어 불편함이 느껴질 때',
+        ],
+        3: [
+          '장시간 스마트폰이나 컴퓨터를 사용한 뒤 뻐근함을 느낄 때',
+          '긴장으로 어깨와 목 주변이 뻣뻣하게 느껴질 때',
+          '잠에서 깬 뒤 목 주변이 뻣뻣하게 느껴질 때',
+        ],
+      },
+      '두통': {
+        1: [
+          '목과 어깨의 긴장으로 두통이 시작된 느낌이 들 때',
+          '고개를 오래 고정한 뒤 머리가 무겁게 느껴질 때',
+          '어깨가 올라가 있고 목에 힘이 들어간 상태가 지속될 때',
+        ],
+        2: [
+          '통증 완화를 위해 일시적인 대처가 필요할 때',
+          '머리가 무겁고 뻐근할 때',
+          '근육이 긴장되어 불편함이 느껴질 때',
+        ],
+        3: [
+          '눈과 머리가 무겁게 느껴질 때',
+          '두통이 자주 반복될 때',
+          '스트레스와 피로로 인한 긴장이 지속될 때',
+        ],
+      },
+      '복통': {
+        1: [
+          '복부에 심한 통증 없이 뻐근함이나 불편감이 느껴질 때',
+          '가스가 차 있는 듯 더부룩한 느낌이 들 때',
+          '장시간 앉아 있거나 누워 있다가 복부가 긴장된 느낌이 들 때',
+        ],
+        2: [
+          '통증 완화를 위해 일시적인 대처가 필요할 때',
+          '복부가 긴장되어 더부룩할 때',
+          '근육이 긴장되어 불편함이 느껴질 때',
+        ],
+        3: [
+          '식후 복부가 불편할 때',
+          '소화가 잘 되지 않는 느낌이 들 때',
+          '스트레스로 복부가 긴장될 때',
+        ],
+      },
     };
-    const helpsData = (helpsByArea[painAreaName] || helpsByArea['어깨']).map((text) => ({
+    const areaHelps = (helpsByAreaAndType[painAreaName] || helpsByAreaAndType['어깨'])[guide.display_order] || [];
+    const helpsData = areaHelps.map((text) => ({
       guide_id: guide.guide_id,
       text,
     }));
@@ -740,6 +979,17 @@ async function main() {
   };
 
   const painAreaNames = ['어깨', '허리', '목', '무릎', '두통', '복통'];
+
+  // 부위별 증상 순서에 맞는 expert-opinion-modal 이미지 파일명
+  const expertImagesByArea = {
+    '어깨': ['stiffness.png', 'tingling.png', 'movement-pain.jpg'],
+    '허리': ['stiffness.png', 'tingling.png', 'movement-pain.png'],
+    '무릎': ['stiffness.png', 'tingling.png', 'knee-movement-pain.png'],
+    '목': ['stiffness.png', 'tingling.png', 'movement-pain.png'],
+    '두통': ['squeezing-headache.png', 'throbbing-headache.png', 'one-sided-headache.png'],
+    '복통': ['squeezing-stomachache.png', 'stabbing-stomachache.png', 'bloating-stomachache.png'],
+  };
+
   const answerData = [];
   let answerIdx = 1;
   for (const areaName of painAreaNames) {
@@ -747,6 +997,8 @@ async function main() {
       (s) => Number(s.pain_area_id) === Number(createdPainAreas[areaName].pain_area_id)
     );
     const areaAnswers = expertAnswersByArea[areaName];
+    const areaFolder = painAreaFolderMap[areaName];
+    const areaImages = expertImagesByArea[areaName];
     for (let i = 0; i < Math.min(3, symptoms.length); i++) {
       const symptom = symptoms[i];
       answerData.push({
@@ -754,6 +1006,7 @@ async function main() {
         summary: areaAnswers[i].summary,
         full_content: areaAnswers[i].full_content,
         source_url: `https://example.com/treatments/${answerIdx++}`,
+        image_url: `${S3_BASE}/main-home/${areaFolder}/expert-opinion-modal/${areaImages[i]}`,
       });
     }
   }

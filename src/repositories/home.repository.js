@@ -204,6 +204,7 @@ class HomeRepository {
         summary: true,
         full_content: true,
         source_url: true,
+        image_url: true,
         updated_at: true,
         symptoms: {
           select: {
@@ -236,6 +237,7 @@ class HomeRepository {
         answer_id: true,
         symptom_id: true,
         summary: true,
+        image_url: true,
         symptoms: {
           select: {
             name: true,
@@ -251,7 +253,7 @@ class HomeRepository {
       painAreaId: Number(mp.symptoms.pain_area_id),
       symptomId: Number(mp.symptom_id),
       title: `${mp.symptoms?.name} 전문의 소견`,
-      imageUrl: null
+      imageUrl: mp.image_url || null
     }));
 
     return {
@@ -262,7 +264,7 @@ class HomeRepository {
       symptomName: answer.symptoms?.name,
       title: `${answer.symptoms?.name} 전문의 소견`,
       content: answer.full_content,
-      imageUrl: null,
+      imageUrl: answer.image_url || null,
       sourceUrl: answer.source_url,
       updatedAt: answer.updated_at,
       morePosts: mappedMorePosts

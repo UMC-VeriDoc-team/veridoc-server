@@ -36,6 +36,7 @@ model expert_answers {
   summary      String   @db.Text
   full_content String   @db.Text
   source_url   String   @db.VarChar(255)
+  image_url    String?  @db.VarChar(500)
   created_at   DateTime @default(now()) @db.DateTime(0)
   updated_at   DateTime @default(now()) @db.DateTime(0)
   symptoms     symptoms @relation(fields: [symptom_id], references: [symptom_id], onDelete: NoAction, onUpdate: NoAction, map: "fk_expert_answers_symptom")
