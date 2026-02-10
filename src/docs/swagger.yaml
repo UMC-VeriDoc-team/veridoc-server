@@ -595,41 +595,44 @@ paths:
                   banners:
                     - title: "어깨 통증은 잘못된 자세..."
                     - id: 1
-                      imageUrl: "https://example.com/banner1.png"
+                      imageUrl: "https://veridoc-storage.s3.ap-northeast-2.amazonaws.com/Veridoc_pic/main-home/shoulder/main-photo/stiffness.png"
+                      sourceUrl: "https://www.nhis.or.kr/nhis/index.do"
                     - id: 2
-                      imageUrl: "https://example.com/banner2.png"
+                      imageUrl: "https://veridoc-storage.s3.ap-northeast-2.amazonaws.com/Veridoc_pic/main-home/back/main-photo/movement-pain.png"
+                      sourceUrl: "https://www.nhis.or.kr/nhis/index.do"
                     - id: 3
-                      imageUrl: "https://example.com/banner3.png"
+                      imageUrl: "https://veridoc-storage.s3.ap-northeast-2.amazonaws.com/Veridoc_pic/main-home/knee/main-photo/tingling.png"
+                      sourceUrl: "https://www.nhis.or.kr/nhis/index.do"
                   symptoms:
                     - symptomId: 1
-                      name: "어깨 결림"
-                      answerId: 1001
+                      name: "뻐근함"
+                      answerId: 1
                     - symptomId: 2
-                      name: "어깨 통증"
-                      answerId: 1002
+                      name: "찌릿함"
+                      answerId: 2
                     - symptomId: 3
-                      name: "어깨 저림"
-                      answerId: 1003
+                      name: "움직일 때 통증"
+                      answerId: 3
                   temporaryGuides:
-                    - guideId: 3001
+                    - guideId: 1
                       title: "어깨 스트레칭 방법"
                       badges: ["집 · 사무실", "하루 1~2회"]
-                      description: "어깨 통증은 장시간 같은 자세를 유지할 때..."
-                      imageUrl: "https://example.com/guide1.png"
+                      description: "어깨 통증은 장시간 같은 자세를 유지하거나 반복적인 동작으로 인해 근육이 긴장되면서 발생하는 경우가 많습니다..."
+                      imageUrl: "https://veridoc-storage.s3.ap-northeast-2.amazonaws.com/Veridoc_pic/main-home/shoulder/temporary-care/stretching.png"
                       type: "스트레칭/찜질"
                       duration: "약 10분 소요"
-                    - guideId: 3002
+                    - guideId: 2
                       title: "어깨 온찜질/냉찜질"
                       badges: ["집 · 사무실", "하루 1~2회"]
-                      description: "찜질은 통증 완화에 효과적입니다..."
-                      imageUrl: "https://example.com/guide2.png"
+                      description: "어깨 통증의 상태에 따라 온찜질과 냉찜질을 구분해 사용하는 것이 도움이 될 수 있습니다..."
+                      imageUrl: "https://veridoc-storage.s3.ap-northeast-2.amazonaws.com/Veridoc_pic/main-home/shoulder/temporary-care/hot-cold-compress.png"
                       type: "스트레칭/찜질"
                       duration: "약 10분 소요"
-                    - guideId: 3003
-                      title: "바른 자세 유지하기"
+                    - guideId: 3
+                      title: "어깨 가벼운 일상 동작"
                       badges: ["작은 자세 변화", "하루 여러 회"]
-                      description: "올바른 자세로 어깨 부담을 줄이세요..."
-                      imageUrl: "https://example.com/guide3.png"
+                      description: "일상생활에서 어깨에 가해지는 부담을 줄이는 것만으로도 통증 완화와 예방에 도움이 될 수 있습니다..."
+                      imageUrl: "https://veridoc-storage.s3.ap-northeast-2.amazonaws.com/Veridoc_pic/main-home/shoulder/temporary-care/light-daily-activity.png"
                       type: "생활 습관"
                       duration: "약 1분 소요"
         "401":
@@ -652,15 +655,15 @@ paths:
                 message: "전문의 답변 ID 조회 성공"
                 data:
                   answers:
-                    - answerId: 1001
+                    - answerId: 1
                       painAreaName: "어깨"
-                      symptomName: "어깨 결림"
-                    - answerId: 1002
+                      symptomName: "뻐근함"
+                    - answerId: 2
                       painAreaName: "어깨"
-                      symptomName: "어깨 통증"
-                    - answerId: 1003
-                      painAreaName: "허리"
-                      symptomName: "허리 통증"
+                      symptomName: "찌릿함"
+                    - answerId: 3
+                      painAreaName: "어깨"
+                      symptomName: "움직일 때 통증"
 
   /expert-answers/{answerId}/summary:
     get:
@@ -685,12 +688,12 @@ paths:
                 code: 200
                 message: "전문의 답변 요약 조회 성공"
                 data:
-                  answerId: 1001
+                  answerId: 1
                   painAreaId: 1
                   painAreaName: "어깨"
                   symptomId: 1
-                  symptomName: "어깨 결림"
-                  summary: "어깨 결림은 장시간 같은 자세를 유지할 때 주로 발생합니다..."
+                  symptomName: "뻐근함"
+                  summary: "말씀하신 목과 어깨의 뻐근함과 두통은 거북목증후군에서 흔히 나타나는 특징일 수 있습니다..."
                   updatedAt: "2025-01-15T09:00:00.000Z"
         "401":
           $ref: "#/components/responses/Unauthorized"
@@ -726,22 +729,22 @@ paths:
                 code: 200
                 message: "전문의 답변 조회 성공"
                 data:
-                  answerId: 1001
+                  answerId: 1
                   painAreaId: 1
                   painAreaName: "어깨"
                   symptomId: 1
-                  symptomName: "어깨 결림"
-                  title: "어깨 결림 전문의 소견"
-                  content: "어깨 결림은 근육 긴장과 혈액순환 저하로 인해 발생합니다..."
-                  imageUrl: null
-                  sourceUrl: "https://www.koa.or.kr/"
+                  symptomName: "뻐근함"
+                  title: "뻐근함 전문의 소견"
+                  content: "말씀하신 목과 어깨의 뻐근함과 두통은 거북목증후군에서 흔히 나타나는 특징일 수 있습니다..."
+                  imageUrl: "https://veridoc-storage.s3.ap-northeast-2.amazonaws.com/Veridoc_pic/main-home/shoulder/expert-opinion-modal/stiffness.png"
+                  sourceUrl: "https://kin.naver.com/qna/detail.naver?d1id=7&dirId=70106&docId=489055916&enc=utf8&kinsrch_src=pc_tab_kin&qb=7Ja06rmoIOu7kOq3vO2VqA%3D%3D"
                   updatedAt: "2025-01-15T09:00:00.000Z"
                   morePosts:
-                    - answerId: 1002
+                    - answerId: 2
                       painAreaId: 1
                       symptomId: 2
-                      title: "어깨 통증 전문의 소견"
-                      imageUrl: null
+                      title: "찌릿함 전문의 소견"
+                      imageUrl: "https://veridoc-storage.s3.ap-northeast-2.amazonaws.com/Veridoc_pic/main-home/shoulder/expert-opinion-modal/tingling.png"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "404":
@@ -923,12 +926,12 @@ paths:
                 message: "임시 대처 가이드 ID 조회 성공"
                 data:
                   guides:
-                    - guideId: 3001
+                    - guideId: 1
                       painAreaName: "어깨"
-                    - guideId: 3002
+                    - guideId: 2
                       painAreaName: "어깨"
-                    - guideId: 3003
-                      painAreaName: "허리"
+                    - guideId: 3
+                      painAreaName: "어깨"
 
   /temporary-guides/{guideId}:
     get:
@@ -967,49 +970,53 @@ paths:
                 data:
                   painAreaId: 1
                   painAreaName: "어깨"
-                  type: "어깨 · 스트레칭/찜질"
-                  guideId: 3001
+                  type: "어깨 · 스트레칭"
+                  guideId: 1
                   title: "어깨 스트레칭 방법"
-                  subtitle: "어깨 통증 완화에 도움이 되는 스트레칭"
-                  imageUrl: "https://example.com/image.png"
+                  subtitle: "긴장된 어깨 근육을 풀어주는 가벼운 스트레칭"
+                  imageUrl: "https://veridoc-storage.s3.ap-northeast-2.amazonaws.com/Veridoc_pic/main-home/shoulder/temporary-care/stretching.png"
                   duration: "평균 소요 시간 10분"
-                  sourceName: "대한정형외과학회"
-                  sourceUrl: "https://www.koa.or.kr/"
-                  highlighter: "가벼운 통증 시에만 시행하세요."
-                  content: "어깨 통증은 장시간 같은 자세를 유지할 때 자주 발생합니다."
-                  badges: ["통증 직후", "하루 1~2회", "집 · 사무실"]
+                  sourceName: "서울아산병원 건강정보"
+                  sourceUrl: "https://example.com/%EC%96%B4%EA%B9%A8"
+                  highlighter: "무리하지 않는 선에서, 어깨를 부드럽게 풀어주세요"
+                  content: "어깨 통증은 장시간 같은 자세를 유지하거나 반복적인 동작으로 인해 근육이 긴장되면서 발생하는 경우가 많습니다..."
+                  badges: ["#집·사무실", "#하루 1~2회"]
                   notes:
                     - noteId: 1
-                      imageUrl: "https://example.com/image101.png"
+                      imageUrl: "https://veridoc-storage.s3.ap-northeast-2.amazonaws.com/Veridoc_pic/main-home/shoulder/temporary-care/icons/stretching/1.svg"
                       bold: "어깨를 천천히 앞뒤로 돌려줍니다."
                       text: "처음에는 작은 범위로 시작해 점차 늘려보세요."
                     - noteId: 2
-                      imageUrl: "https://example.com/image102.png"
-                      bold: "팔을 들어 올려 스트레칭합니다."
-                      text: "통증이 심하지 않다면 10초간 유지하세요."
+                      imageUrl: "https://veridoc-storage.s3.ap-northeast-2.amazonaws.com/Veridoc_pic/main-home/shoulder/temporary-care/icons/stretching/2.svg"
+                      bold: "통증이 느껴지는 방향으로는 과도하게 당기지 않습니다."
+                      text: "통증이 생기면 동작을 멈추고 휴식을 취하세요."
+                    - noteId: 3
+                      imageUrl: "https://veridoc-storage.s3.ap-northeast-2.amazonaws.com/Veridoc_pic/main-home/shoulder/temporary-care/icons/stretching/3.svg"
+                      bold: "목과 어깨를 부드럽게 늘려주는 동작을 짧은 시간 반복합니다."
+                      text: "반동을 주지 말고 천천히 유지하는 것이 중요합니다."
                   cautions:
                     - cautionId: 1
-                      iconUrl: "https://example.com/icon1.png"
-                      bold: "통증이 지속되거나 심해질 때"
-                      text: "단순 근육 피로가 아닌 원인이 있을 수 있습니다."
+                      iconUrl: "https://veridoc-storage.s3.ap-northeast-2.amazonaws.com/Veridoc_pic/main-home/shoulder/temporary-care/icons/1.svg"
+                      bold: "통증이 점점 심해지거나 2주 이상 지속될 때"
+                      text: "단순 근육 피로가 아닌 다른 원인이 있을 수 있으므로 전문의 상담을 권장합니다."
                     - cautionId: 2
-                      iconUrl: "https://example.com/icon2.png"
-                      bold: "붓기, 열감 동반 시"
-                      text: "즉시 전문의 상담을 권장합니다."
+                      iconUrl: "https://veridoc-storage.s3.ap-northeast-2.amazonaws.com/Veridoc_pic/main-home/shoulder/temporary-care/icons/2.svg"
+                      bold: "팔 저림 · 힘 빠짐 · 감각 이상 동반될 때"
+                      text: "신경이나 디스크 문제일 수 있으므로 의료진 상담을 권장합니다."
                   helps:
                     - helpId: 1
-                      text: "통증 직후 가벼운 스트레칭이 도움이 될 수 있어요."
+                      text: "긴장된 어깨 근육을 풀어주는 가벼운 스트레칭이에요"
                     - helpId: 2
-                      text: "찜질은 10~15분 이내로 시행하세요."
+                      text: "통증이 심하지 않을 때 시도해보세요"
                   morePosts:
-                    - guideId: 3002
+                    - guideId: 2
                       painAreaId: 1
                       title: "어깨 온찜질/냉찜질"
-                      imageUrl: "https://example.com/post02.webp"
-                    - guideId: 3003
+                      imageUrl: "https://veridoc-storage.s3.ap-northeast-2.amazonaws.com/Veridoc_pic/main-home/shoulder/temporary-care/hot-cold-compress.png"
+                    - guideId: 3
                       painAreaId: 1
-                      title: "어깨 자세 교정"
-                      imageUrl: "https://example.com/post03.webp"
+                      title: "어깨 가벼운 일상 동작"
+                      imageUrl: "https://veridoc-storage.s3.ap-northeast-2.amazonaws.com/Veridoc_pic/main-home/shoulder/temporary-care/light-daily-activity.png"
         "401":
           $ref: "#/components/responses/Unauthorized"
         "404":
@@ -1421,39 +1428,39 @@ components:
           example: "어깨"
         type:
           type: string
-          example: "어깨 · 스트레칭/찜질"
+          example: "어깨 · 스트레칭"
         guideId:
           type: integer
-          example: 3001
+          example: 1
         title:
           type: string
           example: "어깨 스트레칭 방법"
         subtitle:
           type: string
-          example: "어깨 통증 완화에 도움이 되는 스트레칭"
+          example: "긴장된 어깨 근육을 풀어주는 가벼운 스트레칭"
         imageUrl:
           type: string
-          example: "https://example.com/image.png"
+          example: "https://veridoc-storage.s3.ap-northeast-2.amazonaws.com/Veridoc_pic/main-home/shoulder/temporary-care/stretching.png"
         duration:
           type: string
           example: "평균 소요 시간 10분"
         sourceName:
           type: string
-          example: "대한정형외과학회"
+          example: "서울아산병원 건강정보"
         sourceUrl:
           type: string
-          example: "https://www.koa.or.kr/"
+          example: "https://example.com/%EC%96%B4%EA%B9%A8"
         highlighter:
           type: string
-          example: "가벼운 통증 시에만 시행하세요."
+          example: "무리하지 않는 선에서, 어깨를 부드럽게 풀어주세요"
         content:
           type: string
-          example: "어깨 통증은 장시간 같은 자세를 유지할 때 자주 발생합니다."
+          example: "어깨 통증은 장시간 같은 자세를 유지하거나 반복적인 동작으로 인해 근육이 긴장되면서 발생하는 경우가 많습니다..."
         badges:
           type: array
           items:
             type: string
-          example: ["통증 직후", "하루 1~2회", "집 · 사무실"]
+          example: ["#집·사무실", "#하루 1~2회"]
         notes:
           type: array
           items:
@@ -1518,7 +1525,7 @@ components:
       properties:
         guideId:
           type: integer
-          example: 3002
+          example: 2
         painAreaId:
           type: integer
           example: 1
@@ -1527,4 +1534,4 @@ components:
           example: "어깨 온찜질/냉찜질"
         imageUrl:
           type: string
-          example: "https://example.com/post02.webp"
+          example: "https://veridoc-storage.s3.ap-northeast-2.amazonaws.com/Veridoc_pic/main-home/shoulder/temporary-care/hot-cold-compress.png"

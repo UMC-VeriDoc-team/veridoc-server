@@ -53,7 +53,7 @@ class HomeRepository {
       where: { is_active: true },
       orderBy: { display_order: 'asc' },
       take: 3,
-      select: { guide_id: true, image_url: true }
+      select: { guide_id: true, image_url: true, source_url: true }
     });
 
     const bannerTitleSuffix = process.env.BANNER_TITLE_SUFFIX || ' 통증은 잘못된 자세...';
@@ -62,7 +62,7 @@ class HomeRepository {
     const banners = [{ title: bannerTitle }];
     for (let i = 0; i < 3; i++) {
       const b = bannerImages[i];
-      banners.push({ id: b ? Number(b.guide_id) : i + 1, imageUrl: b ? b.image_url : null });
+      banners.push({ id: b ? Number(b.guide_id) : i + 1, imageUrl: b ? b.image_url : null, sourceUrl: b ? b.source_url : null });
     }
 
     // symptoms: 사용자가 선택한 통증 부위의 증상만 조회

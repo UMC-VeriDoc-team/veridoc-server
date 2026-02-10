@@ -878,11 +878,12 @@ async function main() {
   // ============================
   // 11. Usage Guides
   // ============================
+  const NHIS_URL = 'https://www.nhis.or.kr/nhis/index.do';
   await prisma.usage_guides.createMany({
     data: [
-      { card_number: 1, title: '통증 부위 선택', modal_content: '먼저 통증이 있는 부위를 선택하세요. 어깨, 허리, 목, 무릎, 두통, 복통 중에서 선택할 수 있습니다.', image_url: `${S3_BASE}/main-home/shoulder/main-photo/stiffness.png` },
-      { card_number: 2, title: '증상 확인', modal_content: '선택한 부위의 세부 증상을 확인할 수 있습니다. 자신의 증상과 가장 유사한 것을 선택해보세요.', image_url: `${S3_BASE}/main-home/back/main-photo/movement-pain.png` },
-      { card_number: 3, title: '임시 대처법 확인', modal_content: '증상에 맞는 스트레칭, 찜질, 생활 습관 개선법 등의 임시 대처 방법을 확인할 수 있습니다.', image_url: `${S3_BASE}/main-home/knee/main-photo/tingling.png` },
+      { card_number: 1, title: '통증 부위 선택', modal_content: '먼저 통증이 있는 부위를 선택하세요. 어깨, 허리, 목, 무릎, 두통, 복통 중에서 선택할 수 있습니다.', image_url: `${S3_BASE}/main-home/shoulder/main-photo/stiffness.png`, source_url: NHIS_URL },
+      { card_number: 2, title: '증상 확인', modal_content: '선택한 부위의 세부 증상을 확인할 수 있습니다. 자신의 증상과 가장 유사한 것을 선택해보세요.', image_url: `${S3_BASE}/main-home/back/main-photo/movement-pain.png`, source_url: NHIS_URL },
+      { card_number: 3, title: '임시 대처법 확인', modal_content: '증상에 맞는 스트레칭, 찜질, 생활 습관 개선법 등의 임시 대처 방법을 확인할 수 있습니다.', image_url: `${S3_BASE}/main-home/knee/main-photo/tingling.png`, source_url: NHIS_URL },
     ],
   });
   console.log('content_sections, usage_guides 삽입 완료');
@@ -990,8 +991,41 @@ async function main() {
     '복통': ['squeezing-stomachache.png', 'stabbing-stomachache.png', 'bloating-stomachache.png'],
   };
 
+  // 부위별 증상 순서에 맞는 원문 출처 링크 (네이버 지식인 전문의 답변)
+  const expertSourceUrlsByArea = {
+    '어깨': [
+      'https://kin.naver.com/qna/detail.naver?d1id=7&dirId=70106&docId=489055916&enc=utf8&kinsrch_src=pc_tab_kin&qb=7Ja06rmoIOu7kOq3vO2VqA%3D%3D',
+      'https://kin.naver.com/qna/detail.naver?d1id=7&dirId=70106&docId=489891938&enc=utf8&kinsrch_src=pc_tab_kin&qb=7Ja06rmoIOywjOumv+2VqA%3D%3D',
+      'https://kin.naver.com/qna/detail.naver?d1id=7&dirId=70106&docId=490463122&enc=utf8&kinsrch_src=pc_tab_kin&qb=7Ja06rmoIOybgOyngeydvCDrlYwg7Ya17Kad',
+    ],
+    '허리': [
+      'https://kin.naver.com/qna/detail.naver?d1id=7&dirId=70107&docId=481196821&qb=7ZeI66asIOu7kOq3vO2VqCDshKzsnKDrpZw=&enc=utf8',
+      'https://kin.naver.com/qna/detail.naver?d1id=7&dirId=70106&docId=484405578&enc=utf8&kinsrch_src=pc_tab_kin&qb=7ZeI66asIOywjOumv+2VnCDthrXspp0%3D',
+      'https://kin.naver.com/qna/detail.naver?d1id=7&dirId=70106&docId=465076659&qb=7ZeI66asIOybgOyngeydvCDrlYwg7Ya17Kad&enc=utf8',
+    ],
+    '목': [
+      'https://kin.naver.com/qna/detail.naver?d1id=7&dirId=70108&docId=486454260&qb=6rK97LaUIOyjvOuzgOydmCDqt7zquLTsnqXsnLzroZwg7J247ZWcIOyLoOqyve2GtSDslpHsg4HsnZgg65GQ7Ya17J20IOyVhOuLkOq5jO2VqeuLiOuLpC4g6rCA6rmM7Jq0IOqzs+ydmCDsi6Dqsr3thrXspp3qtIDroKgg67OR7JuQ7J2EIOuwqeusuO2VtA==&enc=utf8',
+      'https://kin.naver.com/qna/detail.naver?d1id=7&dirId=70107&docId=470953476&qb=7Iug6rK97Ya17J2064KYIOq3vOycoe2GteqzvCDqtIDroKjsnbQg7J6I7J2EIOyImCDsnojsirXri4jri6QuIOuYkO2VnCDrlJTsiqTtgazsnZgg7Kad7IOB64+EIOydmOyLrO2VtCDrtJDslbwg7ZWgIOqygyDqsJnquLDrj4Qg7ZWp64uI64ukLiDsp4jrrLg=&enc=utf8',
+      'https://kin.naver.com/qna/detail.naver?d1id=7&dirId=70107&docId=160993508&qb=66qpIOybgOyngeydvCDrlYwg7Ya17Kad&enc=utf8',
+    ],
+    '무릎': [
+      'https://kin.naver.com/qna/detail.naver?d1id=7&dirId=70106&docId=478271024&enc=utf8&kinsrch_src=pc_tab_kin&qb=66y066aOIOu7kOq3vO2VqCDthrXspp0%3D',
+      'https://kin.naver.com/qna/detail.naver?d1id=7&dirId=70106&docId=473732371&qb=7KeB7KCRIOyniOusuOyekOuLmOydmCDsg4Htg5zrpbwg7IK07Y6067O07KeAIOuqu+2WiOq4sCDrlYzrrLjsl5Ag7J6Q7IS47ZWcIOyViOuCtOulvCDrj4TsmYDrk5zrpqzquLAg7Ja066C17Iq164uI64ukLiDigIsg66y066aOIO2GteymneydmCDsm5DsnbjsnYA=&enc=utf8',
+      'https://kin.naver.com/qna/detail.naver?d1id=7&dirId=70106&docId=490385032&qb=4oCLIOqzhOuLqOydhCDrgrTroKTqsIgg65WMIOustOumjiDslZ3sqr0g7Ya17Kad7J20IOyLrO2VtOyngOuKlCDqsr3smrDripQg66y066aOIOq0gOygiCDsl7Dqs6jsnZgg66eI7LCwIOymneqwgCDrmJDripQg66y066aOIOyjvOuzgCDtnpjspITCt+yXsOu2gOyhsOyngeydmA==&enc=utf8',
+    ],
+    '두통': [
+      'https://kin.naver.com/qna/detail.naver?d1id=7&dirId=70107&docId=481533435&enc=utf8&kinsrch_src=pc_tab_kin&qb=7KGw7J2064qUIOuTr+2VnCDrkZDthrU%3D',
+      'https://kin.naver.com/qna/detail.naver?d1id=7&dirId=70107&docId=485983259&enc=utf8&kinsrch_src=pc_tab_kin&qb=7Jqx7Iug6rGw66as64qUIOuRkO2GtQ%3D%3D',
+      'https://kin.naver.com/qna/detail.naver?d1id=7&dirId=70107&docId=488104820&enc=utf8&kinsrch_src=pc_tab_kin&qb=7ZWc7Kq97Jy866GcIOyLrO2VnCDrkZDthrU%3D',
+    ],
+    '복통': [
+      'https://kin.naver.com/qna/detail.naver?d1id=7&dirId=70104&docId=319519225&enc=utf8&kinsrch_src=pc_tab_kin&qb=7KWQ7Ja07Kec64qU65Ov7ZWcIOuzte2GtQ%3D%3D',
+      'https://kin.naver.com/qna/detail.naver?d1id=7&dirId=70101&docId=483300704&enc=utf8&kinsrch_src=pc_tab_kin&qb=7L2V7L2VIOywjOultOuKlCDrs7XthrU%3D',
+      'https://kin.naver.com/qna/detail.naver?d1id=7&dirId=7010102&docId=430481754&enc=utf8&kinsrch_src=pc_tab_kin&qb=642U67aA66Op7ZWcIOuzte2GtQ%3D%3D',
+    ],
+  };
+
   const answerData = [];
-  let answerIdx = 1;
   for (const areaName of painAreaNames) {
     const symptoms = allSymptomsList2.filter(
       (s) => Number(s.pain_area_id) === Number(createdPainAreas[areaName].pain_area_id)
@@ -999,13 +1033,14 @@ async function main() {
     const areaAnswers = expertAnswersByArea[areaName];
     const areaFolder = painAreaFolderMap[areaName];
     const areaImages = expertImagesByArea[areaName];
+    const areaSourceUrls = expertSourceUrlsByArea[areaName];
     for (let i = 0; i < Math.min(3, symptoms.length); i++) {
       const symptom = symptoms[i];
       answerData.push({
         symptom_id: symptom.symptom_id,
         summary: areaAnswers[i].summary,
         full_content: areaAnswers[i].full_content,
-        source_url: `https://example.com/treatments/${answerIdx++}`,
+        source_url: areaSourceUrls[i],
         image_url: `${S3_BASE}/main-home/${areaFolder}/expert-opinion-modal/${areaImages[i]}`,
       });
     }
