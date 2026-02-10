@@ -10,6 +10,7 @@ import lifestyleGuideRoutes from './lifestyleGuide.routes.js';
 import agreementRoutes from './agreement.routes.js';
 import temporaryGuideRoutes from './temporaryGuide.routes.js';
 import symptomGuideRoutes from './symptomGuide.routes.js';
+import usageGuideRoutes from './usageGuide.routes.js';
 
 const router = express.Router();
 
@@ -23,4 +24,5 @@ router.use('/lifestyle-videos', lifestyleGuideRoutes);
 router.use('/agreements', agreementRoutes);
 router.use('/temporary-guides', temporaryGuideRoutes);
 router.use('/symptoms', symptomGuideRoutes);
+router.use('/usage-guides', usageGuideRoutes);
 export default router;

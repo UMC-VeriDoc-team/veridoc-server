@@ -17,6 +17,8 @@ tags:
     description: 증상 가이드 API
   - name: Agreements
     description: 약관 동의 API
+  - name: UsageGuides
+    description: 범용 가이드 (원문 출처 링크) API
   - name: Admin
     description: 관리자 API
   - name: Users - not use
@@ -1225,6 +1227,36 @@ paths:
                     resetAt: "2025-01-15T09:00:00.000Z"
         "401":
           $ref: "#/components/responses/Unauthorized"
+
+  # ========== Usage Guides ==========
+  /usage-guides:
+    get:
+      tags:
+        - UsageGuides
+      summary: 원문 출처 링크 조회
+      description: 범용 가이드의 원문 출처 링크 목록을 조회합니다.
+      responses:
+        "200":
+          description: 조회 성공
+          content:
+            application/json:
+              example:
+                code: 200
+                message: "원문 출처 링크 조회 성공"
+                data:
+                  guides:
+                    - guideId: 1
+                      cardNumber: 1
+                      title: "통증 부위 선택"
+                      sourceUrl: "https://www.nhis.or.kr/nhis/index.do"
+                    - guideId: 2
+                      cardNumber: 2
+                      title: "증상 확인"
+                      sourceUrl: "https://www.nhis.or.kr/nhis/index.do"
+                    - guideId: 3
+                      cardNumber: 3
+                      title: "임시 대처법 확인"
+                      sourceUrl: "https://www.nhis.or.kr/nhis/index.do"
 
   # ========== Agreements ==========
   /agreements:
