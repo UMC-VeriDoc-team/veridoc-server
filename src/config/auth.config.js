@@ -1,5 +1,6 @@
 const authConfig = {
   jwtSecret: process.env.JWT_SECRET || 'change-me',
+  masterJwtSecret: process.env.JWT_SECRET || 'change-me',
   adminApiKey: process.env.ADMIN_API_KEY,
 };
 

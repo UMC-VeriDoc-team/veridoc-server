@@ -1338,18 +1338,12 @@ paths:
                 ok: true
                 agreements:
                   termsOfService:
-                    agreement_id: 1
-                    user_id: 1
                     agreement_type: "TOS"
                     agreed_at: "2025-01-15T09:00:00.000Z"
                   privacyPolicy:
-                    agreement_id: 2
-                    user_id: 1
                     agreement_type: "PRIVACY"
                     agreed_at: "2025-01-15T09:00:00.000Z"
                   locationService:
-                    agreement_id: 3
-                    user_id: 1
                     agreement_type: "LOCATION"
                     agreed_at: "2025-01-15T09:00:00.000Z"
         "401":
