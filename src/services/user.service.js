@@ -25,10 +25,24 @@ class UserService {
     // 입력 검증 & 변환
     const validatedData = UserDTO.userCreate(payload);
 
-    //이메일 중복 체크
+    //이메일 중복 체크 (활성 유저)
     const existingEmail = await this.repository.findByEmail(validatedData.email);
     if(existingEmail){
       throw new ApiError(409, errorCodes.EMAIL_ALREADY_EXISTS, '이미 가입된 이메일 주소입니다.')
+    }
+
+    // soft-deleted 유저 체크 (3일 재가입 제한)
+    const deletedUser = await this.repository.findDeletedByEmail(validatedData.email);
+    if (deletedUser) {
+      const THREE_DAYS_MS = 3 * 24 * 60 * 60 * 1000;
+      const elapsed = Date.now() - new Date(deletedUser.deleted_at).getTime();
+
+      if (elapsed < THREE_DAYS_MS) {
+        throw new ApiError(409, errorCodes.ACCOUNT_RECENTLY_DELETED, '탈퇴 후 3일간 재가입이 불가능합니다.');
+      }
+
+      // 3일 초과 → 기존 레코드 hard delete
+      await this.repository.hardRemove(Number(deletedUser.user_id));
     }
 
     //painAreaID 존재 여부 확인

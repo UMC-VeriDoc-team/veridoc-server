@@ -29,7 +29,13 @@ class UserRepository {
   }
 
   async findByEmail(email) {
-    return this.client.users.findUnique({ where: { email } });
+    return this.client.users.findFirst({ where: { email, deleted_at: null } });
+  }
+
+  async findDeletedByEmail(email) {
+    return this.client.users.findFirst({
+      where: { email, deleted_at: { not: null } },
+    });
   }
 
   /*유저 생성 & painArea를 선택했다면 UserPainArea 까지 생성
@@ -63,6 +69,15 @@ class UserRepository {
   async remove(userID) {
     const userId = BigInt(userID);
 
+    return this.client.users.update({
+      where: { user_id: userId },
+      data: { deleted_at: new Date() },
+    });
+  }
+
+  async hardRemove(userID) {
+    const userId = BigInt(userID);
+
     return this.client.$transaction(async (tx) => {
       // 관련 user_pain_areas 레코드 먼저 삭제
       await tx.user_pain_areas.deleteMany({ where: { user_id: userId } });
@@ -72,6 +87,12 @@ class UserRepository {
 
       // 관련 user_agreements 레코드 삭제
       await tx.user_agreements.deleteMany({ where: { user_id: userId } });
+
+      // 관련 symptom_guide_progress 레코드 삭제
+      await tx.symptom_guide_progress.deleteMany({ where: { user_id: userId } });
+
+      // 관련 symptom_guide_events 레코드 삭제
+      await tx.symptom_guide_events.deleteMany({ where: { user_id: userId } });
 
       // 유저 삭제
       return tx.users.delete({ where: { user_id: userId } });

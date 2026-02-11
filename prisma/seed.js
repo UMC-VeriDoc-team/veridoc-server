@@ -54,9 +54,20 @@ async function main() {
     '복통': ['쥐어짜는 듯한 복통', '콕콕 찌르는 복통', '더부룩한 복통'],
   };
 
+  const bannerTitles = {
+    '어깨': '어깨 통증은 잘못된 자세,\n혹은 회전근개 염증이 주요 원인입니다',
+    '허리': '허리 통증은 잘못된 자세로 인한 근육 부담,\n또는 디스크 주변 염증에서 시작되는 경우가 많습니다',
+    '무릎': '무릎 통증은 관절 주변 조직의\n염증이나 손상으로 인해 발생할 수 있습니다',
+    '목': '목 통증은 목을 지지하는 근육과 인대가 반복적으로 긴장되거나,\n움직임이 제한되면서 불편함이 쌓여 나타날 수 있습니다.',
+    '두통': '두통은 근육 긴장, 혈관 변화, 수면 부족 등\n여러 요인이 복합적으로 작용해 나타나는 증상입니다',
+    '복통': '복통은 위나 장이 예민해졌을 때, 소화가 원활하지 않을 때,\n또는 일시적인 염증이나 긴장 상태로 인해 발생할 수 있습니다',
+  };
+
   const createdPainAreas = {};
   for (const areaName of Object.keys(symptomTemplates)) {
-    const pa = await prisma.pain_areas.create({ data: { name: areaName } });
+    const pa = await prisma.pain_areas.create({
+      data: { name: areaName, banner_title: bannerTitles[areaName] || null },
+    });
     createdPainAreas[areaName] = pa;
     for (const symptomName of symptomTemplates[areaName]) {
       await prisma.symptoms.create({ data: { pain_area_id: pa.pain_area_id, name: symptomName } });
@@ -558,12 +569,17 @@ async function main() {
     };
 
     const meta = guideMetaByOrder[guide.display_order] || guideMetaByOrder[1];
+    const sourceUrlByOrder = {
+      1: 'https://www.amc.seoul.kr/asan/healthinfo/main/healthInfoMain.do',
+      2: 'https://dept.snuh.org/dept/HPC/module/nList.do?searchWord=A&sortType=&menuId=003012',
+      3: 'https://www.nhis.or.kr/nhis/index.do',
+    };
     await prisma.temporary_care_guides.update({
       where: { guide_id: guide.guide_id },
       data: {
         subtitle: meta.subtitle[painAreaName] || `${painAreaName} 관련 가이드`,
         source_name: meta.source_name,
-        source_url: `https://example.com/${encodeURIComponent(painAreaName)}`,
+        source_url: sourceUrlByOrder[guide.display_order] || sourceUrlByOrder[1],
         highlighter: meta.highlighter[painAreaName] || `${painAreaName} 관련 가이드`,
         duration: meta.duration,
       },

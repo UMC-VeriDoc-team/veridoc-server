@@ -46,7 +46,7 @@ class HomeRepository {
     // banners: 타이틀은 통증 부위로 통일, 이미지는 3개로 구성
     const primaryPainArea = await this.client.pain_areas.findUnique({
       where: { pain_area_id: painAreaId },
-      select: { pain_area_id: true, name: true }
+      select: { pain_area_id: true, name: true, banner_title: true }
     });
 
     const bannerImages = await this.client.usage_guides.findMany({
@@ -56,8 +56,7 @@ class HomeRepository {
       select: { guide_id: true, image_url: true, source_url: true }
     });
 
-    const bannerTitleSuffix = process.env.BANNER_TITLE_SUFFIX || ' 통증은 잘못된 자세...';
-    const bannerTitle = `${primaryPainArea?.name || '통증 부위'}${bannerTitleSuffix}`;
+    const bannerTitle = primaryPainArea?.banner_title || `${primaryPainArea?.name || '통증 부위'} 통증, 원인을 알면 덜 불안해요`;
     // 요청된 포맷: 첫 항목은 타이틀(텍스트), 이후 3개의 이미지 블록
     const banners = [{ title: bannerTitle }];
     for (let i = 0; i < 3; i++) {

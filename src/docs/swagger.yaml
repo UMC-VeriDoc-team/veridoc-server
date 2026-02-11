@@ -23,8 +23,6 @@ tags:
     description: 관리자 API
   - name: Users - not use
     description: 사용자 관련 API (미사용)
-  - name: Home - not use
-    description: 홈 화면 관련 API (미사용)
 
 paths:
   # ========== Users ==========
@@ -81,13 +79,22 @@ paths:
                     message: "비밀번호 형식이 올바르지 않습니다."
                     errorCode: INVALID_PASSWORD_FORMAT
         "409":
-          description: 이메일 중복
+          description: 이메일 중복 또는 재가입 제한
           content:
             application/json:
-              example:
-                code: 409
-                message: "이미 가입된 이메일 주소입니다."
-                errorCode: EMAIL_ALREADY_EXISTS
+              examples:
+                emailDuplicate:
+                  summary: 이메일 중복
+                  value:
+                    code: 409
+                    message: "이미 가입된 이메일 주소입니다."
+                    errorCode: EMAIL_ALREADY_EXISTS
+                recentlyDeleted:
+                  summary: 탈퇴 후 3일 재가입 제한
+                  value:
+                    code: 409
+                    message: "탈퇴 후 3일간 재가입이 불가능합니다."
+                    errorCode: ACCOUNT_RECENTLY_DELETED
 
   /users/login:
     post:
@@ -237,7 +244,7 @@ paths:
 
     put:
       tags:
-        - Users
+        - Users - not use
       summary: 내 정보 수정
       description: 이메일은 변경할 수 없습니다.
       security:
