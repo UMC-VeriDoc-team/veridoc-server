@@ -892,16 +892,41 @@ async function main() {
   });
 
   // ============================
-  // 11. Usage Guides
+  // 11. Usage Guides (pain area별 3개씩)
   // ============================
   const NHIS_URL = 'https://www.nhis.or.kr/nhis/index.do';
-  await prisma.usage_guides.createMany({
-    data: [
-      { card_number: 1, title: '통증 부위 선택', modal_content: '먼저 통증이 있는 부위를 선택하세요. 어깨, 허리, 목, 무릎, 두통, 복통 중에서 선택할 수 있습니다.', image_url: `${S3_BASE}/main-home/shoulder/main-photo/stiffness.png`, source_url: NHIS_URL },
-      { card_number: 2, title: '증상 확인', modal_content: '선택한 부위의 세부 증상을 확인할 수 있습니다. 자신의 증상과 가장 유사한 것을 선택해보세요.', image_url: `${S3_BASE}/main-home/back/main-photo/movement-pain.png`, source_url: NHIS_URL },
-      { card_number: 3, title: '임시 대처법 확인', modal_content: '증상에 맞는 스트레칭, 찜질, 생활 습관 개선법 등의 임시 대처 방법을 확인할 수 있습니다.', image_url: `${S3_BASE}/main-home/knee/main-photo/tingling.png`, source_url: NHIS_URL },
-    ],
-  });
+  const usageGuideImagesByArea = {
+    '어깨': ['stiffness.png', 'tingling.png', 'movement-pain.jpg'],
+    '허리': ['stiffness.png', 'tingling.png', 'movement-pain.png'],
+    '무릎': ['stiffness.png', 'tingling.png', 'knee-movement-pain.png'],
+    '목': ['stiffness.png', 'tingling.png', 'movement-pain.png'],
+    '두통': ['squeezing-headache.png', 'throbbing-headache.png', 'one-sided-headache.png'],
+    '복통': ['squeezing-stomachache.png', 'stabbing-stomachache.png', 'bloating-stomachache.png'],
+  };
+  const usageGuideModalContents = [
+    '먼저 통증이 있는 부위를 선택하세요. 어깨, 허리, 목, 무릎, 두통, 복통 중에서 선택할 수 있습니다.',
+    '선택한 부위의 세부 증상을 확인할 수 있습니다. 자신의 증상과 가장 유사한 것을 선택해보세요.',
+    '증상에 맞는 스트레칭, 찜질, 생활 습관 개선법 등의 임시 대처 방법을 확인할 수 있습니다.',
+  ];
+  const usageGuideTitles = ['통증 부위 선택', '증상 확인', '임시 대처법 확인'];
+  const usageGuideData = [];
+  for (const areaName of Object.keys(usageGuideImagesByArea)) {
+    const folder = painAreaFolderMap[areaName];
+    const images = usageGuideImagesByArea[areaName];
+    const painAreaId = createdPainAreas[areaName].pain_area_id;
+    for (let i = 0; i < 3; i++) {
+      usageGuideData.push({
+        pain_area_id: painAreaId,
+        card_number: i + 1,
+        title: usageGuideTitles[i],
+        modal_content: usageGuideModalContents[i],
+        image_url: `${S3_BASE}/main-home/${folder}/main-photo/${images[i]}`,
+        source_url: NHIS_URL,
+        display_order: i + 1,
+      });
+    }
+  }
+  await prisma.usage_guides.createMany({ data: usageGuideData });
   console.log('content_sections, usage_guides 삽입 완료');
 
   // ============================

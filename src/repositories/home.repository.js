@@ -50,7 +50,7 @@ class HomeRepository {
     });
 
     const bannerImages = await this.client.usage_guides.findMany({
-      where: { is_active: true },
+      where: { pain_area_id: painAreaId, is_active: true },
       orderBy: { display_order: 'asc' },
       take: 3,
       select: { guide_id: true, image_url: true, source_url: true }

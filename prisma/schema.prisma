@@ -97,6 +97,7 @@ model pain_areas {
   guide_progresses      symptom_guide_progress[]
   guide_events          symptom_guide_events[]
   lifestyle_videos lifestyle_videos[]
+  usage_guides     usage_guides[]
 }
 
 model pain_area_specialties {
@@ -226,6 +227,7 @@ model helps {
 
 model usage_guides {
   guide_id      BigInt   @id @default(autoincrement())
+  pain_area_id  BigInt?
   card_number   Int
   title         String   @db.VarChar(200)
   modal_content String   @db.Text
@@ -235,6 +237,10 @@ model usage_guides {
   is_active     Boolean  @default(true)
   created_at    DateTime @default(now()) @db.DateTime(6)
   updated_at    DateTime @default(now()) @db.DateTime(6)
+
+  pain_areas    pain_areas? @relation(fields: [pain_area_id], references: [pain_area_id], onDelete: Cascade, onUpdate: NoAction, map: "fk_usage_guides_pain_area")
+
+  @@index([pain_area_id], map: "fk_usage_guides_pain_area")
 }
 
 model user_pain_areas {
