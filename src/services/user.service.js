@@ -165,8 +165,7 @@ class UserService {
 
     const user = await this.repository.findByEmail(email);
     if (!user) {
-      // 보안: 이메일 존재 여부를 노출하지 않음
-      return;
+      throw new ApiError(404, errorCodes.USER_NOT_FOUND, '가입되지 않은 이메일입니다.');
     }
 
     const token = generatePasswordResetToken(Number(user.user_id), user.email);

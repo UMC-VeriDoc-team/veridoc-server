@@ -109,7 +109,6 @@ class UserController {
     try {
       const { email } = req.body;
       await this.service.forgotPassword(email);
-      // 보안: 이메일 존재 여부와 관계없이 동일한 응답
       sendSuccess(res, null, '비밀번호 재설정 이메일이 전송되었습니다.');
     } catch (err) {
       next(err);
