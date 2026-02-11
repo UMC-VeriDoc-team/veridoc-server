@@ -184,7 +184,7 @@ class UserService {
     }
 
     // 비밀번호 형식 검증
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d\s])[^\s]{8,}$/;
     if (!passwordRegex.test(newPassword)) {
       throw new ApiError(400, errorCodes.INVALID_PASSWORD_FORMAT, '비밀번호 형식이 올바르지 않습니다.');
     }
@@ -245,7 +245,7 @@ class UserService {
       throw new ApiError(400, errorCodes.INVALID_CREDENTIALS, '현재 비밀번호가 올바르지 않습니다.');
     }
 
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d\s])[^\s]{8,}$/;
     if (!passwordRegex.test(newPassword)) {
       throw new ApiError(400, errorCodes.INVALID_PASSWORD_FORMAT, '비밀번호 형식이 올바르지 않습니다.');
     }

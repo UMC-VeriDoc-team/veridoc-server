@@ -20,7 +20,7 @@ class UserDTO {
     }
 
     //비밀번호 형식이 올바르지 않을 때 (최소 8자, 영문,숫자,특수문자 포함으로 우선 형식 만들어놓음)
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^A-Za-z\d\s])[^\s]{8,}$/
     if(!passwordRegex.test(password)){
       throw new ApiError(400, errorCodes.INVALID_PASSWORD_FORMAT, '비밀번호 형식이 올바르지 않습니다.')
     }
