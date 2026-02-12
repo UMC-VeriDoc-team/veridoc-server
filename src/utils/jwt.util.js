@@ -30,18 +30,18 @@ export const verifyMasterToken = (token) => {
     return jwt.verify(token, authConfig.masterJwtSecret);
 };
 
-// 비밀번호 리셋 토큰 생성 (15분 만료)
-export const generatePasswordResetToken = (userID, email) => {
+// 비밀번호 리셋 토큰 생성 (15분 만료, 비밀번호 해시를 시크릿에 포함하여 1회성 보장)
+export const generatePasswordResetToken = (userID, email, passwordHash) => {
     return jwt.sign(
         { userID, email, type: 'password-reset' },
-        authConfig.jwtSecret,
+        authConfig.jwtSecret + passwordHash,
         { expiresIn: '15m' }
     );
 };
 
-// 비밀번호 리셋 토큰 검증
-export const verifyPasswordResetToken = (token) => {
-    const decoded = jwt.verify(token, authConfig.jwtSecret);
+// 비밀번호 리셋 토큰 검증 (비밀번호가 변경되면 자동으로 토큰 무효화)
+export const verifyPasswordResetToken = (token, passwordHash) => {
+    const decoded = jwt.verify(token, authConfig.jwtSecret + passwordHash);
     if (decoded.type !== 'password-reset') {
         throw new Error('Invalid token type');
     }

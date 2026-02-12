@@ -4,6 +4,7 @@ import ApiError from '../errors/ApiError.js';
 import errorCodes from '../errors/errorCodes.js';
 import prisma from '../config/db.config.js';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import { generateAccessToken, generatePasswordResetToken, verifyPasswordResetToken } from '../utils/jwt.util.js';
 import { sendPasswordResetEmail } from '../utils/email.util.js';
 import emailConfig from '../config/email.config.js';
@@ -168,7 +169,7 @@ class UserService {
       throw new ApiError(404, errorCodes.USER_NOT_FOUND, '가입되지 않은 이메일입니다.');
     }
 
-    const token = generatePasswordResetToken(Number(user.user_id), user.email);
+    const token = generatePasswordResetToken(Number(user.user_id), user.email, user.password);
     const resetUrl = `${emailConfig.passwordResetUrl}?token=${token}`;
     await sendPasswordResetEmail(user.email, resetUrl);
   }
@@ -189,19 +190,26 @@ class UserService {
       throw new ApiError(400, errorCodes.INVALID_PASSWORD_FORMAT, '비밀번호 형식이 올바르지 않습니다.');
     }
 
+    // 토큰에서 userID를 먼저 추출 (서명 검증 없이 디코딩)
+    const unverified = jwt.decode(token);
+    if (!unverified || !unverified.userID) {
+      throw new ApiError(400, errorCodes.PASSWORD_RESET_TOKEN_INVALID, '유효하지 않은 토큰입니다.');
+    }
+
+    const user = await this.repository.findById(unverified.userID);
+    if (!user) {
+      throw new ApiError(404, errorCodes.USER_NOT_FOUND, '유저를 찾을 수 없습니다.');
+    }
+
+    // 현재 비밀번호 해시를 포함한 시크릿으로 검증 (이미 사용된 토큰이면 실패)
     let decoded;
     try {
-      decoded = verifyPasswordResetToken(token);
+      decoded = verifyPasswordResetToken(token, user.password);
     } catch (err) {
       if (err.name === 'TokenExpiredError') {
         throw new ApiError(400, errorCodes.PASSWORD_RESET_TOKEN_EXPIRED, '만료된 토큰입니다. 다시 요청해주세요.');
       }
       throw new ApiError(400, errorCodes.PASSWORD_RESET_TOKEN_INVALID, '유효하지 않은 토큰입니다.');
-    }
-
-    const user = await this.repository.findById(decoded.userID);
-    if (!user) {
-      throw new ApiError(404, errorCodes.USER_NOT_FOUND, '유저를 찾을 수 없습니다.');
     }
 
     const hashedPassword = await bcrypt.hash(newPassword, 10);
